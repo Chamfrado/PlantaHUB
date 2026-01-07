@@ -1,5 +1,6 @@
 {
   "editor.codeActionsOnSave": {
+    "source.fixAll": true,
     "source.fixAll.eslint": true
   },
   "eslint.validate": [
@@ -8,8 +9,21 @@
     "typescript",
     "typescriptreact"
   ],
-  "eslint.alwaysShowStatus": true
+  "eslint.alwaysShowStatus": true,
 
-  , "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
