@@ -1,3 +1,4 @@
+import Hero from '../../../components/home/hero';
 import Header from '../../../components/layout/Header';
 
 export default function Home() {
@@ -5,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-neutral-50">
       <Header />
       <main className="flex-1">
-        <h1 className="text-7xl font-bold text-primary-500">Home Page</h1>
+        <Hero />
       </main>
     </div>
   );
