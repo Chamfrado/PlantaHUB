@@ -1,0 +1,192 @@
+﻿Sprint 0 — Fundação do projeto (repo + padrões)
+
+Arquitetura
+
+- Definir estratégia de repositório:
+  - Monorepo (recomendado): apps/web + apps/api
+  - ou repos separados (web/api)
+- Definir padrão de branch (main/dev) + conventional commits
+- CI básico: build + lint (web) e build + tests (api)
+
+Front (React)
+
+- Vite + React + TypeScript
+- Tailwind + tokens (primária #F77205)
+- ESLint + Prettier + Husky
+- Estrutura: pages/ components/ features/ services/
+
+Back (Spring)
+
+- Spring Boot 3 + Java 21 (ou 17 se preferir)
+- Dependências: Web, Validation, Security, Data JPA, Flyway/Liquibase, Actuator
+- Configurar profiles: dev / prod
+- Swagger/OpenAPI
+
+Definição de pronto
+
+- Web e API sobem localmente, CI passando.
+
+Sprint 1 — Modelo de domínio + Vitrine (leitura pública)
+
+Back
+
+- Modelagem inicial (entidades e migrations):
+  - User
+  - Plan (planta)
+  - PlanImage
+  - PlanFile (arquivo vendável/baixável)
+- Endpoints públicos:
+  - GET /plans (filtros, paginação, ordenação)
+  - GET /plans/{id} (detalhe)
+- DTOs + validação + mapeamento (MapStruct opcional)
+- Seed de dados dev (para testar rápido)
+
+Front
+
+- Home (destaques)
+- Listagem com busca/filtros/paginação
+- Detalhe com galeria + specs + CTA “Comprar”
+- Estados: loading/empty/error
+
+Definição de pronto
+
+- Navegação Home → Listagem → Detalhe consumindo a API real.
+
+Sprint 2 — Autenticação e autorização (JWT)
+
+Back
+
+- Spring Security + JWT
+- Endpoints:
+  - POST /auth/register
+  - POST /auth/login
+  - POST /auth/refresh (se usar refresh token)
+  - GET /me
+- Hash de senha (BCrypt)
+- Roles (mínimo): USER e ADMIN (ou SELLER depois)
+- Rate limit básico (opcional) + validação de payload
+
+Front
+
+- Páginas: login/cadastro/recuperar senha (se entrar no MVP)
+- Auth guard (rotas privadas)
+- Persistência de sessão (storage seguro + expiração)
+- Menu com estado logado/deslogado
+
+Definição de pronto
+
+- Login persiste e /me funciona; rotas privadas protegidas.
+
+Sprint 3 — Compra (pedido + integração com gateway “a definir”)
+
+Back
+
+- Modelos:
+  - Order
+  - OrderItem
+  - Payment (ou campos no Order)
+- Regras:
+  - Criar pedido (status PENDING)
+  - Confirmar pagamento via webhook (status PAID)
+- Endpoints:
+  - POST /orders (criar pedido)
+  - GET /orders/{id}
+  - GET /orders/my (minhas compras)
+- Estrutura de integração (porta/adaptador):
+  - Interface PaymentGateway
+  - Implementação mock (dev) + futura real (Stripe/MP)
+
+Front
+
+- Carrinho/Checkout (mínimo)
+- Fluxo: Detalhe → Checkout → Pagamento → Sucesso/Falha
+- Tela “Minhas compras” (lista pedidos)
+
+Definição de pronto
+
+- Pedido criado e marcado como pago (mock/webhook simulado), aparece em “Minhas compras”.
+
+Sprint 4 — Downloads protegidos (controle e segurança)
+
+Back
+
+- Modelos:
+  - PurchasedFile ou lógica derivada de OrderItem
+  - DownloadLog
+- Storage “a definir” com interface:
+  - FileStorageService (S3/R2/local)
+- Endpoints:
+  - GET /downloads/my (lista arquivos liberados)
+  - POST /downloads/{planFileId}/link (gera link assinado/temporário)
+  - ou GET /downloads/{planFileId} (stream protegido)
+- Regras:
+  - Só libera download se existir compra PAID
+  - Link expira
+  - Log de download
+
+Front
+
+- Página “Meus downloads”
+- Botão “Baixar” que pede link e dispara download
+- Tratamento: expirado / não autorizado / erro
+
+Definição de pronto
+
+- Comprou → baixou; sem compra → 401/403.
+
+Sprint 5 — Qualidade, acabamento e observabilidade
+
+Back
+
+- Logs estruturados (mínimo) + correlação (request id)
+- Actuator + health checks
+- Tratamento global de erros (ControllerAdvice)
+- Testes:
+  - unitários (services)
+  - integração (repositories/endpoints críticos)
+- OpenAPI completo (contratos confiáveis)
+
+Front
+
+- Componentes refinados + responsividade
+- SEO básico (título/descrição nas páginas)
+- Error boundary + páginas 404/500
+- Testes E2E do fluxo crítico (Playwright/Cypress)
+
+Definição de pronto
+
+- Fluxo crítico estável e testado; logs e health ok.
+
+Sprint 6 — Deploy (web + api + banco + storage)
+
+Infra (recomendação prática)
+
+- Banco: Postgres (Supabase / Neon / RDS)
+- Storage: S3/R2 (mais tarde), dev local agora
+- Deploy API:
+  - Render / Fly.io / Railway / VPS Docker
+- Deploy Web:
+  - Vercel/Netlify/Cloudflare Pages
+- CI/CD:
+  - Deploy preview (PR)
+  - Deploy prod (merge main)
+- Domínio + SSL
+- Variáveis de ambiente (web e api)
+
+Definição de pronto
+
+- Produção no ar com domínio, SSL, e fluxo compra→download funcionando.
+
+Checklist técnica (contrato mínimo Front ↔ Back)
+
+Pra evitar retrabalho, essa é a “lista de APIs mínimas” do MVP:
+
+- GET /plans + filtros/paginação
+- GET /plans/{id}
+- POST /auth/register
+- POST /auth/login
+- GET /me
+- POST /orders
+- GET /orders/my
+- GET /downloads/my
+- POST /downloads/{planFileId}/link (ou stream)
