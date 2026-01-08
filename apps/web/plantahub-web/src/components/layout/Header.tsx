@@ -2,7 +2,7 @@ import logotipo from '../../assets/logotipo.png';
 
 export default function Header() {
   return (
-    <header className="w-full border-b bg-white">
+    <header className="w-full border-b border-gray-300 bg-white">
       <div className="w-full flex items-center px-0 py-4">
         <div className="flex-1 flex items-center justify-start gap-4">
           <img src={logotipo} alt="PlantaHUB" className="h-20" />

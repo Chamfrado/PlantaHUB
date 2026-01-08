@@ -1,4 +1,7 @@
-import Hero from '../../../components/home/hero';
+import ChaletsSection from '../../../components/home/ChaletsSection';
+import Hero from '../../../components/home/Hero';
+import ResidentialHouses from '../../../components/home/ResidentialHouses';
+import WhyChoose from '../../../components/home/WhyChoose';
 import Header from '../../../components/layout/Header';
 
 export default function Home() {
@@ -7,6 +10,9 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <WhyChoose />
+        <ResidentialHouses />
+        <ChaletsSection />
       </main>
     </div>
   );
