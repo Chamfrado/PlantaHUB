@@ -1,7 +1,10 @@
 import ChaletsSection from '../../../components/home/ChaletsSection';
+import FinalCTA from '../../../components/home/FinalCTA';
 import Hero from '../../../components/home/Hero';
+import HowItWorks from '../../../components/home/HowItWorks';
 import ResidentialHouses from '../../../components/home/ResidentialHouses';
 import WhyChoose from '../../../components/home/WhyChoose';
+import Footer from '../../../components/layout/Footer';
 import Header from '../../../components/layout/Header';
 
 export default function Home() {
@@ -13,7 +16,10 @@ export default function Home() {
         <WhyChoose />
         <ResidentialHouses />
         <ChaletsSection />
+        <HowItWorks />
+        <FinalCTA />
       </main>
+      <Footer />
     </div>
   );
 }

@@ -45,7 +45,7 @@ export default function ProductCarouselSection({
   }, [products, enableTiers, tier, limit]);
 
   return (
-    <section className="bg-neutral-50">
+    <section className="bg-white">
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
         {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">

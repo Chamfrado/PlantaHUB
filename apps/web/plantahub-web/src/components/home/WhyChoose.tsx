@@ -1,3 +1,4 @@
+import { BrickWall, CheckCheck, DollarSign, StickyNote } from 'lucide-react';
 import React from 'react';
 
 type Benefit = {
@@ -11,23 +12,23 @@ const benefits: Benefit[] = [
     title: 'Modelos BIM Completos',
     description:
       'Modelos 3D completos com arquitetura, estrutura e sistemas complementares integrados.',
-    icon: '🧱',
+    icon: <BrickWall className="h-7 w-7" />,
   },
   {
     title: 'Documentação Completa',
     description:
       'Plantas arquitetônicas, estruturais, elétricas, hidráulicas e de paisagismo incluídas.',
-    icon: '📄',
+    icon: <StickyNote className="h-7 w-7" />,
   },
   {
     title: 'Qualidade Certificada',
     description: 'Projetos certificados conforme padrões profissionais CAU/CREA.',
-    icon: '✅',
+    icon: <CheckCheck className="h-7 w-7" />,
   },
   {
     title: 'Redução de Custos',
     description: 'Economize até 70% em custos de projeto com plantas prontas e aprováveis.',
-    icon: '💲',
+    icon: <DollarSign className="h-7 w-7" />,
   },
 ];
 

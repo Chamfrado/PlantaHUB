@@ -1,3 +1,5 @@
+import { Check, Leaf, Timer, Zap } from 'lucide-react';
+
 type HeroProps = {
   title?: string;
   subtitle?: string;
@@ -26,7 +28,7 @@ export default function Hero({
             {/* badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-4 py-2 text-sm font-medium text-primary-600">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white">
-                ⚡
+                <Zap className="text-primary-500" />
               </span>
               Reduza o planejamento da sua construção em até 60%
             </div>
@@ -65,7 +67,7 @@ export default function Hero({
                 desc="Aprovado pelo CAU/CREA"
                 icon={
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-primary-600">
-                    ✓
+                    <Check />
                   </span>
                 }
               />
@@ -73,8 +75,8 @@ export default function Hero({
                 title="Design Sustentável"
                 desc="Soluções ecologicamente responsáveis"
                 icon={
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-primary-600">
-                    🍃
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-success-500">
+                    <Leaf />
                   </span>
                 }
               />
@@ -83,7 +85,7 @@ export default function Hero({
                 desc="Acesso instantâneo após a compra"
                 icon={
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-primary-600">
-                    ⏱
+                    <Timer />
                   </span>
                 }
               />
