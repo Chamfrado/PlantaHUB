@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import Footer from '../../../components/layout/Footer';
-import Header from '../../../components/layout/Header';
 import ProductAccordion from '../../../components/products/ProductAccordion';
 import type { ProductCategory, ProductDetails } from '../../../types/productDetail';
 
@@ -50,36 +48,30 @@ export default function ProductsPage() {
   const [tab, setTab] = useState<ProductCategory>('houses');
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50">
-      <Header />
-      <main>
-        <section className="bg-neutral-50">
-          <div className="max-w-7xl mx-auto px-6 py-12">
-            <h1 className="text-3xl font-extrabold text-neutral-900">Plantas Arquitetônicas</h1>
-            <p className="mt-2 text-neutral-600 max-w-3xl">
-              Explore nossa coleção premium de projetos completos. Cada pacote inclui documentação
-              pronta para construção.
-            </p>
+    <section className="bg-neutral-50">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-extrabold text-neutral-900">Plantas Arquitetônicas</h1>
+        <p className="mt-2 text-neutral-600 max-w-3xl">
+          Explore nossa coleção premium de projetos completos. Cada pacote inclui documentação
+          pronta para construção.
+        </p>
 
-            {/* Tabs */}
-            <div className="mt-8 border-b border-neutral-200">
-              <div className="flex gap-8 text-sm font-semibold">
-                <Tab label="Casas" active={tab === 'houses'} onClick={() => setTab('houses')} />
-                <Tab label="Chalés" active={tab === 'chalets'} onClick={() => setTab('chalets')} />
-                <Tab label="Studios" active={tab === 'studios'} onClick={() => setTab('studios')} />
-                <span className="text-neutral-400 py-4">Mais em breve</span>
-              </div>
-            </div>
-
-            {/* Accordion */}
-            <div className="mt-8">
-              <ProductAccordion products={products} category={tab} />
-            </div>
+        {/* Tabs */}
+        <div className="mt-8 border-b border-neutral-200">
+          <div className="flex gap-8 text-sm font-semibold">
+            <Tab label="Casas" active={tab === 'houses'} onClick={() => setTab('houses')} />
+            <Tab label="Chalés" active={tab === 'chalets'} onClick={() => setTab('chalets')} />
+            <Tab label="Studios" active={tab === 'studios'} onClick={() => setTab('studios')} />
+            <span className="text-neutral-400 py-4">Mais em breve</span>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
+        </div>
+
+        {/* Accordion */}
+        <div className="mt-8">
+          <ProductAccordion products={products} category={tab} />
+        </div>
+      </div>
+    </section>
   );
 }
 

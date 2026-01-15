@@ -1,41 +1,53 @@
+import { Link, NavLink } from 'react-router-dom';
 import logotipo from '../../assets/logotipo.png';
 
 export default function Header() {
-  return (
-    <header className="w-full border-b border-gray-300 bg-white">
-      <div className="w-full flex items-center px-0 py-4">
-        <div className="flex-1 flex items-center justify-start gap-4">
-          <img src={logotipo} alt="PlantaHUB" className="h-20" />
-          <h1 className="text-xl font-bold text-primary-500">PlantaHUB</h1>
-          <nav className="flex-1 flex items-center justify-start text-sm font-medium pl-7">
-            <div className="flex gap-6">
-              <a
-                href="#"
-                className="transition-transform duration-300 hover:text-primary-500 hover:scale-110"
-              >
-                Plantas
-              </a>
-              <a
-                href="#"
-                className="transition-transform duration-300 hover:text-primary-500 hover:scale-110"
-              >
-                Como funciona
-              </a>
-              <a
-                href="#"
-                className="transition-transform duration-300 hover:text-primary-500 hover:scale-110"
-              >
-                Contato
-              </a>
-            </div>
-          </nav>
-        </div>
+  const base = 'text-sm font-semibold text-neutral-700 hover:text-primary-500 transition';
+  const active = 'text-primary-600';
 
-        <div className="flex-1 flex items-center justify-end p-5">
-          <h1 className="cursor-pointer hover:text-primary-500 pr-3.5">Cadastrar</h1>
-          <button className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 cursor-pointer">
+  return (
+    <header className="w-full bg-white border-b">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3">
+          <img src={logotipo} alt="PlantaHUB" className="h-9 w-9 rounded-lg" />
+          <span className="font-semibold text-lg text-neutral-900">PlantaHUB</span>
+        </Link>
+
+        {/* Nav */}
+        <nav className="hidden md:flex items-center gap-8">
+          <NavLink to="/" className={({ isActive }) => `${base} ${isActive ? active : ''}`} end>
+            Home
+          </NavLink>
+
+          <NavLink to="/products" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
+            Produtos
+          </NavLink>
+
+          <NavLink to="/about" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
+            Sobre
+          </NavLink>
+
+          <NavLink to="/contact" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
+            Contato
+          </NavLink>
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-4">
+          <Link
+            to="/signin"
+            className="text-sm font-semibold text-neutral-700 hover:text-primary-500 transition"
+          >
             Entrar
-          </button>
+          </Link>
+
+          <Link
+            to="/products"
+            className="px-5 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold"
+          >
+            Começar
+          </Link>
         </div>
       </div>
     </header>
