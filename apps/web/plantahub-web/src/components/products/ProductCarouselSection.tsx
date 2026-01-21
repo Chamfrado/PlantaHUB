@@ -73,7 +73,7 @@ export default function ProductCarouselSection({
         <div className="mt-10 flex justify-center">
           <button
             onClick={onFooterCtaClick}
-            className="px-6 py-3 rounded-xl border border-neutral-300 bg-white font-semibold text-neutral-900 hover:bg-neutral-100 transition inline-flex items-center gap-2"
+            className="px-6 py-3 rounded-xl border border-neutral-300 bg-white font-semibold cursor-pointer text-neutral-900 hover:bg-neutral-100 transition inline-flex items-center gap-2"
           >
             {footerCtaLabel} <span className="text-lg">→</span>
           </button>
@@ -95,8 +95,8 @@ function TierTabs({ value, onChange }: { value: Tier; onChange: (v: Tier) => voi
             key={t}
             onClick={() => onChange(t)}
             className={[
-              'px-4 py-2 rounded-lg text-sm font-semibold transition',
-              active ? 'bg-primary-500 text-white' : 'text-neutral-700 hover:bg-neutral-100',
+              'px-4 py-2 rounded-lg text-sm font-semibold transition ',
+              active ? 'bg-primary-500 text-white ' : 'text-neutral-700 hover:bg-neutral-100 ',
             ].join(' ')}
           >
             {t}

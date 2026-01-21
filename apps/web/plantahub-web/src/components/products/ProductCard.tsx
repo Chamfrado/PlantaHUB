@@ -74,7 +74,7 @@ export default function ProductCard({
 
           <button
             onClick={() => onViewDetails?.(product)}
-            className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold hover:bg-primary-600 transition"
+            className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold cursor-pointer hover:bg-primary-600 transition"
           >
             {actionLabel}
           </button>

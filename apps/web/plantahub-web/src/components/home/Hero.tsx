@@ -47,20 +47,21 @@ export default function Hero({
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button
                 onClick={onPrimaryClick}
-                className="px-6 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm hover:bg-primary-600 transition"
+                className="px-6 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm hover:bg-primary-600 transition cursor-pointer"
               >
                 {primaryCtaText}
               </button>
 
               <button
                 onClick={onSecondaryClick}
-                className="px-6 py-3 rounded-xl border border-neutral-300 bg-white text-neutral-900 font-semibold hover:bg-neutral-50 transition"
+                className="px-6 py-3 rounded-xl border border-neutral-300 bg-white text-neutral-900 font-semibold cursor-pointer hover:bg-neutral-50 transition"
               >
                 {secondaryCtaText}
               </button>
             </div>
 
             {/* mini features */}
+
             <div className="mt-10 grid sm:grid-cols-3 gap-6">
               <FeatureItem
                 title="Projetos Certificados"

@@ -27,14 +27,14 @@ export default function FinalCTA({
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <button
             onClick={onPrimaryClick}
-            className="px-7 py-3 rounded-xl bg-white text-primary-600 font-semibold shadow-sm hover:bg-white/95 transition"
+            className="px-7 py-3 rounded-xl bg-white text-primary-600 font-semibold shadow-sm hover:bg-white/95 transition cursor-pointer"
           >
             {primaryLabel}
           </button>
 
           <button
             onClick={onSecondaryClick}
-            className="px-7 py-3 rounded-xl border border-white/70 text-white font-semibold hover:bg-white/10 transition"
+            className="px-7 py-3 rounded-xl border border-white/70 text-white font-semibold hover:bg-white/10 transition cursor-pointer"
           >
             {secondaryLabel}
           </button>

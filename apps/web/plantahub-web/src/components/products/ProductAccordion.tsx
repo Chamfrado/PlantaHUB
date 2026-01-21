@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { ProductCategory, ProductDetails } from '../../types/productDetail';
+import type { ProductCategory, ProductDetails } from '../../types/productDetails';
 import ProductAccordionItem from './ProductAccordionItem';
 
 type Props = {

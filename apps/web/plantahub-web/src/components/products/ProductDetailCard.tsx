@@ -1,5 +1,5 @@
 import { BadgeCheck, Download, FileText } from 'lucide-react';
-import type { ProductDetails } from '../../types/productDetail';
+import type { ProductDetails } from '../../types/productDetails';
 
 export default function ProductDetailsCard({ product }: { product: ProductDetails }) {
   return (
