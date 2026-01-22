@@ -1,5 +1,4 @@
 import type { Product } from '../../types/ProductData';
-
 type Props = {
   product: Product;
   onViewDetails?: (product: Product) => void;

@@ -1,6 +1,7 @@
 // src/data/products.ts
 
 import type { Product } from "../types/ProductData";
+import { PRODUCT_IMAGES } from "./imagePaths";
 
 /**
  * NOTE
@@ -21,7 +22,7 @@ export const CASA_CONFORT: Product = {
   name: "Confort",
   shortDescription: "Kitnet Moderna",
 
-  heroImageUrl: "../assets/CASA-CONFORT.png",
+  heroImageUrl: PRODUCT_IMAGES.casas.confort,
 
   areaM2: 80,
   fileFormats: ["BIM", "DWG", "PDF"],
@@ -103,7 +104,7 @@ export const CASA_PRIME: Product = {
   name: "Prime",
   shortDescription: "Casa Moderna Familiar",
 
-    heroImageUrl: "../assets/CASA-PRIME.png",
+    heroImageUrl: PRODUCT_IMAGES.casas.prime,
 
   areaM2: 150,
   fileFormats: ["BIM", "DWG", "PDF"],
@@ -183,7 +184,7 @@ export const CASA_DIAMOND: Product = {
   name: "Diamond",
   shortDescription: "Casa Premium de Alto Padrão",
 
-  heroImageUrl: "../assets/CASA-DIAMOND.png",
+  heroImageUrl: PRODUCT_IMAGES.casas.diamond,
 
   areaM2: 300,
   fileFormats: ["BIM", "DWG", "PDF"],
@@ -258,7 +259,7 @@ export const CHALE_CONFORT: Product = {
   name: "Confort",
   shortDescription: "Chalé Compacto Aconchegante",
 
-  heroImageUrl: "../assets/CHALE-CONFORT.png",
+  heroImageUrl: PRODUCT_IMAGES.chales.confort,
 
 
   areaM2: 55,
@@ -329,7 +330,7 @@ export const CHALE_PRIME: Product = {
   name: "Prime",
   shortDescription: "Chalé Familiar com Varanda",
 
-    heroImageUrl: "../assets/CHALE-PRIME.png",
+    heroImageUrl: PRODUCT_IMAGES.chales.prime,
 
   areaM2: 85,
   fileFormats: ["BIM", "DWG", "PDF"],
@@ -399,7 +400,7 @@ export const CHALE_DIAMOND: Product = {
   name: "Diamond",
   shortDescription: "Chalé Premium para Locação de Alto Padrão",
 
-  heroImageUrl: "../assets/CHALE-DIAMOND.png",
+  heroImageUrl: PRODUCT_IMAGES.chales.diamond,
 
   areaM2: 120,
   fileFormats: ["BIM", "DWG", "PDF"],
