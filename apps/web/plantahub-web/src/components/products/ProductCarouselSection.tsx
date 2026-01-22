@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import ProductCard from '../../components/products/ProductCard';
-import type { Product, Tier } from '../../types/product';
+import type { Product } from '../../types/ProductData';
+
+type TierSlug = 'confort' | 'prime' | 'diamond';
 
 type Props = {
   title: string;
@@ -8,9 +10,9 @@ type Props = {
 
   products: Product[];
 
-  /** Se quiser tabs (Comfort/Prime/Diamond), passe true */
+  /** Se quiser tabs (Confort/Prime/Diamond), passe true */
   enableTiers?: boolean;
-  defaultTier?: Tier;
+  defaultTier?: TierSlug;
 
   /** Quantos cards mostrar (ex: 3 igual no print) */
   limit?: number;
@@ -29,18 +31,17 @@ export default function ProductCarouselSection({
   subtitle,
   products,
   enableTiers = true,
-  defaultTier = 'Comfort',
+  defaultTier = 'confort',
   limit = 3,
   footerCtaLabel = 'Ver tudo',
   onFooterCtaClick,
   onViewDetails,
   actionLabel = 'Ver detalhes',
 }: Props) {
-  const [tier, setTier] = useState<Tier>(defaultTier);
+  const [tier, setTier] = useState<TierSlug>(defaultTier);
 
   const visibleProducts = useMemo(() => {
-    const list = enableTiers ? products.filter(p => (p.tier ?? 'Comfort') === tier) : products;
-
+    const list = enableTiers ? products.filter(p => p.slug === tier) : products;
     return list.slice(0, limit);
   }, [products, enableTiers, tier, limit]);
 
@@ -61,7 +62,7 @@ export default function ProductCarouselSection({
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {visibleProducts.map(product => (
             <ProductCard
-              key={product.id}
+              key={`${product.category}-${product.id}`}
               product={product}
               onViewDetails={onViewDetails}
               actionLabel={actionLabel}
@@ -83,23 +84,27 @@ export default function ProductCarouselSection({
   );
 }
 
-function TierTabs({ value, onChange }: { value: Tier; onChange: (v: Tier) => void }) {
-  const tabs: Tier[] = ['Comfort', 'Prime', 'Diamond'];
+function TierTabs({ value, onChange }: { value: TierSlug; onChange: (v: TierSlug) => void }) {
+  const tabs: { value: TierSlug; label: string }[] = [
+    { value: 'confort', label: 'Confort' },
+    { value: 'prime', label: 'Prime' },
+    { value: 'diamond', label: 'Diamond' },
+  ];
 
   return (
     <div className="inline-flex rounded-xl bg-white border border-neutral-200 p-1 shadow-sm">
       {tabs.map(t => {
-        const active = t === value;
+        const active = t.value === value;
         return (
           <button
-            key={t}
-            onClick={() => onChange(t)}
+            key={t.value}
+            onClick={() => onChange(t.value)}
             className={[
-              'px-4 py-2 rounded-lg text-sm font-semibold transition ',
-              active ? 'bg-primary-500 text-white ' : 'text-neutral-700 hover:bg-neutral-100 ',
+              'px-4 py-2 rounded-lg text-sm font-semibold transition',
+              active ? 'bg-primary-500 text-white' : 'text-neutral-700 hover:bg-neutral-100',
             ].join(' ')}
           >
-            {t}
+            {t.label}
           </button>
         );
       })}

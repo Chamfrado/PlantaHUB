@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { ProductCategory, ProductDetails } from '../../types/productDetails';
+import type { Product, ProductCategory } from '../../types/ProductData';
 import ProductAccordionItem from './ProductAccordionItem';
 
 type Props = {
-  products: ProductDetails[];
+  products: Product[];
   category: ProductCategory;
 };
 
@@ -16,7 +16,7 @@ export default function ProductAccordion({ products, category }: Props) {
     <div className="space-y-4">
       {list.map(p => (
         <ProductAccordionItem
-          key={p.id}
+          key={`${p.category}-${p.id}`}
           product={p}
           isOpen={openId === p.id}
           onToggle={() => setOpenId(prev => (prev === p.id ? null : p.id))}

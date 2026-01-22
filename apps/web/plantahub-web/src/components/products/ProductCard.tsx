@@ -1,4 +1,4 @@
-import type { Product } from '../../types/product';
+import type { Product } from '../../types/ProductData';
 
 type Props = {
   product: Product;
@@ -11,16 +11,19 @@ export default function ProductCard({
   onViewDetails,
   actionLabel = 'Ver detalhes',
 }: Props) {
+  const title = product.page?.headline ?? product.name;
+  const subtitle = product.page?.subheadline ?? product.shortDescription ?? '';
+  const img = product.heroImageUrl ?? product.galleryImageUrls?.[0];
+
   return (
     <article className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
       {/* Image */}
       <div className="relative h-56 w-full">
-        <img
-          src={product.imageUrl}
-          alt={product.title}
-          className="h-full w-full object-cover"
-          loading="lazy"
-        />
+        {img ? (
+          <img src={img} alt={title} className="h-full w-full object-cover" loading="lazy" />
+        ) : (
+          <div className="h-full w-full bg-neutral-100 border-b border-neutral-200" />
+        )}
 
         {typeof product.areaM2 === 'number' && (
           <div className="absolute top-4 right-4">
@@ -41,7 +44,7 @@ export default function ProductCard({
                 key={t}
                 className={[
                   'px-3 py-1 rounded-full text-xs font-semibold',
-                  t === 'Comfort' || t === 'Prime' || t === 'Diamond'
+                  isTierTag(t, product.slug)
                     ? 'bg-orange-50 text-primary-600'
                     : 'bg-neutral-100 text-neutral-700',
                 ].join(' ')}
@@ -52,14 +55,14 @@ export default function ProductCard({
           </div>
         ) : null}
 
-        <h3 className="mt-4 text-lg font-extrabold text-neutral-900">{product.title}</h3>
+        <h3 className="mt-4 text-lg font-extrabold text-neutral-900">{title}</h3>
 
-        <p className="mt-2 text-sm text-neutral-600 leading-relaxed min-h-11">{product.subtitle}</p>
+        <p className="mt-2 text-sm text-neutral-600 leading-relaxed min-h-11">{subtitle}</p>
 
         {/* formats */}
-        {product.formats?.length ? (
+        {product.fileFormats?.length ? (
           <div className="mt-4 flex items-center gap-4 text-xs font-semibold text-neutral-700">
-            {product.formats.map(f => (
+            {product.fileFormats.map(f => (
               <div key={f} className="inline-flex items-center gap-2">
                 <FormatIcon />
                 <span>{f}</span>
@@ -70,7 +73,13 @@ export default function ProductCard({
 
         {/* price + button */}
         <div className="mt-6 flex items-center justify-between gap-4">
-          <div className="text-xl font-extrabold text-neutral-900">{formatBRL(product.price)}</div>
+          {product.price ? (
+            <div className="text-xl font-extrabold text-neutral-900">
+              {formatMoney(product.price.amount, product.price.currency)}
+            </div>
+          ) : (
+            <div className="text-sm font-semibold text-neutral-500">Consulte valores</div>
+          )}
 
           <button
             onClick={() => onViewDetails?.(product)}
@@ -84,12 +93,29 @@ export default function ProductCard({
   );
 }
 
-function formatBRL(value: number) {
-  return value.toLocaleString('pt-BR', {
+function formatMoney(value: number, currency: 'BRL' | 'USD' | 'EUR') {
+  const locale = currency === 'BRL' ? 'pt-BR' : 'en-US';
+  return value.toLocaleString(locale, {
     style: 'currency',
-    currency: 'BRL',
+    currency,
     maximumFractionDigits: 0,
   });
+}
+
+/**
+ * You were highlighting tier-like tags (Comfort/Prime/Diamond).
+ * Now you can highlight by:
+ * - tag text (Comfort/Prime/Diamond) OR
+ * - product.slug (confort/prime/diamond)
+ */
+function isTierTag(tag: string, slug?: string) {
+  const t = tag.trim().toLowerCase();
+  const s = (slug ?? '').trim().toLowerCase();
+
+  const byTag = t === 'comfort' || t === 'confort' || t === 'prime' || t === 'diamond';
+  const bySlug = s === 'confort' || s === 'prime' || s === 'diamond';
+
+  return byTag || bySlug;
 }
 
 function FormatIcon() {
