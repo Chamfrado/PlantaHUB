@@ -1,2 +1,137 @@
-# PlantaHUB
-My First Companny Website
+# 🏠 PlantaHUB
+
+> **Digital Marketplace for Architectural Plans** - Transform your dream home into reality with professional, ready-to-build designs.
+
+[![React](https://img.shields.io/badge/React-19.2.0-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1.18-38B2AC.svg)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-7.2.4-646CFF.svg)](https://vitejs.dev/)
+
+## 🚀 What is PlantaHUB?
+
+PlantaHUB is a modern e-commerce platform specializing in **architectural house and chalet plans**. We provide complete, professional building documentation that customers can purchase and download instantly.
+
+### 🏡 Product Catalog
+
+**Houses (Casas)**
+- 🏠 **Confort** - 80m² Compact Modern Home
+- 🏘️ **Prime** - 150m² Family House
+- 🏛️ **Diamond** - 300m² Premium Residence
+
+**Chalets (Chalés)**
+- 🏕️ **Confort** - 55m² Cozy Retreat
+- 🏞️ **Prime** - 85m² Family Chalet with Deck
+- ✨ **Diamond** - 120m² Premium Mountain Lodge
+
+### 📋 What's Included
+
+✅ **Complete Documentation Package**
+- Architectural Plans
+- Hydraulic Systems
+- Electrical Layouts
+- Structural Engineering
+- Landscaping Designs
+- Material Lists
+- Construction Guides
+
+✅ **Multiple Formats**: BIM, DWG, PDF
+✅ **Instant Download**
+✅ **Fully Customizable**
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS 4.x
+- **Routing**: React Router DOM
+- **Icons**: Lucide React
+- **Architecture**: Monorepo Structure
+
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/PlantaHUB.git
+
+# Navigate to web app
+cd PlantaHUB/apps/web/plantahub-web
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+## 📁 Project Structure
+
+```
+PlantaHUB/
+├── apps/
+│   ├── api/                 # Backend API (future)
+│   └── web/
+│       └── plantahub-web/   # React frontend
+│           ├── src/
+│           │   ├── components/  # Reusable UI components
+│           │   ├── pages/      # Route pages
+│           │   ├── data/       # Product data & configs
+│           │   ├── types/      # TypeScript definitions
+│           │   └── styles/     # Global styles
+│           └── public/         # Static assets
+└── README.md
+```
+
+## 🎯 Features
+
+- 📱 **Responsive Design** - Works on all devices
+- ⚡ **Fast Performance** - Optimized with Vite
+- 🎨 **Modern UI** - Clean, professional interface
+- 🔍 **Product Showcase** - Detailed product pages
+- 📊 **Comprehensive Info** - Specs, FAQs, testimonials
+- 🛒 **E-commerce Ready** - Built for digital sales
+
+## 🚧 Development
+
+```bash
+# Development
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+
+# Format code
+npm run format
+```
+
+## 🎨 Design System
+
+- **Colors**: Eva Design System
+- **Typography**: Modern, readable fonts
+- **Components**: Modular, reusable UI elements
+- **Layout**: Mobile-first responsive design
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🌟 Support
+
+If you like this project, please give it a ⭐ on GitHub!
+
+---
+
+**Built with ❤️ for the architecture and construction community**
