@@ -1,4 +1,5 @@
 import { BadgeCheck, Download, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../types/ProductData';
 
 type Props = {
@@ -6,7 +7,12 @@ type Props = {
 };
 
 export default function ProductDetailsCard({ product }: Props) {
+  const navigate = useNavigate();
   const page = product.page;
+
+  function handleViewProduct() {
+    navigate(`/${product.category}/${product.slug}`);
+  }
 
   return (
     <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6">
@@ -83,7 +89,10 @@ export default function ProductDetailsCard({ product }: Props) {
             ) : null}
           </div>
 
-          <button className="mt-5 w-full rounded-xl bg-primary-500 text-white font-semibold py-2.5 hover:bg-primary-600 transition">
+          <button
+            className="mt-5 w-full rounded-xl bg-primary-500 text-white font-semibold py-2.5 hover:bg-primary-600 transition"
+            onClick={handleViewProduct}
+          >
             Ver página do produto
           </button>
         </div>
