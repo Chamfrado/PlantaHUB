@@ -1,18 +1,8 @@
 // src/pages/ProductPage.tsx
-import {
-  Bookmark,
-  Check,
-  ChevronDown,
-  Download,
-  FileText,
-  Headset,
-  Ruler,
-  ShieldCheck,
-  Sparkles,
-  Star,
-} from 'lucide-react';
+import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import ProductHero from '../../../components/products/ProductHero';
 import { getProductByRoute } from '../../../data/productSelector';
 
 export default function ProductDetails() {
@@ -34,112 +24,10 @@ export default function ProductDetails() {
     );
   }
 
-  const title = product.page.headline ?? product.name;
-  const subtitle = product.page.subheadline ?? product.shortDescription ?? '';
-  const description = product.page.description ?? '';
-  const heroImg = product.heroImageUrl ?? product.galleryImageUrls?.[0];
-
-  // Hero “quick facts” like your screenshot
-  const heroCards = [
-    {
-      icon: <Ruler className="h-4 w-4 text-primary-500" />,
-      label: 'AREA',
-      value: typeof product.areaM2 === 'number' ? `${product.areaM2} m²` : '—',
-    },
-    {
-      icon: <FileText className="h-4 w-4 text-primary-500" />,
-      label: 'FORMATS',
-      value: product.fileFormats?.join(', ') ?? '—',
-    },
-    {
-      icon: <Download className="h-4 w-4 text-primary-500" />,
-      label: 'DELIVERY',
-      value: product.delivery ? 'Instant Digital' : '—',
-    },
-    {
-      icon: <Sparkles className="h-4 w-4 text-primary-500" />,
-      label: 'CUSTOM',
-      value: product.customizable ? 'Fully Editable' : '—',
-    },
-  ];
-
-  // Price (optional)
-  const priceLabel = product.price?.isStartingFrom ? 'Buy Now - ' : '';
-  const priceText = product.price
-    ? `${priceLabel}${formatMoney(product.price.amount, product.price.currency)}`
-    : 'Consultar preço';
-
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-6 pt-10 pb-14">
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-          {/* LEFT */}
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 text-primary-700 border border-orange-100 px-3 py-1 text-xs font-semibold">
-              Modern Kitnet
-            </div>
-
-            <h1 className="mt-4 text-4xl font-extrabold text-neutral-900">{title}</h1>
-
-            {subtitle ? <p className="mt-2 text-neutral-600 font-semibold">{subtitle}</p> : null}
-
-            {description ? (
-              <p className="mt-4 text-neutral-600 leading-relaxed">{description}</p>
-            ) : null}
-
-            {/* quick cards */}
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              {heroCards.map(c => (
-                <div
-                  key={c.label}
-                  className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-[11px] font-extrabold text-neutral-500">{c.label}</div>
-                    {c.icon}
-                  </div>
-                  <div className="mt-2 text-sm font-bold text-neutral-900">{c.value}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* CTAs row */}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <button className="rounded-xl bg-primary-500 px-5 py-3 text-white font-semibold hover:bg-primary-600 transition inline-flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                {product.price ? `Buy Now - ${priceText.replace('Buy Now - ', '')}` : 'Buy Now'}
-              </button>
-
-              <button className="rounded-xl border border-neutral-300 bg-white px-5 py-3 font-semibold text-neutral-900 hover:bg-neutral-100 transition inline-flex items-center gap-2">
-                <Bookmark className="h-4 w-4" />
-                Save
-              </button>
-            </div>
-
-            {/* trust row */}
-            <div className="mt-4 flex flex-wrap items-center gap-5 text-xs font-semibold text-neutral-600">
-              <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary-500" /> Secure Payment
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Headset className="h-4 w-4 text-primary-500" /> 24/7 Support
-              </span>
-            </div>
-          </div>
-
-          {/* RIGHT image */}
-          <div className="lg:justify-self-end">
-            <div className="rounded-2xl border border-neutral-200 overflow-hidden shadow-sm bg-neutral-50">
-              {heroImg ? (
-                <img src={heroImg} alt={title} className="w-full h-90 object-cover" />
-              ) : (
-                <div className="w-full h-90 bg-neutral-100" />
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductHero product={product} />
 
       {/* WHY CHOOSE */}
       <Section
