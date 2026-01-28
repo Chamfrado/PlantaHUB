@@ -20,15 +20,15 @@ export default function Header() {
             Home
           </NavLink>
 
-          <NavLink to="/products" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
+          <NavLink to="/produtos" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
             Produtos
           </NavLink>
 
-          <NavLink to="/about" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
+          <NavLink to="/sobre" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
             Sobre
           </NavLink>
 
-          <NavLink to="/contact" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
+          <NavLink to="/contato" className={({ isActive }) => `${base} ${isActive ? active : ''}`}>
             Contato
           </NavLink>
         </nav>

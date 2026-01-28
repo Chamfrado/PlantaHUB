@@ -5,22 +5,22 @@ import logotipo from '../../assets/logotipo.png';
 
 export default function Footer() {
   const products: LinkItem[] = [
-    { label: 'Casas', href: '#' },
-    { label: 'Chalés', href: '#' },
+    { label: 'Casas', href: '/produtos' },
+    { label: 'Chalés', href: '/produtos' },
   ];
 
   const company: LinkItem[] = [
-    { label: 'Sobre Nós', href: '#' },
-    { label: 'Como Funciona', href: '#' },
+    { label: 'Sobre Nós', href: '/sobre' },
+    { label: 'Como Funciona', href: '/sobre' },
     { label: 'Certificações', href: '#' },
     { label: 'Carreiras', href: '#' },
   ];
 
   const support: LinkItem[] = [
     { label: 'FAQ', href: '#' },
-    { label: 'Contato', href: '#' },
-    { label: 'Termos de Serviço', href: '#' },
-    { label: 'Política de Privacidade', href: '#' },
+    { label: 'Contato', href: '/contato' },
+    { label: 'Termos de Serviço', href: '/legal/termos' },
+    { label: 'Política de Privacidade', href: '/legal/privacidade' },
   ];
 
   return (
