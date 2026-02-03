@@ -15,6 +15,7 @@ build/
 
 # Editor settings
 .vscode/
+.idea/
 
 # Logs
 npm-debug.log*
