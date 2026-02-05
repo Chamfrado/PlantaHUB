@@ -6,6 +6,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1.18-38B2AC.svg)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-7.2.4-646CFF.svg)](https://vitejs.dev/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-6DB33F.svg)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-21-ED8B00.svg)](https://openjdk.java.net/)
 
 ## 🚀 What is PlantaHUB?
 
@@ -40,15 +42,25 @@ PlantaHUB is a modern e-commerce platform specializing in **architectural house 
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 19 + TypeScript
+**Frontend**
+- **Framework**: React 19 + TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS 4.x
 - **Routing**: React Router DOM
 - **Icons**: Lucide React
-- **Architecture**: Monorepo Structure
+
+**Backend**
+- **Framework**: Spring Boot 3.4.2
+- **Language**: Java 21
+- **Security**: JWT Authentication
+- **Database**: PostgreSQL with Flyway migrations
+- **Documentation**: Swagger/OpenAPI
+
+**Architecture**: Monorepo Structure
 
 ## 🚀 Quick Start
 
+### Frontend
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/PlantaHUB.git
@@ -63,12 +75,33 @@ npm install
 npm run dev
 ```
 
+### Backend API
+```bash
+# Navigate to API
+cd PlantaHUB/apps/api/plantahub-api
+
+# Run with Maven
+./mvnw spring-boot:run
+
+# API will be available at http://localhost:8080
+# Swagger UI at http://localhost:8080/swagger-ui.html
+```
+
 ## 📁 Project Structure
 
 ```
 PlantaHUB/
 ├── apps/
-│   ├── api/                 # Backend API (future)
+│   ├── api/
+│   │   └── plantahub-api/   # Spring Boot API
+│   │       ├── src/main/java/
+│   │       │   ├── domain/     # Domain entities
+│   │       │   ├── repository/ # Data access layer
+│   │       │   ├── security/   # JWT & Security config
+│   │       │   ├── service/    # Business logic
+│   │       │   └── web/        # Controllers & DTOs
+│   │       └── src/main/resources/
+│   │           └── db/migration/ # Flyway migrations
 │   └── web/
 │       └── plantahub-web/   # React frontend
 │           ├── src/
@@ -78,17 +111,27 @@ PlantaHUB/
 │           │   ├── types/      # TypeScript definitions
 │           │   └── styles/     # Global styles
 │           └── public/         # Static assets
+├── docs/
+│   └── sql/                 # Database documentation
 └── README.md
 ```
 
 ## 🎯 Features
 
+**Frontend**
 - 📱 **Responsive Design** - Works on all devices
 - ⚡ **Fast Performance** - Optimized with Vite
 - 🎨 **Modern UI** - Clean, professional interface
 - 🔍 **Product Showcase** - Detailed product pages
 - 📊 **Comprehensive Info** - Specs, FAQs, testimonials
 - 🛒 **E-commerce Ready** - Built for digital sales
+
+**Backend API**
+- 🔐 **JWT Authentication** - Secure user authentication
+- 👤 **User Management** - Registration and login
+- 📚 **API Documentation** - Interactive Swagger UI
+- 🗄️ **Database Integration** - PostgreSQL with migrations
+- 🛡️ **Security** - Spring Security configuration
 
 ## 🚧 Development
 
