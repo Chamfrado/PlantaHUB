@@ -1,4 +1,4 @@
-package com.plantahub.api.controller;
+package com.plantahub.api.web.controller;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,8 @@
 package com.plantahub.api.web.dto.auth;
 
-public class LoginRequest {
-}
+import jakarta.validation.constraints.*;
+
+public record LoginRequest(
+        @Email @NotBlank String email,
+        @NotBlank String password
+) {}

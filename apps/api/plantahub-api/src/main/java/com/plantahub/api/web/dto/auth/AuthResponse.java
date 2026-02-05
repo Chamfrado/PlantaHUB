@@ -1,4 +1,6 @@
 package com.plantahub.api.web.dto.auth;
 
-public class AuthResponse {
-}
+public record AuthResponse(
+        String accessToken,
+        String tokenType
+) {}
