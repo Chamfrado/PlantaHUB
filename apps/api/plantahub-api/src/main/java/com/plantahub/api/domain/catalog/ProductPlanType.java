@@ -27,7 +27,7 @@ public class ProductPlanType {
     @JoinColumn(name = "plan_type_id", nullable = false)
     private PlanType planType;
 
-    @Column(name = "price_cents")
+    @Column(name = "price_cents" ,nullable = false)
     private Integer priceCents; // pode ser null
 
     @Column(name = "is_included_in_bundle", nullable = false)
