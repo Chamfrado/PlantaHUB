@@ -1,6 +1,9 @@
 -- =========================================================
--- PlantaHUB - Schema (PostgreSQL)
+-- PlantaHUB - Schema (PostgreSQL) - V1
 -- =========================================================
+
+-- UUID helper
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- =========================
 -- ENUMS
@@ -28,13 +31,11 @@ CREATE TABLE IF NOT EXISTS app_user (
 
 -- =========================
 -- PRODUCTS (CATÁLOGO)
--- ID vem do frontend (ex: "casa-confort-80m2")
--- slug pode repetir entre categorias, então unique por (category, slug)
 -- =========================
 CREATE TABLE IF NOT EXISTS product (
   id VARCHAR(80) PRIMARY KEY,
   slug VARCHAR(120) NOT NULL,
-  category VARCHAR(40) NOT NULL,         -- ex: "casas", "chales"
+  category VARCHAR(40) NOT NULL,
   name VARCHAR(160) NOT NULL,
   short_desc VARCHAR(255) NOT NULL,
   hero_image_url TEXT,
@@ -52,25 +53,24 @@ CREATE INDEX IF NOT EXISTS idx_product_category ON product(category);
 CREATE INDEX IF NOT EXISTS idx_product_slug ON product(slug);
 
 -- =========================
--- PLAN TYPES (TIPOS DE PLANTA)
+-- PLAN TYPES
 -- =========================
 CREATE TABLE IF NOT EXISTS plan_type (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  code VARCHAR(40) UNIQUE NOT NULL,      -- ARCH, HYD, ELEC, STR, LAND
+  code VARCHAR(40) UNIQUE NOT NULL,
   name VARCHAR(120) NOT NULL,
   description TEXT
 );
 
 -- =========================
 -- PRODUCT x PLAN TYPE
--- Define disponibilidade e preço por tipo (usuário pode escolher)
 -- =========================
 CREATE TABLE IF NOT EXISTS product_plan_type (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id VARCHAR(80) NOT NULL REFERENCES product(id) ON DELETE CASCADE,
   plan_type_id UUID NOT NULL REFERENCES plan_type(id),
-  price_cents INT,                       -- NULL = preço ainda não definido
-  is_included_in_bundle BOOLEAN NOT NULL DEFAULT FALSE,
+  price_cents INT NOT NULL DEFAULT 0,
+  is_included_in_bundle BOOLEAN NOT NULL DEFAULT TRUE,
   is_available BOOLEAN NOT NULL DEFAULT TRUE,
   sort_order INT NOT NULL DEFAULT 0,
   UNIQUE (product_id, plan_type_id)
@@ -80,8 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_ppt_product ON product_plan_type(product_id);
 CREATE INDEX IF NOT EXISTS idx_ppt_plan_type ON product_plan_type(plan_type_id);
 
 -- =========================
--- DIGITAL ASSETS (ARQUIVOS)
--- Cada tipo pode ter vários arquivos/formats/versões
+-- DIGITAL ASSETS
 -- =========================
 CREATE TABLE IF NOT EXISTS digital_asset (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -99,41 +98,45 @@ CREATE TABLE IF NOT EXISTS digital_asset (
 CREATE INDEX IF NOT EXISTS idx_asset_ppt ON digital_asset(product_plan_type_id);
 
 -- =========================
--- ORDERS
+-- ORDERS (Checkout)
 -- =========================
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES app_user(id),
   status order_status NOT NULL DEFAULT 'PENDING',
   total_cents INT NOT NULL DEFAULT 0,
-  currency CHAR(3) NOT NULL DEFAULT 'BRL',
+  currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   paid_at TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 
 CREATE TABLE IF NOT EXISTS order_item (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   product_id VARCHAR(80) NOT NULL REFERENCES product(id),
   quantity INT NOT NULL DEFAULT 1,
-  unit_price_cents INT NOT NULL,
-  total_cents INT NOT NULL
+  unit_price_cents INT NOT NULL DEFAULT 0,
+  total_cents INT NOT NULL DEFAULT 0
 );
 
--- =========================
--- ORDER SELECTION (TIPOS ESCOLHIDOS PELO USUÁRIO)
--- =========================
+CREATE INDEX IF NOT EXISTS idx_order_item_order_id ON order_item(order_id);
+
 CREATE TABLE IF NOT EXISTS order_item_selection (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_item_id UUID NOT NULL REFERENCES order_item(id) ON DELETE CASCADE,
   plan_type_id UUID NOT NULL REFERENCES plan_type(id),
-  price_cents INT NOT NULL,
+  price_cents INT NOT NULL DEFAULT 0,
   chosen_format file_format,
   UNIQUE (order_item_id, plan_type_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_ois_order_item_id ON order_item_selection(order_item_id);
+
 -- =========================
--- DOWNLOAD ENTITLEMENTS (LIBERAÇÃO DE ACESSO)
+-- DOWNLOAD ENTITLEMENTS
 -- =========================
 CREATE TABLE IF NOT EXISTS download_entitlement (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
