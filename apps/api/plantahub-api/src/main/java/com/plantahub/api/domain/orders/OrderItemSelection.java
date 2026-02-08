@@ -30,7 +30,4 @@ public class OrderItemSelection {
 
     @Column(name = "price_cents", nullable = false)
     private Integer priceCents;
-
-    @Column(name = "chosen_format")
-    private String chosenFormat; // fica NULL (A)
 }

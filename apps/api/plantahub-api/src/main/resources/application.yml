@@ -34,3 +34,8 @@ security:
 logging:
   level:
     org.hibernate.SQL: debug
+
+aws:
+  region: us-east-1
+  s3:
+    bucket: plantahub-assets-dev

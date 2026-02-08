@@ -7,6 +7,8 @@ import com.plantahub.api.web.dto.downloads.DownloadDTO;
 import com.plantahub.api.web.dto.orders.MarkPaidResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.plantahub.api.domain.downloads.DownloadEntitlement;
+import com.plantahub.api.repository.DownloadEntitlementRepository;
 
 import java.time.Instant;
 import java.util.List;
@@ -94,5 +96,34 @@ public class EntitlementService {
                         e.getGrantedAt()
                 ))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public void assertHasEntitlement(String email, String productId, String planTypeCode) {
+        var user = userRepo.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
+        boolean ok = entitlementRepo.findActiveByUserId(user.getId()).stream()
+                .anyMatch(e ->
+                        e.getProduct().getId().equals(productId) &&
+                                e.getPlanType().getCode().equalsIgnoreCase(planTypeCode)
+                );
+
+        if (!ok) throw new IllegalArgumentException("no_entitlement");
+    }
+
+
+
+    @Transactional(readOnly = true)
+    public DownloadEntitlement validateEntitlement(String email, String productId, String planTypeCode) {
+        var user = userRepo.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
+        // busca entitlement ativo do user para aquele produto + tipo
+        return entitlementRepo.findActiveByUserId(user.getId()).stream()
+                .filter(e -> e.getProduct().getId().equals(productId))
+                .filter(e -> e.getPlanType().getCode().equalsIgnoreCase(planTypeCode))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no_entitlement"));
     }
 }

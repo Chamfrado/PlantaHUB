@@ -24,8 +24,10 @@ public class Order {
     private AppUser user;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "order_status", nullable = false)
+    @Column(name = "status", nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
     private OrderStatus status;
+
 
 
     @Column(name = "total_cents", nullable = false)

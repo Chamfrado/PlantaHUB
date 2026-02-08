@@ -35,6 +35,6 @@ public class OrderItem {
     private Integer totalCents; // base + addons
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<OrderItemSelection> selections = new ArrayList<>();
+    private Set<OrderItemSelection> selections = new HashSet<>();
+
 }

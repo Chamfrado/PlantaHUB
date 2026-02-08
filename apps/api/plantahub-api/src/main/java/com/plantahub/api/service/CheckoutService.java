@@ -87,7 +87,6 @@ public class CheckoutService {
 
             int price = Optional.ofNullable(ppt.getPriceCents()).orElse(0);
             addons += price;
-
             // traduz code -> PlanType (id) pra salvar em order_item_selection
             var planType = ppt.getPlanType(); // já veio carregado pelo join fetch
 
@@ -96,7 +95,6 @@ public class CheckoutService {
                             .orderItem(item)
                             .planType(planType)
                             .priceCents(price)
-                            .chosenFormat(null) // A
                             .build()
             );
         }
