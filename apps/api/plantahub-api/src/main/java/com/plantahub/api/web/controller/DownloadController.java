@@ -44,7 +44,7 @@ public class DownloadController {
 
         // 3) gera URL pra cada asset
         return assets.stream().map(a -> new AssetDTO(
-                a.getFormat().name(),
+                a.getKind(),
                 a.getVersion(),
                 a.getFilename(),
                 a.getStorageKey(),

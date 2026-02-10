@@ -1,6 +1,5 @@
 package com.plantahub.api.domain.catalog;
 
-import com.plantahub.api.domain.catalog.enums.FileFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,10 +27,6 @@ public class DigitalAsset {
     @JoinColumn(name = "product_plan_type_id", nullable = false)
     private ProductPlanType productPlanType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "format", nullable = false, columnDefinition = "file_format")
-    private FileFormat format;
-
     @Column(name = "version", nullable = false)
     private Integer version;
 
@@ -49,4 +44,8 @@ public class DigitalAsset {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Column(name = "kind", nullable = false, length = 50)
+    private String kind;
+
 }

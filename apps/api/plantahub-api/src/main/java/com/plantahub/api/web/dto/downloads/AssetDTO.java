@@ -1,7 +1,7 @@
 package com.plantahub.api.web.dto.downloads;
 
 public record AssetDTO(
-        String format,
+        String kind,
         int version,
         String filename,
         String storageKey,

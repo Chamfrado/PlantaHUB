@@ -21,7 +21,7 @@ public class DownloadService {
     }
 
     public String generatePresignedUrl(String storageKey) {
-
+        System.out.println("S3 bucket in use: " + bucket);
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(storageKey)
