@@ -1,5 +1,6 @@
 package com.plantahub.api.domain.auth;
 
+import com.plantahub.api.domain.auth.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,4 +29,9 @@ public class AppUser {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 }

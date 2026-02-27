@@ -1,6 +1,7 @@
 package com.plantahub.api.service;
 
 import com.plantahub.api.domain.auth.AppUser;
+import com.plantahub.api.domain.auth.enums.UserRole;
 import com.plantahub.api.repository.AppUserRepository;
 import com.plantahub.api.security.JwtService;
 import com.plantahub.api.web.dto.auth.*;
@@ -37,6 +38,7 @@ public class AuthService {
                 .email(email)
                 .passwordHash(encoder.encode(req.password()))
                 .fullName(req.fullName())
+                .role(UserRole.USER)   // ✅ correto
                 .createdAt(Instant.now())
                 .build();
 
@@ -47,9 +49,11 @@ public class AuthService {
         String email = req.email().toLowerCase();
 
         var token = new UsernamePasswordAuthenticationToken(email, req.password());
-        authManager.authenticate(token); // ✅ valida contra DB via UserDetailsService + BCrypt
+        authManager.authenticate(token);
 
-        String jwt = jwtService.generateAccessToken(email);
+        var user = repo.findByEmail(email).orElseThrow(); // já autenticou, então existe
+
+        String jwt = jwtService.generateAccessToken(email, user.getRole().name());
         return new AuthResponse(jwt, "Bearer");
     }
 }

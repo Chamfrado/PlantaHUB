@@ -1,5 +1,6 @@
 package com.plantahub.api.security;
 
+import com.plantahub.api.domain.auth.AppUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
@@ -32,13 +33,14 @@ public class JwtService {
     }
 
     // Creates a token for a "subject" (we’ll use email as subject)
-    public String generateAccessToken(String subjectEmail) {
+    public String generateAccessToken(String email, String role) {
         Instant now = Instant.now();
         Instant exp = now.plus(accessTokenMinutes, ChronoUnit.MINUTES);
 
         return Jwts.builder()
                 .issuer(issuer)
-                .subject(subjectEmail)
+                .subject(email)
+                .claim("role", role) // "ADMIN" | "USER"
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(key)
