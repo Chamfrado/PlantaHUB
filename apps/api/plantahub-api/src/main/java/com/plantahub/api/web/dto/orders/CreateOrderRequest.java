@@ -4,6 +4,11 @@ import jakarta.validation.constraints.*;
 import java.util.List;
 
 public record CreateOrderRequest(
-        @NotBlank String productId,
-        @NotEmpty List<@NotBlank String> selectedPlanTypes
-) {}
+        @NotEmpty List<Item> items
+) {
+    public record Item(
+            @NotBlank String productId,
+            @Min(1) int quantity,
+            @NotEmpty List<@NotBlank String> planTypeCodes // ["ARCH","HYD"...]
+    ) {}
+}

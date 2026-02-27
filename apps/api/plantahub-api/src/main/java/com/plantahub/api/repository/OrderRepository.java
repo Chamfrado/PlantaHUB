@@ -30,4 +30,16 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     order by o.createdAt desc
   """)
     List<Order> findByUserIdWithItems(@Param("userId") UUID userId);
+
+    @Query("""
+    select distinct o from Order o
+    left join fetch o.items i
+    left join fetch i.selections s
+    left join fetch s.planType pt
+    where o.user.email = :email
+    order by o.createdAt desc
+  """)
+    List<Order> findMyOrders(@Param("email") String email);
+
+    Optional<Order> findByIdAndUserEmail(UUID id, String email);
 }

@@ -1,11 +1,13 @@
 package com.plantahub.api.service;
 
+import com.plantahub.api.domain.auth.AppUser;
 import com.plantahub.api.domain.orders.*;
+import com.plantahub.api.domain.downloads.DownloadEntitlement;
 import com.plantahub.api.domain.orders.enums.OrderStatus;
 import com.plantahub.api.repository.*;
 import com.plantahub.api.web.dto.orders.*;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
@@ -14,148 +16,127 @@ import java.util.*;
 public class CheckoutService {
 
     private final AppUserRepository userRepo;
+    private final OrderRepository orderRepo;
     private final ProductRepository productRepo;
     private final ProductPlanTypeRepository pptRepo;
-    private final PlanTypeRepository planTypeRepo;
-    private final OrderRepository orderRepo;
+    private final DownloadEntitlementRepository entitlementRepo;
 
     public CheckoutService(
             AppUserRepository userRepo,
+            OrderRepository orderRepo,
             ProductRepository productRepo,
             ProductPlanTypeRepository pptRepo,
-            PlanTypeRepository planTypeRepo,
-            OrderRepository orderRepo
+            DownloadEntitlementRepository entitlementRepo
     ) {
         this.userRepo = userRepo;
+        this.orderRepo = orderRepo;
         this.productRepo = productRepo;
         this.pptRepo = pptRepo;
-        this.planTypeRepo = planTypeRepo;
-        this.orderRepo = orderRepo;
+        this.entitlementRepo = entitlementRepo;
     }
 
     @Transactional
     public OrderResponseDTO createOrder(String email, CreateOrderRequest req) {
-        var user = userRepo.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+        AppUser user = userRepo.findByEmail(email).orElseThrow();
 
-        var product = productRepo.findById(req.productId())
-                .orElseThrow(() -> new IllegalArgumentException("product_not_found"));
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(OrderStatus.PENDING);
+        order.setCurrency("BRL");
+        order.setCreatedAt(Instant.now());
 
-        // tipos disponíveis do produto (com PlanType carregado)
-        var available = pptRepo.findAvailableByProductIdWithPlanType(product.getId());
+        int orderTotal = 0;
 
-        Map<String, com.plantahub.api.domain.catalog.ProductPlanType> byCode = new HashMap<>();
-        for (var ppt : available) {
-            byCode.put(ppt.getPlanType().getCode(), ppt);
+        for (var itemReq : req.items()) {
+            var product = productRepo.findById(itemReq.productId())
+                    .orElseThrow(() -> new IllegalArgumentException("product_not_found: " + itemReq.productId()));
+
+            OrderItem item = new OrderItem();
+            item.setOrder(order);
+            item.setProduct(product);
+            item.setQuantity(itemReq.quantity());
+
+            int selectionsTotal = 0;
+
+            for (String codeRaw : itemReq.planTypeCodes()) {
+                String code = codeRaw.toUpperCase();
+
+                var ppt = pptRepo.findByProductIdAndPlanTypeCode(product.getId(), code)
+                        .orElseThrow(() -> new IllegalArgumentException("plan_not_available: " + code));
+
+                int price = ppt.getPriceCents(); // aqui é o preço do tipo de planta
+                selectionsTotal += price;
+
+                OrderItemSelection sel = new OrderItemSelection();
+                sel.setOrderItem(item);
+                sel.setPlanType(ppt.getPlanType());
+                sel.setPriceCents(price);
+                item.getSelections().add(sel);
+            }
+
+            int itemTotal = selectionsTotal * itemReq.quantity();
+            item.setUnitPriceCents(selectionsTotal); // unit = soma das seleções
+            item.setTotalCents(itemTotal);
+
+            order.getItems().add(item);
+
+            orderTotal += itemTotal;
         }
 
-        List<String> selectedCodes = req.selectedPlanTypes().stream()
-                .map(String::toUpperCase)
-                .distinct()
-                .toList();
-
-        if (selectedCodes.isEmpty()) throw new IllegalArgumentException("no_plan_types_selected");
-
-        for (String code : selectedCodes) {
-            if (!byCode.containsKey(code)) throw new IllegalArgumentException("invalid_plan_type: " + code);
-        }
-
-        Instant now = Instant.now();
-
-        Order order = Order.builder()
-                .user(user)
-                .status(OrderStatus.PENDING) // seu enum default é PENDING
-                .currency("BRL")
-                .totalCents(0)
-                .createdAt(now)
-                .paidAt(null)
-                .build();
-
-        int base = Optional.ofNullable(product.getBasePriceCents()).orElse(0);
-        int addons = 0;
-
-        OrderItem item = OrderItem.builder()
-                .order(order)
-                .product(product)
-                .quantity(1)
-                .unitPriceCents(base)
-                .totalCents(0)
-                .build();
-
-        for (String code : selectedCodes) {
-            var ppt = byCode.get(code);
-
-            int price = Optional.ofNullable(ppt.getPriceCents()).orElse(0);
-            addons += price;
-            // traduz code -> PlanType (id) pra salvar em order_item_selection
-            var planType = ppt.getPlanType(); // já veio carregado pelo join fetch
-
-            item.getSelections().add(
-                    OrderItemSelection.builder()
-                            .orderItem(item)
-                            .planType(planType)
-                            .priceCents(price)
-                            .build()
-            );
-        }
-
-        int total = base + addons;
-        item.setTotalCents(total);
-
-        order.getItems().add(item);
-        order.setTotalCents(total);
+        order.setTotalCents(orderTotal);
 
         Order saved = orderRepo.save(order);
-        return toDTO(saved);
+        return OrderMapper.toDto(saved);
     }
 
-    @Transactional(readOnly = true)
-    public OrderResponseDTO getOrder(String email, UUID orderId) {
-        var user = userRepo.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
-
-        var order = orderRepo.findByIdAndUserIdWithItems(orderId, user.getId())
+    @Transactional
+    public OrderResponseDTO payMock(String email, UUID orderId) {
+        Order order = orderRepo.findByIdAndUserEmail(orderId, email)
                 .orElseThrow(() -> new IllegalArgumentException("order_not_found"));
 
-        return toDTO(order);
+        if (order.getStatus() == OrderStatus.PAID) {
+            return OrderMapper.toDto(order);
+        }
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("order_not_payable");
+        }
+
+        order.setStatus(OrderStatus.PAID);
+        order.setPaidAt(Instant.now());
+
+        // 🔥 Gera entitlements baseado nas seleções (A)
+        grantEntitlementsFromOrder(order);
+
+        return OrderMapper.toDto(order);
     }
 
-    @Transactional(readOnly = true)
+    private void grantEntitlementsFromOrder(Order order) {
+        UUID userId = order.getUser().getId();
+
+        for (OrderItem item : order.getItems()) {
+            String productId = item.getProduct().getId();
+
+            for (OrderItemSelection sel : item.getSelections()) {
+                UUID planTypeId = sel.getPlanType().getId();
+
+                // idempotente
+                if (entitlementRepo.existsByUserIdAndProductIdAndPlanTypeId(userId, productId, planTypeId)) {
+                    continue;
+                }
+
+                DownloadEntitlement ent = new DownloadEntitlement();
+                ent.setUser(order.getUser());
+                ent.setOrder(order);
+                ent.setProduct(item.getProduct());
+                ent.setPlanType(sel.getPlanType());
+                ent.setGrantedAt(Instant.now());
+
+                entitlementRepo.save(ent);
+            }
+        }
+    }
+
     public List<OrderResponseDTO> myOrders(String email) {
-        var user = userRepo.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
-
-        return orderRepo.findByUserIdWithItems(user.getId()).stream()
-                .map(this::toDTO)
-                .toList();
-    }
-
-    private OrderResponseDTO toDTO(Order o) {
-        var items = o.getItems().stream().map(i ->
-                new OrderItemDTO(
-                        i.getId(),
-                        i.getProduct().getId(),
-                        i.getProduct().getName(),
-                        i.getQuantity(),
-                        i.getUnitPriceCents(),
-                        i.getTotalCents(),
-                        i.getSelections().stream().map(s ->
-                                new OrderSelectionDTO(
-                                        s.getId(),
-                                        s.getPlanType().getCode(),
-                                        s.getPlanType().getName(),
-                                        s.getPriceCents()
-                                )
-                        ).toList()
-                )
-        ).toList();
-
-        return new OrderResponseDTO(
-                o.getId(),
-                o.getStatus().name(),
-                o.getCurrency(),
-                o.getTotalCents(),
-                items
-        );
+        return orderRepo.findMyOrders(email).stream().map(OrderMapper::toDto).toList();
     }
 }

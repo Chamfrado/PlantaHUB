@@ -24,4 +24,6 @@ public interface DownloadEntitlementRepository extends JpaRepository<DownloadEnt
     Optional<DownloadEntitlement> findByUser_IdAndOrder_IdAndProduct_IdAndPlanType_Id(
             UUID userId, UUID orderId, String productId, UUID planTypeId
     );
+
+    boolean existsByUserIdAndProductIdAndPlanTypeId(UUID userId, String productId, UUID planTypeId);
 }
