@@ -1,37 +1,46 @@
 package com.plantahub.api.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.plantahub.api.domain.catalog.DigitalAsset;
+import com.plantahub.api.domain.downloads.DownloadEntitlement;
+import com.plantahub.api.repository.DigitalAssetRepository;
+import com.plantahub.api.web.dto.downloads.DownloadResponseDTO;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.presigner.*;
-import software.amazon.awssdk.services.s3.model.*;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 public class DownloadService {
 
-    private final S3Presigner presigner;
+    private final EntitlementService entitlementService;
+    private final DigitalAssetRepository assetRepo;
+    private final S3DownloadService s3DownloadService;
 
-    @Value("${aws.s3.bucket}")
-    private String bucket;
-
-    public DownloadService(S3Presigner presigner) {
-        this.presigner = presigner;
+    public DownloadService(
+            EntitlementService entitlementService,
+            DigitalAssetRepository assetRepo,
+            S3DownloadService s3DownloadService
+    ) {
+        this.entitlementService = entitlementService;
+        this.assetRepo = assetRepo;
+        this.s3DownloadService = s3DownloadService;
     }
 
-    public String generatePresignedUrl(String storageKey) {
-        System.out.println("S3 bucket in use: " + bucket);
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(storageKey)
-                .build();
+    public DownloadResponseDTO downloadAll(String email, String productId, String planTypeCode) {
+        // 1) valida entitlement
+        DownloadEntitlement ent = entitlementService.validateEntitlement(email, productId, planTypeCode);
 
-        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(15)) // link válido por 15 min
-                .getObjectRequest(getObjectRequest)
-                .build();
+        // 2) lista assets do planType
+        List<DigitalAsset> assets = assetRepo.findAllByProductAndPlanType(productId, planTypeCode);
 
-        return presigner.presignGetObject(presignRequest).url().toString();
+        // 3) gera URL para cada asset
+        var files = assets.stream().map(a -> new DownloadResponseDTO.FileDTO(
+                a.getFilename(),
+                a.getStorageKey(),
+                s3DownloadService.generatePresignedUrl(a.getStorageKey(), Duration.ofMinutes(15)),
+                a.getSizeBytes()
+        )).toList();
+
+        return new DownloadResponseDTO(productId, planTypeCode, files);
     }
 }
