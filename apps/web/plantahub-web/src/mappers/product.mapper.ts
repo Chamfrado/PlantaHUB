@@ -8,12 +8,12 @@ export function mapProductSummaryToProduct(api: ProductSummaryResponse): Product
     slug: api.slug,
     name: api.name,
     shortDescription: api.shortDescription,
+    heroImageUrl: api.heroImageUrl ?? undefined,
     areaM2: api.areaM2,
     customizable: api.customizable,
-    heroImageUrl: api.heroImageUrl ?? '',
-    page: {
-      headline: api.name,
-      description: api.shortDescription,
+    price: {
+      amount: api.basePriceCents,
+      currency: 'BRL',
     },
-  };
+  } as Product;
 }

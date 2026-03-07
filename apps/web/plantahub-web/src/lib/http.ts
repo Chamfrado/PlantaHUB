@@ -2,13 +2,13 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-type RequestOptions = {
+type HttpOptions = {
   method?: HttpMethod;
   body?: unknown;
   headers?: Record<string, string>;
 };
 
-export async function http<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function http<T>(path: string, options: HttpOptions = {}): Promise<T> {
   const token = localStorage.getItem('token');
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -22,8 +22,8 @@ export async function http<T>(path: string, options: RequestOptions = {}): Promi
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Request failed with status ${response.status}`);
+    const message = await response.text();
+    throw new Error(message || `HTTP error ${response.status}`);
   }
 
   return response.json() as Promise<T>;

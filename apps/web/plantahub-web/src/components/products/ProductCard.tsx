@@ -72,13 +72,11 @@ export default function ProductCard({
 
         {/* price + button */}
         <div className="mt-6 flex items-center justify-between gap-4">
-          {product.price ? (
-            <div className="text-xl font-extrabold text-neutral-900">
-              {formatMoney(product.price.amount, product.price.currency)}
-            </div>
-          ) : (
-            <div className="text-sm font-semibold text-neutral-500">Consulte valores</div>
-          )}
+          <div className="text-xl font-extrabold text-neutral-900">
+            {product.price
+              ? formatMoney(product.price.amount, product.price.currency)
+              : 'Preço sob consulta'}
+          </div>
 
           <button
             onClick={() => onViewDetails?.(product)}
