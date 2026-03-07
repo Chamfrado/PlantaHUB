@@ -71,8 +71,8 @@ export default function ProductCard({
         ) : null}
 
         {/* price + button */}
-        <div className="mt-6 flex items-center justify-between gap-4">
-          <div className="text-xl font-extrabold text-neutral-900">
+        <div className="mt-6 flex items-center justify-between gap-4 ">
+          <div className="text-xl font-extrabold text-primary-500">
             {product.price
               ? formatMoney(product.price.amount, product.price.currency)
               : 'Preço sob consulta'}
