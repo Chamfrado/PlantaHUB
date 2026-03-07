@@ -8,5 +8,6 @@ public record ProductSummaryDTO(
         String shortDescription,
         Integer areaM2,
         String heroImageUrl,
-        Boolean customizable
+        Boolean customizable,
+        Integer basePriceCents
 ) {}

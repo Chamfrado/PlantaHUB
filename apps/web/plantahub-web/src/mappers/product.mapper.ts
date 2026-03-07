@@ -1,0 +1,19 @@
+import type { ProductSummaryResponse } from '../types/api/product';
+import type { Product } from '../types/ProductData';
+
+export function mapProductSummaryToProduct(api: ProductSummaryResponse): Product {
+  return {
+    id: api.id,
+    category: api.category,
+    slug: api.slug,
+    name: api.name,
+    shortDescription: api.shortDescription,
+    areaM2: api.areaM2,
+    customizable: api.customizable,
+    heroImageUrl: api.heroImageUrl ?? '',
+    page: {
+      headline: api.name,
+      description: api.shortDescription,
+    },
+  };
+}

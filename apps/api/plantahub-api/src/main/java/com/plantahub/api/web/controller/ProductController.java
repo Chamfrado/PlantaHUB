@@ -17,8 +17,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductSummaryDTO> list() {
-        return catalogService.listProducts();
+    public List<ProductSummaryDTO> list(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Integer limit
+    ) {
+        return catalogService.listProducts(category, limit);
     }
 
     @GetMapping("/{category}/{slug}")
