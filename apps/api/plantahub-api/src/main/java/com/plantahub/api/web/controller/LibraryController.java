@@ -1,11 +1,10 @@
 package com.plantahub.api.web.controller;
 
 import com.plantahub.api.service.LibraryService;
-import com.plantahub.api.web.dto.Library.LibraryProductDTO;
+import com.plantahub.api.web.dto.library.LibraryProductDTO;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,16 +19,7 @@ public class LibraryController {
     }
 
     @GetMapping("/me/library")
-    public List<LibraryProductDTO> myLibrary(@AuthenticationPrincipal Object principal) {
-        String email = extractEmail(principal);
-        return libraryService.myLibrary(email);
-    }
-
-    private String extractEmail(Object principal) {
-        if (principal == null) return "";
-        if (principal instanceof org.springframework.security.core.userdetails.UserDetails ud) {
-            return ud.getUsername();
-        }
-        return principal.toString();
+    public List<LibraryProductDTO> myLibrary(@AuthenticationPrincipal UserDetails user) {
+        return libraryService.myLibrary(user.getUsername());
     }
 }

@@ -139,4 +139,59 @@ public class CheckoutService {
     public List<OrderResponseDTO> myOrders(String email) {
         return orderRepo.findMyOrders(email).stream().map(OrderMapper::toDto).toList();
     }
+
+    @Transactional
+    public OrderActionResponseDTO cancelOrder(String email, UUID orderId) {
+        Order order = orderRepo.findByIdAndUserEmail(orderId, email)
+                .orElseThrow(() -> new IllegalArgumentException("order_not_found"));
+
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            return new OrderActionResponseDTO(order.getId(), order.getStatus().name(), "order_already_canceled");
+        }
+
+        if (order.getStatus() == OrderStatus.REFUNDED) {
+            throw new IllegalArgumentException("order_already_refunded");
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("order_not_cancelable");
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+
+        return new OrderActionResponseDTO(order.getId(), order.getStatus().name(), "order_canceled");
+    }
+
+    @Transactional
+    public OrderActionResponseDTO refundMock(String email, UUID orderId) {
+        Order order = orderRepo.findByIdAndUserEmail(orderId, email)
+                .orElseThrow(() -> new IllegalArgumentException("order_not_found"));
+
+        if (order.getStatus() == OrderStatus.REFUNDED) {
+            return new OrderActionResponseDTO(order.getId(), order.getStatus().name(), "order_already_refunded");
+        }
+
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new IllegalArgumentException("canceled_order_cannot_be_refunded");
+        }
+
+        if (order.getStatus() != OrderStatus.PAID) {
+            throw new IllegalArgumentException("order_not_refundable");
+        }
+
+        order.setStatus(OrderStatus.REFUNDED);
+
+        revokeEntitlementsFromOrder(order);
+
+        return new OrderActionResponseDTO(order.getId(), order.getStatus().name(), "order_refunded");
+    }
+
+    private void revokeEntitlementsFromOrder(Order order) {
+        var entitlements = entitlementRepo.findByOrderIdAndRevokedAtIsNull(order.getId());
+        Instant now = Instant.now();
+
+        for (var ent : entitlements) {
+            ent.setRevokedAt(now);
+        }
+    }
 }

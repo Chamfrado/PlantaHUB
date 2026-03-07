@@ -1,4 +1,4 @@
-package com.plantahub.api.web.dto.Library;
+package com.plantahub.api.web.dto.library;
 
 import java.util.List;
 

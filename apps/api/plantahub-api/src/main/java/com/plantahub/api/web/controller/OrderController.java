@@ -39,4 +39,20 @@ public class OrderController {
     public List<OrderResponseDTO> myOrders(@AuthenticationPrincipal UserDetails user) {
         return checkoutService.myOrders(user.getUsername());
     }
+
+    @PostMapping("/me/orders/{orderId}/cancel")
+    public OrderActionResponseDTO cancel(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID orderId
+    ) {
+        return checkoutService.cancelOrder(user.getUsername(), orderId);
+    }
+
+    @PostMapping("/me/orders/{orderId}/refund-mock")
+    public OrderActionResponseDTO refundMock(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID orderId
+    ) {
+        return checkoutService.refundMock(user.getUsername(), orderId);
+    }
 }
