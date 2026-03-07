@@ -23,4 +23,20 @@ public interface DigitalAssetRepository extends JpaRepository<DigitalAsset, UUID
             @Param("planTypeCode") String planTypeCode
     );
 
+
+
+    @Query("""
+      select da
+      from DigitalAsset da
+      join fetch da.productPlanType ppt
+      join fetch ppt.product p
+      join fetch ppt.planType pt
+      where p.id in :productIds
+        and pt.code in :planTypeCodes
+      order by p.id, pt.code, da.version desc, da.createdAt desc
+    """)
+    List<DigitalAsset> findAssetsForLibrary(
+            List<String> productIds,
+            List<String> planTypeCodes
+    );
 }

@@ -26,4 +26,19 @@ public interface DownloadEntitlementRepository extends JpaRepository<DownloadEnt
     );
 
     boolean existsByUserIdAndProductIdAndPlanTypeId(UUID userId, String productId, UUID planTypeId);
+
+
+    @Query("""
+      select de
+      from DownloadEntitlement de
+      join fetch de.product p
+      join fetch de.planType pt
+      join fetch de.order o
+      join de.user u
+      where u.email = :email
+        and de.revokedAt is null
+        and o.status = 'PAID'
+      order by p.category, p.slug, pt.code
+    """)
+    List<DownloadEntitlement> findActiveByEmail(String email);
 }
