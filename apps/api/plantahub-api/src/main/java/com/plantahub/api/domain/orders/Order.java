@@ -8,8 +8,10 @@ import lombok.*;
 import java.time.Instant;
 import java.util.*;
 
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "orders")
@@ -24,18 +26,14 @@ public class Order {
     private AppUser user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(name = "status", nullable = false, length = 32)
     private OrderStatus status;
-
-
 
     @Column(name = "total_cents", nullable = false)
     private Integer totalCents;
 
     @Column(name = "currency", nullable = false, columnDefinition = "CHAR(3)")
     private String currency;
-
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
