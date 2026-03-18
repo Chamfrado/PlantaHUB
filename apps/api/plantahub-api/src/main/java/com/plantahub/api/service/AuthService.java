@@ -4,8 +4,11 @@ import com.plantahub.api.domain.auth.AppUser;
 import com.plantahub.api.domain.auth.enums.UserRole;
 import com.plantahub.api.repository.AppUserRepository;
 import com.plantahub.api.security.JwtService;
-import com.plantahub.api.web.dto.auth.*;
-import org.springframework.security.authentication.*;
+import com.plantahub.api.web.dto.auth.AuthResponse;
+import com.plantahub.api.web.dto.auth.LoginRequest;
+import com.plantahub.api.web.dto.auth.RegisterRequest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +22,10 @@ public class AuthService {
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
 
-    public AuthService(AppUserRepository repo, PasswordEncoder encoder,
-                       AuthenticationManager authManager, JwtService jwtService) {
+    public AuthService(AppUserRepository repo,
+                       PasswordEncoder encoder,
+                       AuthenticationManager authManager,
+                       JwtService jwtService) {
         this.repo = repo;
         this.encoder = encoder;
         this.authManager = authManager;
@@ -38,8 +43,10 @@ public class AuthService {
                 .email(email)
                 .passwordHash(encoder.encode(req.password()))
                 .fullName(req.fullName())
-                .role(UserRole.USER)   // ✅ correto
+                .role(UserRole.USER)
                 .createdAt(Instant.now())
+                .active(true)
+                .deletedAt(null)
                 .build();
 
         repo.save(user);
@@ -51,7 +58,8 @@ public class AuthService {
         var token = new UsernamePasswordAuthenticationToken(email, req.password());
         authManager.authenticate(token);
 
-        var user = repo.findByEmail(email).orElseThrow(); // já autenticou, então existe
+        var user = repo.findByEmailAndActiveTrueAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("user_deleted"));
 
         String jwt = jwtService.generateAccessToken(email, user.getRole().name());
         return new AuthResponse(jwt, "Bearer", user.getFullName());

@@ -10,4 +10,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, UUID> {
     Optional<AppUser> findByEmail(String email);
     boolean existsByEmail(String email);
     Optional<AppUser> findByCpf(String cpf);
+    Optional<AppUser> findByEmailAndActiveTrueAndDeletedAtIsNull(String email);
+    boolean existsByEmailAndActiveTrueAndDeletedAtIsNull(String email);
 }

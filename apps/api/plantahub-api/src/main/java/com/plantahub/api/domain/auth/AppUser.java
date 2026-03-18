@@ -40,4 +40,10 @@ public class AppUser {
 
     @Column(name = "cpf", length = 14, unique = true)
     private String cpf;
+
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 }
