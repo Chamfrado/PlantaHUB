@@ -5,8 +5,10 @@ import TermsOfServicePage from '../../pages/legal/TermsOfServicePage';
 import AboutUs from '../../pages/public/About/AboutUs';
 import ContactPage from '../../pages/public/Contact/ContactPage';
 import Home from '../../pages/public/Home/Home';
+import Login from '../../pages/public/Login/Login';
 import ProductDetails from '../../pages/public/ProductDetails/ProductDetails';
 import ProductsPage from '../../pages/public/Products/Products';
+import Register from '../../pages/public/Register/Register';
 import MainLayout from '../layouts/MainLayout';
 
 export default function AppRoutes() {
@@ -20,6 +22,8 @@ export default function AppRoutes() {
         <Route path="/:category/:slug" element={<ProductDetails />} />
         <Route path="/legal/termos" element={<TermsOfServicePage />} />
         <Route path="/legal/privacidade" element={<PrivacyPolicyPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

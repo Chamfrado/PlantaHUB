@@ -36,17 +36,17 @@ export default function Header() {
         {/* Actions */}
         <div className="flex items-center gap-4">
           <Link
-            to="/signin"
+            to="/login"
             className="text-sm font-semibold text-neutral-700 hover:text-primary-500 transition"
           >
             Entrar
           </Link>
 
           <Link
-            to="/products"
+            to="/register"
             className="px-5 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold"
           >
-            Começar
+            Criar conta
           </Link>
         </div>
       </div>
