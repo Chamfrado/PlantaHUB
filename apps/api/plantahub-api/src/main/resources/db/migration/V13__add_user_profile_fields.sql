@@ -1,0 +1,6 @@
+ALTER TABLE app_user
+    ADD COLUMN IF NOT EXISTS phone_number VARCHAR(20),
+    ADD COLUMN IF NOT EXISTS cpf VARCHAR(14);
+
+ALTER TABLE app_user
+    ADD CONSTRAINT uq_app_user_cpf UNIQUE (cpf);

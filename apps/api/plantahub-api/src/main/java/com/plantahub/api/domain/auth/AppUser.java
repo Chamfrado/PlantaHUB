@@ -34,4 +34,10 @@ public class AppUser {
     @Column(name = "role", nullable = false)
     @Builder.Default
     private UserRole role = UserRole.USER;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Column(name = "cpf", length = 14, unique = true)
+    private String cpf;
 }
