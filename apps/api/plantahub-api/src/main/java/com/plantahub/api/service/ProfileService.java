@@ -2,9 +2,11 @@ package com.plantahub.api.service;
 
 import com.plantahub.api.domain.auth.AppUser;
 import com.plantahub.api.repository.AppUserRepository;
+import com.plantahub.api.shared.exception.ProfileIncompleteException;
 import com.plantahub.api.shared.util.CpfUtils;
 import com.plantahub.api.shared.util.PhoneUtils;
 import com.plantahub.api.web.dto.profile.ProfileResponse;
+import com.plantahub.api.web.dto.profile.ProfileStatusResponse;
 import com.plantahub.api.web.dto.profile.UpdateProfileRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,6 +86,53 @@ public class ProfileService {
                 user.getRole().name(),
                 cpfLocked,
                 profileCompleted
+        );
+    }
+
+
+    @Transactional(readOnly = true)
+    public java.util.List<String> getMissingProfileFields(String email) {
+        var user = repo.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
+        java.util.List<String> missing = new java.util.ArrayList<>();
+
+        if (user.getFullName() == null || user.getFullName().isBlank()) {
+            missing.add("fullName");
+        }
+        if (user.getCpf() == null || user.getCpf().isBlank()) {
+            missing.add("cpf");
+        }
+        if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
+            missing.add("phoneNumber");
+        }
+
+        return missing;
+    }
+
+    @Transactional(readOnly = true)
+    public void assertProfileComplete(String email) {
+        var missing = getMissingProfileFields(email);
+
+        if (!missing.isEmpty()) {
+            throw new ProfileIncompleteException(missing);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileStatusResponse getProfileStatus(String email) {
+        var user = repo.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
+        var missingFields = getMissingProfileFields(email);
+
+        boolean cpfLocked = user.getCpf() != null && !user.getCpf().isBlank();
+        boolean profileCompleted = missingFields.isEmpty();
+
+        return new ProfileStatusResponse(
+                profileCompleted,
+                cpfLocked,
+                missingFields
         );
     }
 }

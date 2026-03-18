@@ -20,24 +20,30 @@ public class CheckoutService {
     private final ProductRepository productRepo;
     private final ProductPlanTypeRepository pptRepo;
     private final DownloadEntitlementRepository entitlementRepo;
+    private final ProfileService profileService;
 
     public CheckoutService(
             AppUserRepository userRepo,
             OrderRepository orderRepo,
             ProductRepository productRepo,
             ProductPlanTypeRepository pptRepo,
-            DownloadEntitlementRepository entitlementRepo
+            DownloadEntitlementRepository entitlementRepo,
+            ProfileService profileService
     ) {
         this.userRepo = userRepo;
         this.orderRepo = orderRepo;
         this.productRepo = productRepo;
         this.pptRepo = pptRepo;
         this.entitlementRepo = entitlementRepo;
+        this.profileService = profileService;
     }
 
     @Transactional
     public OrderResponseDTO createOrder(String email, CreateOrderRequest req) {
-        AppUser user = userRepo.findByEmail(email).orElseThrow();
+        profileService.assertProfileComplete(email);
+
+        AppUser user = userRepo.findByEmail(email)
+                .orElseThrow();
 
         Order order = new Order();
         order.setUser(user);
@@ -64,7 +70,7 @@ public class CheckoutService {
                 var ppt = pptRepo.findByProductIdAndPlanTypeCode(product.getId(), code)
                         .orElseThrow(() -> new IllegalArgumentException("plan_not_available: " + code));
 
-                int price = ppt.getPriceCents(); // aqui é o preço do tipo de planta
+                int price = ppt.getPriceCents();
                 selectionsTotal += price;
 
                 OrderItemSelection sel = new OrderItemSelection();
@@ -75,11 +81,10 @@ public class CheckoutService {
             }
 
             int itemTotal = selectionsTotal * itemReq.quantity();
-            item.setUnitPriceCents(selectionsTotal); // unit = soma das seleções
+            item.setUnitPriceCents(selectionsTotal);
             item.setTotalCents(itemTotal);
 
             order.getItems().add(item);
-
             orderTotal += itemTotal;
         }
 
@@ -91,6 +96,7 @@ public class CheckoutService {
 
     @Transactional
     public OrderResponseDTO payMock(String email, UUID orderId) {
+        profileService.assertProfileComplete(email);
         Order order = orderRepo.findByIdAndUserEmail(orderId, email)
                 .orElseThrow(() -> new IllegalArgumentException("order_not_found"));
 

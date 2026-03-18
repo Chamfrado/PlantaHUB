@@ -2,6 +2,7 @@ package com.plantahub.api.web.controller;
 
 import com.plantahub.api.service.ProfileService;
 import com.plantahub.api.web.dto.profile.ProfileResponse;
+import com.plantahub.api.web.dto.profile.ProfileStatusResponse;
 import com.plantahub.api.web.dto.profile.UpdateProfileRequest;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,5 +37,10 @@ import org.springframework.web.bind.annotation.*;
                 @Valid @RequestBody UpdateProfileRequest req
         ) {
             return profileService.updateProfile(user.getUsername(), req);
+        }
+
+        @GetMapping("/profile/status")
+        public ProfileStatusResponse getProfileStatus(@AuthenticationPrincipal UserDetails user) {
+            return profileService.getProfileStatus(user.getUsername());
         }
     }
