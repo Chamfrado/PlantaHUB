@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCarouselSection from '../../components/products/ProductCarouselSection';
 import { mapProductSummaryToProduct } from '../../mappers/product.mapper';
 import { listProducts } from '../../services/products.service';
@@ -8,6 +9,16 @@ export default function ResidentialHouses() {
   const [houses, setHouses] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  function handleViewProduct(category: string, slug: string) {
+    navigate(`/${category}/${slug}`);
+  }
+
+  function handleViewAllHouses() {
+    navigate(`/produtos?category=casas`);
+  }
 
   useEffect(() => {
     async function loadHouses() {
@@ -61,8 +72,8 @@ export default function ResidentialHouses() {
       limit={3}
       defaultTier="confort"
       footerCtaLabel="Ver todas as casas"
-      onFooterCtaClick={() => console.log('ir para listagem')}
-      onViewDetails={p => console.log('abrir detalhes', p.id)}
+      onFooterCtaClick={() => handleViewAllHouses()}
+      onViewDetails={p => handleViewProduct(p.category, p.slug)}
       actionLabel="Ver detalhes"
     />
   );

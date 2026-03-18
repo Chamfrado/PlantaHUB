@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 type Props = {
   title?: string;
   subtitle?: string;
@@ -13,10 +15,17 @@ export default function FinalCTA({
   subtitle = 'Junte-se a milhares de clientes satisfeitos que construíram com sucesso usando nossas plantas arquitetônicas profissionais.',
   primaryLabel = 'Explorar todos os projetos',
   secondaryLabel = 'Falar com o Comercial',
-  onPrimaryClick,
-  onSecondaryClick,
   bullets = ['Download imediato', 'Atualizações vitalícias', 'Suporte especializado'],
 }: Props) {
+  const navigator = useNavigate();
+
+  function onPrimaryClick() {
+    navigator('/produtos');
+  }
+
+  function onSecondaryClick() {
+    navigator('/contato');
+  }
   return (
     <section className="bg-primary-500">
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20 text-center">

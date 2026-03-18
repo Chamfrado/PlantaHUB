@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { mapProductSummaryToProduct } from '../../mappers/product.mapper';
 import { listProducts } from '../../services/products.service';
 import type { Product } from '../../types/ProductData';
@@ -8,6 +9,16 @@ export default function ChaletsSection() {
   const [chalets, setChalets] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  function handleViewProduct(category: string, slug: string) {
+    navigate(`/${category}/${slug}`);
+  }
+
+  function handleViewAllChalets() {
+    navigate(`/produtos?category=chales`);
+  }
 
   useEffect(() => {
     async function loadChalets() {
@@ -61,8 +72,8 @@ export default function ChaletsSection() {
       limit={3}
       defaultTier="prime"
       footerCtaLabel="Ver todos os chalés"
-      onFooterCtaClick={() => console.log('ir para listagem de chalés')}
-      onViewDetails={p => console.log('abrir detalhes do chalé', p.id)}
+      onFooterCtaClick={() => handleViewAllChalets()}
+      onViewDetails={p => handleViewProduct(p.category, p.slug)}
       actionLabel="Ver detalhes"
     />
   );

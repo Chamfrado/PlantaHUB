@@ -5,8 +5,8 @@ import logotipo from '../../assets/logotipo.png';
 
 export default function Footer() {
   const products: LinkItem[] = [
-    { label: 'Casas', href: '/produtos' },
-    { label: 'Chalés', href: '/produtos' },
+    { label: 'Casas', href: '/produtos?category=casas' },
+    { label: 'Chalés', href: '/produtos?category=chales' },
   ];
 
   const company: LinkItem[] = [

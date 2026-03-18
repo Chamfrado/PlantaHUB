@@ -99,12 +99,6 @@ function formatMoney(value: number, currency: 'BRL' | 'USD' | 'EUR') {
   });
 }
 
-/**
- * You were highlighting tier-like tags (Comfort/Prime/Diamond).
- * Now you can highlight by:
- * - tag text (Comfort/Prime/Diamond) OR
- * - product.slug (confort/prime/diamond)
- */
 function isTierTag(tag: string, slug?: string) {
   const t = tag.trim().toLowerCase();
   const s = (slug ?? '').trim().toLowerCase();

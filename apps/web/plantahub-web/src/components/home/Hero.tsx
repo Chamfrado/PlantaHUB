@@ -1,12 +1,11 @@
 import { Check, Leaf, Timer, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type HeroProps = {
   title?: string;
   subtitle?: string;
   primaryCtaText?: string;
   secondaryCtaText?: string;
-  onPrimaryClick?: () => void;
-  onSecondaryClick?: () => void;
   imageSrc?: string;
 };
 
@@ -15,10 +14,13 @@ export default function Hero({
   subtitle = 'Projetos BIM, DWG, and PDF projects with all technical documentation. Certificados por CAU/CREA. Construa de forma mais rápida, inteligente e sustentável.',
   primaryCtaText = 'Explorar projetos',
   secondaryCtaText = 'Como Funciona',
-  onPrimaryClick,
-  onSecondaryClick,
   imageSrc,
 }: HeroProps) {
+  const navigate = useNavigate();
+
+  const onPrimaryClick = () => navigate('/produtos?category=casas');
+  const onSecondaryClick = () => navigate('/sobre');
+
   return (
     <section className="bg-white">
       <div className="max-w-7xl mx-auto px-6 py-14 md:py-20">

@@ -6,10 +6,12 @@ import ResidentialHouses from '../../../components/home/ResidentialHouses';
 import WhyChoose from '../../../components/home/WhyChoose';
 
 export default function Home() {
+  const coverImageUrl =
+    'https://plantahub-assets.s3.us-east-2.amazonaws.com/gallery/hero-cover.webp';
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
       <main className="flex-1">
-        <Hero />
+        <Hero imageSrc={coverImageUrl} />
         <WhyChoose />
         <ResidentialHouses />
         <ChaletsSection />
