@@ -1,11 +1,11 @@
 import { Chrome, Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { saveAuth } from '../../lib/auth';
-import { login, register } from '../../services/auth.service';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,9 +32,6 @@ export default function RegisterForm() {
         email,
         password,
       });
-
-      const auth = await login({ email, password });
-      saveAuth(auth.accessToken, auth.tokenType);
 
       navigate('/');
     } catch (err) {

@@ -6,6 +6,7 @@ export type LoginRequest = {
 export type AuthResponse = {
   accessToken: string;
   tokenType: string;
+  fullName?: string;
 };
 
 export type RegisterRequest = {

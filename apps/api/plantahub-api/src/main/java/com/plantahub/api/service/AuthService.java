@@ -54,6 +54,6 @@ public class AuthService {
         var user = repo.findByEmail(email).orElseThrow(); // já autenticou, então existe
 
         String jwt = jwtService.generateAccessToken(email, user.getRole().name());
-        return new AuthResponse(jwt, "Bearer");
+        return new AuthResponse(jwt, "Bearer", user.getFullName());
     }
 }

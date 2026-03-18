@@ -31,8 +31,16 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `HTTP error ${response.status}`);
+    let message = `HTTP error ${response.status}`;
+
+    try {
+      const text = await response.text();
+      if (text) message = text;
+    } catch {
+      // ignore
+    }
+
+    throw new Error(message);
   }
 
   if (response.status === 204) {
