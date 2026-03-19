@@ -1,6 +1,8 @@
 import { CheckCircle2, CreditCard, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useToast } from '../../components/ui/use-toast';
+import { getApiErrorMessage } from '../../lib/api-error';
 import { getMyOrders, payMock } from '../../services/order.service';
 import type { OrderResponseDTO } from '../../types/api/order';
 
@@ -11,6 +13,8 @@ export default function OrderDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { showToast } = useToast();
 
   async function loadOrders() {
     try {
@@ -40,9 +44,20 @@ export default function OrderDetailsPage() {
       setError(null);
       const updated = await payMock(order.id);
       setOrders(prev => prev.map(item => (item.id === updated.id ? updated : item)));
-    } catch (err) {
-      console.error(err);
-      setError('Não foi possível concluir o pagamento mock.');
+      showToast({
+        variant: 'success',
+        title: 'Pagamento confirmado',
+        description: 'Seu pedido foi pago com sucesso.',
+      });
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Não foi possível concluir o pagamento mock.');
+
+      setError(message);
+      showToast({
+        variant: 'error',
+        title: 'Erro no pagamento',
+        description: message,
+      });
     } finally {
       setPaying(false);
     }

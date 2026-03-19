@@ -1,7 +1,9 @@
 import { Chrome, Lock, Mail } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getApiErrorMessage } from '../../lib/api-error';
+import { useToast } from '../ui/use-toast';
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -13,6 +15,10 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
+  const { showToast } = useToast();
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -21,10 +27,17 @@ export default function LoginForm() {
       setError(null);
 
       await login({ email, password });
-      navigate('/');
-    } catch (err) {
-      console.error(err);
-      setError('E-mail ou senha inválidos.');
+      navigate(redirect, { replace: true });
+      showToast({
+        variant: 'success',
+        title: 'Login realizado com sucesso',
+      });
+    } catch (error) {
+      showToast({
+        variant: 'error',
+        title: 'Não foi possível entrar',
+        description: getApiErrorMessage(error, 'Verifique suas credenciais e tente novamente.'),
+      });
     } finally {
       setLoading(false);
     }

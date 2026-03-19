@@ -1,6 +1,8 @@
 import { Loader2, ShoppingBag, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/ui/use-toast';
+import { getApiErrorMessage } from '../../lib/api-error';
 import {
   checkoutFromCart,
   clearCart,
@@ -18,6 +20,8 @@ export default function CartPage() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { showToast } = useToast();
 
   async function loadCart() {
     try {
@@ -42,9 +46,19 @@ export default function CartPage() {
       setBusyItemId(itemId);
       await removeCartItem(itemId);
       await loadCart();
-    } catch (err) {
-      console.error(err);
-      setError('Não foi possível remover o item.');
+      showToast({
+        variant: 'success',
+        title: 'Item removido do carrinho',
+      });
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Não foi possível remover o item.');
+
+      setError(message);
+      showToast({
+        variant: 'error',
+        title: 'Erro ao remover item',
+        description: message,
+      });
     } finally {
       setBusyItemId(null);
     }
@@ -55,9 +69,19 @@ export default function CartPage() {
       setClearing(true);
       await clearCart();
       await loadCart();
-    } catch (err) {
-      console.error(err);
-      setError('Não foi possível limpar o carrinho.');
+      showToast({
+        variant: 'success',
+        title: 'Carrinho limpo com sucesso',
+      });
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Não foi possível limpar o carrinho.');
+
+      setError(message);
+      showToast({
+        variant: 'error',
+        title: 'Erro ao limpar carrinho',
+        description: message,
+      });
     } finally {
       setClearing(false);
     }
@@ -68,10 +92,21 @@ export default function CartPage() {
       setCheckingOut(true);
       setError(null);
       const order = await checkoutFromCart();
+      showToast({
+        variant: 'success',
+        title: 'Checkout iniciado',
+        description: 'Seu pedido foi criado com sucesso.',
+      });
       navigate(`/pedidos/${order.id}`);
-    } catch (err) {
-      console.error(err);
-      setError('Não foi possível finalizar o checkout.');
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Não foi possível finalizar o checkout.');
+
+      setError(message);
+      showToast({
+        variant: 'error',
+        title: 'Erro no checkout',
+        description: message,
+      });
     } finally {
       setCheckingOut(false);
     }

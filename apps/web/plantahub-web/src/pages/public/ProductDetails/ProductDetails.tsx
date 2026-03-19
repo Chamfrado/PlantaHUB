@@ -1,9 +1,11 @@
 import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ProductHero from '../../../components/products/ProductHero';
 import ProductPlanSelector from '../../../components/products/ProductPlanSelector';
+import { useToast } from '../../../components/ui/use-toast';
 import { getProductByRoute } from '../../../data/productSelector';
+import { getApiErrorMessage } from '../../../lib/api-error';
 import { addCartItem } from '../../../services/cart.service';
 import { createOrder } from '../../../services/order.service';
 import { getProductPlanTypes } from '../../../services/products.service';
@@ -22,6 +24,10 @@ export default function ProductDetails() {
   const [loadingPlanTypes, setLoadingPlanTypes] = useState(true);
   const [submitting, setSubmitting] = useState<'buy' | 'cart' | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const location = useLocation();
+  const { showToast } = useToast();
+  const currentPath = location.pathname + location.search;
 
   useEffect(() => {
     let active = true;
@@ -65,7 +71,7 @@ export default function ProductDetails() {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      navigate(`/login?redirect=/${category}/${slug}`);
+      navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return false;
     }
 
@@ -73,14 +79,28 @@ export default function ProductDetails() {
       const profileStatus = await getMyProfileStatus();
 
       if (!profileStatus.profileCompleted) {
-        navigate(`/configs?redirect=/${category}/${slug}`);
+        navigate(`/configs?redirect=${encodeURIComponent(currentPath)}`);
+        showToast({
+          variant: 'info',
+          title: 'Complete seu perfil para continuar',
+          description: 'Preencha os dados obrigatórios antes de finalizar sua compra.',
+        });
         return false;
       }
 
       return true;
     } catch (error) {
       console.error(error);
-      setActionError('Não foi possível validar seu perfil no momento.');
+
+      const message = getApiErrorMessage(error, 'Não foi possível validar seu perfil no momento.');
+
+      setActionError(message);
+      showToast({
+        variant: 'error',
+        title: 'Falha ao validar perfil',
+        description: message,
+      });
+
       return false;
     }
   }
@@ -105,10 +125,25 @@ export default function ProductDetails() {
         planTypeCodes: selectedCodes,
       });
 
+      showToast({
+        variant: 'success',
+        title: 'Produto adicionado ao carrinho',
+        description: 'Você já pode revisar os itens e finalizar a compra.',
+      });
+
       navigate('/carrinho');
     } catch (error) {
-      console.error(error);
-      setActionError('Não foi possível adicionar o produto ao carrinho.');
+      const message = getApiErrorMessage(
+        error,
+        'Não foi possível adicionar o produto ao carrinho.'
+      );
+
+      setActionError(message);
+      showToast({
+        variant: 'error',
+        title: 'Erro ao adicionar ao carrinho',
+        description: message,
+      });
     } finally {
       setSubmitting(null);
     }
@@ -139,10 +174,22 @@ export default function ProductDetails() {
         ],
       });
 
+      showToast({
+        variant: 'success',
+        title: 'Pedido criado com sucesso',
+        description: 'Agora é só concluir o pagamento.',
+      });
+
       navigate(`/pedidos/${order.id}`);
     } catch (error) {
-      console.error(error);
-      setActionError('Não foi possível criar o pedido.');
+      const message = getApiErrorMessage(error, 'Não foi possível criar o pedido.');
+
+      setActionError(message);
+      showToast({
+        variant: 'error',
+        title: 'Erro ao criar pedido',
+        description: message,
+      });
     } finally {
       setSubmitting(null);
     }

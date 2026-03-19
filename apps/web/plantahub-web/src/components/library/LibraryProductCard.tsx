@@ -24,7 +24,7 @@ export default function LibraryProductCard({ product }: Props) {
   return (
     <article className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
       <div className="grid gap-0 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="h-full min-h-[240px] bg-neutral-100">
+        <div className="h-full min-h-240px bg-neutral-100">
           {product.heroImageUrl ? (
             <img
               src={product.heroImageUrl}
@@ -33,7 +33,7 @@ export default function LibraryProductCard({ product }: Props) {
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full min-h-[240px] items-center justify-center text-sm text-neutral-400">
+            <div className="flex h-full min-h-240px items-center justify-center text-sm text-neutral-400">
               Sem imagem
             </div>
           )}
