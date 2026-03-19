@@ -4,6 +4,7 @@ import com.plantahub.api.domain.catalog.ProductPlanType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,5 +21,9 @@ public interface ProductPlanTypeRepository extends JpaRepository<ProductPlanType
   """)
     List<ProductPlanType> findAvailableByProductIdWithPlanType(String productId);
 
-    Optional<ProductPlanType> findByProductIdAndPlanTypeCode(String productId, String planTypeCode);
+    Optional<ProductPlanType> findByProduct_IdAndPlanType_Code(String productId, String planTypeCode);
+
+    List<ProductPlanType> findAllByProduct_Id(String productId);
+
+    List<ProductPlanType> findAllByProduct_IdIn(Collection<String> productIds);
 }

@@ -67,7 +67,7 @@ public class CheckoutService {
             for (String codeRaw : itemReq.planTypeCodes()) {
                 String code = codeRaw.toUpperCase();
 
-                var ppt = pptRepo.findByProductIdAndPlanTypeCode(product.getId(), code)
+                var ppt = pptRepo.findByProduct_IdAndPlanType_Code(product.getId(), code)
                         .orElseThrow(() -> new IllegalArgumentException("plan_not_available: " + code));
 
                 int price = ppt.getPriceCents();
