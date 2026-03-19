@@ -1,6 +1,7 @@
 import { Loader2, ShoppingBag, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../../app/providers/useCart';
 import { useToast } from '../../components/ui/use-toast';
 import { getApiErrorMessage } from '../../lib/api-error';
 import {
@@ -20,6 +21,8 @@ export default function CartPage() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { refreshCart } = useCart();
 
   const { showToast } = useToast();
 
@@ -45,7 +48,8 @@ export default function CartPage() {
     try {
       setBusyItemId(itemId);
       await removeCartItem(itemId);
-      await loadCart();
+      await Promise.all([loadCart(), refreshCart()]);
+
       showToast({
         variant: 'success',
         title: 'Item removido do carrinho',
@@ -69,6 +73,7 @@ export default function CartPage() {
       setClearing(true);
       await clearCart();
       await loadCart();
+      await refreshCart();
       showToast({
         variant: 'success',
         title: 'Carrinho limpo com sucesso',
@@ -77,6 +82,7 @@ export default function CartPage() {
       const message = getApiErrorMessage(error, 'Não foi possível limpar o carrinho.');
 
       setError(message);
+      await refreshCart();
       showToast({
         variant: 'error',
         title: 'Erro ao limpar carrinho',
@@ -92,11 +98,14 @@ export default function CartPage() {
       setCheckingOut(true);
       setError(null);
       const order = await checkoutFromCart();
+      await refreshCart();
+
       showToast({
         variant: 'success',
         title: 'Checkout iniciado',
         description: 'Seu pedido foi criado com sucesso.',
       });
+
       navigate(`/pedidos/${order.id}`);
     } catch (error) {
       const message = getApiErrorMessage(error, 'Não foi possível finalizar o checkout.');

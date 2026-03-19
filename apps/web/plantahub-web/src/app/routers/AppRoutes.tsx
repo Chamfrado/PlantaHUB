@@ -15,63 +15,66 @@ import ProductDetails from '../../pages/public/ProductDetails/ProductDetails';
 import ProductsPage from '../../pages/public/Products/Products';
 import Register from '../../pages/public/Register/Register';
 import MainLayout from '../layouts/MainLayout';
+import { CartProvider } from '../providers/CartProvider';
 import ProtectedRoute from './ProtectedRoute';
 
 export default function AppRoutes() {
   return (
     <ToastProvider>
-      <ScrollToTop />
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/produtos" element={<ProductsPage />} />
-          <Route path="/sobre" element={<AboutUs />} />
-          <Route path="/contato" element={<ContactPage />} />
-          <Route path="/:category/:slug" element={<ProductDetails />} />
-          <Route path="/legal/termos" element={<TermsOfServicePage />} />
-          <Route path="/legal/privacidade" element={<PrivacyPolicyPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+      <CartProvider>
+        <ScrollToTop />
+        <Routes>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/produtos" element={<ProductsPage />} />
+            <Route path="/sobre" element={<AboutUs />} />
+            <Route path="/contato" element={<ContactPage />} />
+            <Route path="/:category/:slug" element={<ProductDetails />} />
+            <Route path="/legal/termos" element={<TermsOfServicePage />} />
+            <Route path="/legal/privacidade" element={<PrivacyPolicyPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/configs"
-            element={
-              <ProtectedRoute>
-                <PreferencesPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/configs"
+              element={
+                <ProtectedRoute>
+                  <PreferencesPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/biblioteca"
-            element={
-              <ProtectedRoute>
-                <LibraryPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/biblioteca"
+              element={
+                <ProtectedRoute>
+                  <LibraryPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/carrinho"
-            element={
-              <ProtectedRoute>
-                <CartPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/carrinho"
+              element={
+                <ProtectedRoute>
+                  <CartPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/pedidos/:orderId"
-            element={
-              <ProtectedRoute>
-                <OrderDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/pedidos/:orderId"
+              element={
+                <ProtectedRoute>
+                  <OrderDetailsPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </CartProvider>
     </ToastProvider>
   );
 }

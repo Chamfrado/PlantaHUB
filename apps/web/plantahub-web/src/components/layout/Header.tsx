@@ -1,8 +1,10 @@
-import { BookOpen, ChevronDown, LogOut, Settings } from 'lucide-react';
+import { BookOpen, ChevronDown, LogOut, Settings, ShoppingCart } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useCart } from '../../app/providers/useCart';
 import logotipo from '../../assets/logotipo.png';
 import { useAuth } from '../../contexts/AuthContext';
+import MiniCartDropdown from '../cart/MiniCartDropdown';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -13,6 +15,23 @@ export default function Header() {
 
   const base = 'text-sm font-semibold text-neutral-700 hover:text-primary-500 transition';
   const active = 'text-primary-600';
+
+  const [openCart, setOpenCart] = useState(false);
+
+  const cartRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (cartRef.current && !cartRef.current.contains(e.target as Node)) {
+        setOpenCart(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const { cartCount } = useCart();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,6 +79,29 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
+          {isAuthenticated && (
+            <div className="relative" ref={cartRef}>
+              <button
+                type="button"
+                onClick={() => setOpenCart(prev => !prev)}
+                className="relative rounded-xl border border-neutral-200 bg-white p-2 shadow-sm hover:bg-neutral-50 transition"
+              >
+                <ShoppingCart className="h-5 w-5 text-neutral-700" />
+
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-5 min-w-20px items-center justify-center rounded-full bg-primary-500 px-1 text-[11px] font-bold text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+
+              {openCart ? (
+                <div className="absolute right-0 mt-2 z-50 translate-y-0 opacity-100 transition-all duration-200">
+                  <MiniCartDropdown onClose={() => setOpenCart(false)} />
+                </div>
+              ) : null}
+            </div>
+          )}
           {!isAuthenticated ? (
             <>
               <Link

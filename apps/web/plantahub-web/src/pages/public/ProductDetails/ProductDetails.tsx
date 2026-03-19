@@ -1,6 +1,7 @@
 import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCart } from '../../../app/providers/useCart';
 import ProductHero from '../../../components/products/ProductHero';
 import ProductPlanSelector from '../../../components/products/ProductPlanSelector';
 import { useToast } from '../../../components/ui/use-toast';
@@ -24,6 +25,8 @@ export default function ProductDetails() {
   const [loadingPlanTypes, setLoadingPlanTypes] = useState(true);
   const [submitting, setSubmitting] = useState<'buy' | 'cart' | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const { refreshCart } = useCart();
 
   const location = useLocation();
   const { showToast } = useToast();
@@ -124,6 +127,8 @@ export default function ProductDetails() {
         productId: product.id,
         planTypeCodes: selectedCodes,
       });
+
+      await refreshCart();
 
       showToast({
         variant: 'success',

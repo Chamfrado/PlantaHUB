@@ -8,6 +8,11 @@ type HttpOptions = {
   headers?: Record<string, string>;
 };
 
+type HttpError = Error & {
+  status?: number;
+  body?: unknown;
+};
+
 function getStoredToken() {
   return localStorage.getItem('token');
 }
@@ -30,22 +35,59 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
+  const contentType = response.headers.get('content-type') ?? '';
+
   if (!response.ok) {
     let message = `HTTP error ${response.status}`;
+    let body: unknown = undefined;
 
     try {
-      const text = await response.text();
-      if (text) message = text;
+      if (contentType.includes('application/json')) {
+        body = await response.json();
+        if (
+          body &&
+          typeof body === 'object' &&
+          'message' in body &&
+          typeof (body as { message?: unknown }).message === 'string'
+        ) {
+          message = (body as { message: string }).message;
+        }
+      } else {
+        const text = await response.text();
+        if (text.trim()) {
+          message = text;
+          body = text;
+        }
+      }
     } catch {
-      // ignore
+      // ignore parse errors
     }
 
-    throw new Error(message);
+    const error = new Error(message) as HttpError;
+    error.status = response.status;
+    error.body = body;
+    throw error;
   }
 
   if (response.status === 204) {
     return undefined as T;
   }
 
-  return response.json() as Promise<T>;
+  if (!contentType.includes('application/json')) {
+    const text = await response.text();
+
+    if (!text.trim()) {
+      return undefined as T;
+    }
+
+    return text as T;
+  }
+
+  const text = await response.text();
+
+  if (!text.trim()) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }
