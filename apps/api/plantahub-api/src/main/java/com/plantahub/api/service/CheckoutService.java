@@ -1,6 +1,10 @@
 package com.plantahub.api.service;
 
 import com.plantahub.api.domain.auth.AppUser;
+import com.plantahub.api.domain.cart.Cart;
+import com.plantahub.api.domain.cart.CartItem;
+import com.plantahub.api.domain.cart.CartItemSelection;
+import com.plantahub.api.domain.cart.enums.CartStatus;
 import com.plantahub.api.domain.orders.*;
 import com.plantahub.api.domain.downloads.DownloadEntitlement;
 import com.plantahub.api.domain.orders.enums.OrderStatus;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CheckoutService {
@@ -21,6 +26,8 @@ public class CheckoutService {
     private final ProductPlanTypeRepository pptRepo;
     private final DownloadEntitlementRepository entitlementRepo;
     private final ProfileService profileService;
+    private final CartRepository cartRepository;
+    private final CartItemSelectionRepository cartItemSelectionRepository;
 
     public CheckoutService(
             AppUserRepository userRepo,
@@ -28,7 +35,9 @@ public class CheckoutService {
             ProductRepository productRepo,
             ProductPlanTypeRepository pptRepo,
             DownloadEntitlementRepository entitlementRepo,
-            ProfileService profileService
+            ProfileService profileService,
+            CartRepository cartRepository,
+            CartItemSelectionRepository cartItemSelectionRepository
     ) {
         this.userRepo = userRepo;
         this.orderRepo = orderRepo;
@@ -36,6 +45,8 @@ public class CheckoutService {
         this.pptRepo = pptRepo;
         this.entitlementRepo = entitlementRepo;
         this.profileService = profileService;
+        this.cartRepository = cartRepository;
+        this.cartItemSelectionRepository = cartItemSelectionRepository;
     }
 
     @Transactional
@@ -192,12 +203,81 @@ public class CheckoutService {
         return new OrderActionResponseDTO(order.getId(), order.getStatus().name(), "order_refunded");
     }
 
+    @Transactional
+    public OrderResponseDTO createOrderFromCart(String email) {
+
+        // 1. Validate profile (reuse your logic)
+        profileService.assertProfileComplete(email);
+
+        // 2. Load cart
+        Cart cart = cartRepository.findDetailedByUserEmailAndStatus(email.toLowerCase(), CartStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalArgumentException("cart_not_found"));
+
+        hydrateSelections(cart);
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("cart_empty");
+        }
+
+        // 3. Convert Cart → CreateOrderRequest
+        CreateOrderRequest req = convertCartToRequest(cart);
+
+        // 4. Reuse your existing flow 🔥
+        OrderResponseDTO response = createOrder(email, req);
+
+        // 5. Clear cart AFTER success
+        cart.getItems().clear();
+        cart.touch();
+        cartRepository.save(cart);
+
+        return response;
+    }
+
     private void revokeEntitlementsFromOrder(Order order) {
         var entitlements = entitlementRepo.findByOrderIdAndRevokedAtIsNull(order.getId());
         Instant now = Instant.now();
 
         for (var ent : entitlements) {
             ent.setRevokedAt(now);
+        }
+    }
+
+    private CreateOrderRequest convertCartToRequest(Cart cart) {
+
+        List<CreateOrderRequest.Item> items = cart.getItems().stream()
+                .map(item -> {
+
+                    List<String> planCodes = item.getSelections().stream()
+                            .map(sel -> sel.getPlanType().getCode())
+                            .toList();
+
+                    return new CreateOrderRequest.Item(
+                            item.getProduct().getId(),
+                            1, // cart = 1 unit per product (for now)
+                            planCodes
+                    );
+                })
+                .toList();
+
+        return new CreateOrderRequest(items);
+    }
+
+    private void hydrateSelections(Cart cart) {
+        if (cart.getItems().isEmpty()) return;
+
+        List<UUID> itemIds = cart.getItems().stream()
+                .map(CartItem::getId)
+                .toList();
+
+        List<CartItemSelection> selections =
+                cartItemSelectionRepository.findAllByCartItemIdInWithPlanType(itemIds);
+
+        Map<UUID, List<CartItemSelection>> grouped =
+                selections.stream().collect(Collectors.groupingBy(s -> s.getCartItem().getId()));
+
+        for (CartItem item : cart.getItems()) {
+            item.getSelections().clear();
+            item.getSelections().addAll(grouped.getOrDefault(item.getId(), List.of()));
         }
     }
 }

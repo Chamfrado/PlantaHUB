@@ -55,4 +55,9 @@ public class OrderController {
     ) {
         return checkoutService.refundMock(user.getUsername(), orderId);
     }
+
+    @PostMapping("/me/checkout/from-cart")
+    public OrderResponseDTO checkoutFromCart(@AuthenticationPrincipal UserDetails user) {
+        return checkoutService.createOrderFromCart(user.getUsername());
+    }
 }
