@@ -5,6 +5,7 @@ import CartPage from '../../pages/cart/CartPage';
 import PrivacyPolicyPage from '../../pages/legal/PrivacyPolicyPage';
 import TermsOfServicePage from '../../pages/legal/TermsOfServicePage';
 import LibraryPage from '../../pages/Library/Library';
+import LibraryItemDetailsPage from '../../pages/Library/LibraryItemDetailsPage';
 import OrderDetailsPage from '../../pages/Orders/OrderDetailsPage';
 import PreferencesPage from '../../pages/Preferences/Preferences';
 import AboutUs from '../../pages/public/About/AboutUs';
@@ -67,6 +68,15 @@ export default function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <OrderDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/biblioteca/:productId/:planTypeCode"
+              element={
+                <ProtectedRoute>
+                  <LibraryItemDetailsPage />
                 </ProtectedRoute>
               }
             />

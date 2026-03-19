@@ -1,20 +1,27 @@
 import { Check, CreditCard, Loader2, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { PlanTypeOptionDTO } from '../../types/api/product';
 
 type Props = {
   planTypes: PlanTypeOptionDTO[];
   selectedCodes: string[];
+  ownedCodes: string[];
+  loadingOwnedCodes?: boolean;
   onToggle: (code: string) => void;
   onBuyNow: () => void;
   onAddToCart: () => void;
   loading?: boolean;
   submitting?: 'buy' | 'cart' | null;
   error?: string | null;
+  productId: string;
 };
 
 export default function ProductPlanSelector({
+  productId,
   planTypes,
   selectedCodes,
+  ownedCodes,
+  loadingOwnedCodes = false,
   onToggle,
   onBuyNow,
   onAddToCart,
@@ -22,7 +29,11 @@ export default function ProductPlanSelector({
   submitting = null,
   error = null,
 }: Props) {
-  const selectedItems = planTypes.filter(item => selectedCodes.includes(item.code));
+  const selectedItems = planTypes.filter(
+    item =>
+      selectedCodes.includes(item.code.toUpperCase()) &&
+      !ownedCodes.includes(item.code.toUpperCase())
+  );
   const totalCents = selectedItems.reduce((sum, item) => sum + item.priceCents, 0);
   const canSubmit = selectedCodes.length > 0 && !loading && !submitting;
 
@@ -40,6 +51,12 @@ export default function ProductPlanSelector({
                   Selecione exatamente quais arquivos deseja comprar neste produto.
                 </p>
               </div>
+              {ownedCodes.length > 0 && !loadingOwnedCodes ? (
+                <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                  Você já possui {ownedCodes.length} tipo(s) de planta deste produto. Eles estão
+                  disponíveis na sua biblioteca e não serão cobrados novamente.
+                </div>
+              ) : null}
 
               <div className="rounded-2xl border border-orange-100 bg-orange-50 px-4 py-2 text-sm font-semibold text-primary-600">
                 {selectedCodes.length} selecionado(s)
@@ -54,56 +71,75 @@ export default function ProductPlanSelector({
             ) : (
               <div className="mt-6 grid gap-4">
                 {planTypes.map(planType => {
-                  const selected = selectedCodes.includes(planType.code);
+                  const normalizedCode = planType.code.toUpperCase();
+                  const selected = selectedCodes.includes(normalizedCode);
+                  const owned = ownedCodes.includes(normalizedCode);
 
                   return (
                     <button
                       key={planType.code}
                       type="button"
                       onClick={() => onToggle(planType.code)}
+                      disabled={owned}
                       className={[
                         'w-full rounded-2xl border p-5 text-left transition',
-                        selected
-                          ? 'border-primary-500 bg-orange-50 shadow-sm'
-                          : 'border-neutral-200 bg-white hover:border-neutral-300 hover:bg-neutral-50',
+                        owned
+                          ? 'cursor-not-allowed border-green-200 bg-green-50/60 opacity-90'
+                          : selected
+                            ? 'border-primary-500 bg-orange-50 shadow-sm'
+                            : 'border-neutral-200 bg-white hover:border-neutral-300 hover:bg-neutral-50',
                       ].join(' ')}
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-lg font-extrabold text-neutral-900">
-                              {planType.name}
-                            </h3>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-lg font-extrabold text-neutral-900">
+                            {planType.name}
+                          </h3>
 
-                            {planType.includedInBundle ? (
-                              <span className="rounded-full border border-orange-200 bg-white px-2.5 py-1 text-[11px] font-bold text-primary-600">
-                                Bundle
-                              </span>
-                            ) : null}
-                          </div>
+                          {owned ? (
+                            <span className="rounded-full border border-green-200 bg-white px-2.5 py-1 text-[11px] font-bold text-green-700">
+                              Já adquirido
+                            </span>
+                          ) : null}
 
-                          {planType.description ? (
-                            <p className="mt-2 text-sm leading-relaxed text-neutral-600">
-                              {planType.description}
-                            </p>
+                          {planType.includedInBundle ? (
+                            <span className="rounded-full border border-orange-200 bg-white px-2.5 py-1 text-[11px] font-bold text-primary-600">
+                              Bundle
+                            </span>
                           ) : null}
                         </div>
 
                         <div className="flex shrink-0 flex-col items-end gap-3">
-                          <div className="text-lg font-extrabold text-neutral-900">
-                            {formatMoney(planType.priceCents, 'BRL')}
+                          <div className="text-right">
+                            {owned ? (
+                              <div className="text-sm font-bold text-green-700">Já disponível</div>
+                            ) : (
+                              <div className="text-lg font-extrabold text-neutral-900">
+                                {formatMoney(planType.priceCents, 'BRL')}
+                              </div>
+                            )}
                           </div>
 
-                          <div
-                            className={[
-                              'flex h-7 w-7 items-center justify-center rounded-full border transition',
-                              selected
-                                ? 'border-primary-500 bg-primary-500 text-white'
-                                : 'border-neutral-300 bg-white text-transparent',
-                            ].join(' ')}
-                          >
-                            <Check className="h-4 w-4" />
-                          </div>
+                          {owned ? (
+                            <Link
+                              to={`/biblioteca/${productId}/${planType.code}`}
+                              className="inline-flex items-center justify-center rounded-xl border border-green-300 bg-white px-3 py-2 text-xs font-bold text-green-700 transition hover:bg-green-50"
+                              onClick={event => event.stopPropagation()}
+                            >
+                              Ver na biblioteca
+                            </Link>
+                          ) : (
+                            <div
+                              className={[
+                                'flex h-7 w-7 items-center justify-center rounded-full border transition',
+                                selected
+                                  ? 'border-primary-500 bg-primary-500 text-white'
+                                  : 'border-neutral-300 bg-white text-transparent',
+                              ].join(' ')}
+                            >
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </button>

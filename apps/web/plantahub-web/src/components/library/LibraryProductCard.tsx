@@ -8,9 +8,15 @@ type Props = {
   product: LibraryProductDTO & {
     availablePlanTypes: PlanTypeOptionDTO[];
   };
+  selectedCodes: string[];
+  onToggleBundleSelection: (productId: string, planTypeCode: string) => void;
 };
 
-export default function LibraryProductCard({ product }: Props) {
+export default function LibraryProductCard({
+  product,
+  selectedCodes,
+  onToggleBundleSelection,
+}: Props) {
   const purchasedCodes = useMemo(
     () => new Set(product.planTypes.map(plan => plan.code)),
     [product.planTypes]
@@ -24,7 +30,7 @@ export default function LibraryProductCard({ product }: Props) {
   return (
     <article className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
       <div className="grid gap-0 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="h-full min-h-240px bg-neutral-100">
+        <div className="min-h-240px bg-neutral-100">
           {product.heroImageUrl ? (
             <img
               src={product.heroImageUrl}
@@ -33,7 +39,7 @@ export default function LibraryProductCard({ product }: Props) {
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full min-h-240px items-center justify-center text-sm text-neutral-400">
+            <div className="flex min-h-240px items-center justify-center text-sm text-neutral-400">
               Sem imagem
             </div>
           )}
@@ -59,7 +65,7 @@ export default function LibraryProductCard({ product }: Props) {
             </div>
 
             <Link
-              to={`/produtos/${product.category}/${product.slug}`}
+              to={`/${product.category}/${product.slug}`}
               className="inline-flex items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
             >
               Ver produto
@@ -74,25 +80,42 @@ export default function LibraryProductCard({ product }: Props) {
               </div>
 
               <div className="mt-4 space-y-3">
-                {product.planTypes.map(plan => (
-                  <div key={plan.code} className="rounded-2xl border border-green-200 bg-white p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-sm font-bold text-neutral-900">{plan.name}</div>
-                        <div className="mt-1 text-xs text-neutral-500">
-                          {plan.assets.length} arquivo(s) disponível(is)
-                        </div>
-                      </div>
+                {product.planTypes.map(plan => {
+                  const bundleKey = `${product.productId}:${plan.code}`;
+                  const checked = selectedCodes.includes(bundleKey);
 
-                      <Link
-                        to={`/my-library/${product.productId}/${plan.code}`}
-                        className="inline-flex items-center rounded-xl bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-600"
-                      >
-                        Acessar
-                      </Link>
+                  return (
+                    <div
+                      key={plan.code}
+                      className="rounded-2xl border border-green-200 bg-white p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => onToggleBundleSelection(product.productId, plan.code)}
+                            className="mt-1 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                          />
+
+                          <div>
+                            <div className="text-sm font-bold text-neutral-900">{plan.name}</div>
+                            <div className="mt-1 text-xs text-neutral-500">
+                              {plan.assets.length} arquivo(s) disponível(is)
+                            </div>
+                          </div>
+                        </div>
+
+                        <Link
+                          to={`/biblioteca/${product.productId}/${plan.code}`}
+                          className="inline-flex items-center rounded-xl bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-600"
+                        >
+                          Acessar
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
 
@@ -115,19 +138,16 @@ export default function LibraryProductCard({ product }: Props) {
                       key={plan.code}
                       className="rounded-2xl border border-orange-200 bg-white p-4"
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-sm font-bold text-neutral-900">{plan.name}</div>
-                          <p className="mt-1 text-xs leading-relaxed text-neutral-500">
-                            {plan.description}
-                          </p>
-                          <div className="mt-3 text-sm font-extrabold text-neutral-900">
-                            {formatMoneyFromCents(plan.priceCents)}
+                          <div className="mt-1 text-xs text-neutral-500">
+                            {plan.description || 'Disponível para compra adicional.'}
                           </div>
                         </div>
 
                         <Link
-                          to={`/produtos/${product.category}/${product.slug}`}
+                          to={`/${product.category}/${product.slug}?planTypes=${encodeURIComponent(plan.code)}`}
                           className="inline-flex items-center rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-100"
                         >
                           Comprar
@@ -146,12 +166,9 @@ export default function LibraryProductCard({ product }: Props) {
 }
 
 function formatDateTime(value: string) {
-  return new Date(value).toLocaleDateString('pt-BR');
-}
-
-function formatMoneyFromCents(value: number) {
-  return (value / 100).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
+  return new Date(value).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 }

@@ -8,6 +8,7 @@ import { useToast } from '../../../components/ui/use-toast';
 import { getProductByRoute } from '../../../data/productSelector';
 import { getApiErrorMessage } from '../../../lib/api-error';
 import { addCartItem } from '../../../services/cart.service';
+import { getMyLibrary } from '../../../services/library.service';
 import { createOrder } from '../../../services/order.service';
 import { getProductPlanTypes } from '../../../services/products.service';
 import { getMyProfileStatus } from '../../../services/profile.service';
@@ -31,6 +32,9 @@ export default function ProductDetails() {
   const location = useLocation();
   const { showToast } = useToast();
   const currentPath = location.pathname + location.search;
+
+  const [ownedPlanTypeCodes, setOwnedPlanTypeCodes] = useState<string[]>([]);
+  const [loadingOwnedPlanTypes, setLoadingOwnedPlanTypes] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -64,9 +68,94 @@ export default function ProductDetails() {
     };
   }, [category, slug]);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadOwnedPlanTypes() {
+      const token = localStorage.getItem('token');
+
+      if (!token || !product?.id) {
+        if (active) {
+          setOwnedPlanTypeCodes([]);
+        }
+        return;
+      }
+
+      try {
+        setLoadingOwnedPlanTypes(true);
+
+        const library = await getMyLibrary();
+
+        if (!active) return;
+
+        const libraryItem = library.find(item => item.productId === product.id);
+
+        if (!libraryItem) {
+          setOwnedPlanTypeCodes([]);
+          return;
+        }
+
+        setOwnedPlanTypeCodes(libraryItem.planTypes.map(item => item.code.toUpperCase()));
+      } catch (error) {
+        console.error(error);
+
+        if (!active) return;
+        setOwnedPlanTypeCodes([]);
+      } finally {
+        if (active) {
+          setLoadingOwnedPlanTypes(false);
+        }
+      }
+    }
+
+    void loadOwnedPlanTypes();
+
+    return () => {
+      active = false;
+    };
+  }, [product?.id]);
+
+  useEffect(() => {
+    if (!planTypes.length) return;
+
+    const preselectedCodes = getPreselectedPlanTypes(location.search);
+
+    if (!preselectedCodes.length) return;
+
+    const validCodes = planTypes
+      .map(item => item.code.toUpperCase())
+      .filter(code => preselectedCodes.includes(code) && !ownedPlanTypeCodes.includes(code));
+
+    if (!validCodes.length) return;
+
+    setSelectedCodes(prev => {
+      const current = prev.map(code => code.toUpperCase());
+
+      const sameLength = current.length === validCodes.length;
+      const sameItems = sameLength && current.every(code => validCodes.includes(code));
+
+      if (sameItems) return prev;
+
+      return validCodes;
+    });
+  }, [planTypes, location.search, ownedPlanTypeCodes]);
+
   function togglePlanType(code: string) {
+    const normalizedCode = code.toUpperCase();
+
+    if (ownedPlanTypeCodes.includes(normalizedCode)) {
+      showToast({
+        variant: 'info',
+        title: 'Item já adquirido',
+        description: 'Esse tipo de planta já está disponível na sua biblioteca.',
+      });
+      return;
+    }
+
     setSelectedCodes(prev =>
-      prev.includes(code) ? prev.filter(item => item !== code) : [...prev, code]
+      prev.includes(normalizedCode)
+        ? prev.filter(item => item !== normalizedCode)
+        : [...prev, normalizedCode]
     );
   }
 
@@ -111,11 +200,14 @@ export default function ProductDetails() {
   async function handleAddToCart() {
     if (!product) return;
 
-    if (selectedCodes.length === 0) {
-      setActionError('Selecione pelo menos um tipo de planta.');
+    const purchasableSelectedCodes = selectedCodes.filter(
+      code => !ownedPlanTypeCodes.includes(code.toUpperCase())
+    );
+
+    if (purchasableSelectedCodes.length === 0) {
+      setActionError('Selecione pelo menos um tipo de planta disponível para compra.');
       return;
     }
-
     const valid = await validatePurchaseFlow();
     if (!valid) return;
 
@@ -125,7 +217,7 @@ export default function ProductDetails() {
 
       await addCartItem({
         productId: product.id,
-        planTypeCodes: selectedCodes,
+        planTypeCodes: purchasableSelectedCodes,
       });
 
       await refreshCart();
@@ -157,11 +249,14 @@ export default function ProductDetails() {
   async function handleBuyNow() {
     if (!product) return;
 
-    if (selectedCodes.length === 0) {
-      setActionError('Selecione pelo menos um tipo de planta.');
+    const purchasableSelectedCodes = selectedCodes.filter(
+      code => !ownedPlanTypeCodes.includes(code.toUpperCase())
+    );
+
+    if (purchasableSelectedCodes.length === 0) {
+      setActionError('Selecione pelo menos um tipo de planta disponível para compra.');
       return;
     }
-
     const valid = await validatePurchaseFlow();
     if (!valid) return;
 
@@ -174,7 +269,7 @@ export default function ProductDetails() {
           {
             productId: product.id,
             quantity: 1,
-            planTypeCodes: selectedCodes,
+            planTypeCodes: purchasableSelectedCodes,
           },
         ],
       });
@@ -213,13 +308,28 @@ export default function ProductDetails() {
     );
   }
 
+  function getPreselectedPlanTypes(search: string) {
+    const params = new URLSearchParams(search);
+    const raw = params.get('planTypes');
+
+    if (!raw) return [];
+
+    return raw
+      .split(',')
+      .map(item => item.trim().toUpperCase())
+      .filter(Boolean);
+  }
+
   return (
     <div className="bg-white">
       <ProductHero product={product} />
 
       <ProductPlanSelector
+        productId={product.id}
         planTypes={planTypes}
         selectedCodes={selectedCodes}
+        ownedCodes={ownedPlanTypeCodes}
+        loadingOwnedCodes={loadingOwnedPlanTypes}
         onToggle={togglePlanType}
         onBuyNow={handleBuyNow}
         onAddToCart={handleAddToCart}
