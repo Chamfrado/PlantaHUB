@@ -26,12 +26,17 @@ public class CartController {
         return cartService.getCart(user.getUsername());
     }
 
+    @DeleteMapping
+    public void clearCart(@AuthenticationPrincipal UserDetails user) {
+        cartService.clearCart(user.getUsername());
+    }
+
     @PostMapping("/items")
     public CartResponse addItem(
             @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody AddCartItemRequest req
     ) {
-        return cartService.addItem(user.getUsername(), req.productId(), req.planTypeIds());
+        return cartService.addItem(user.getUsername(), req.productId(), req.planTypeCodes());
     }
 
     @PutMapping("/items/{itemId}")
@@ -40,7 +45,7 @@ public class CartController {
             @PathVariable UUID itemId,
             @Valid @RequestBody ReplaceCartItemSelectionsRequest req
     ) {
-        return cartService.replaceSelections(user.getUsername(), itemId, req.planTypeIds());
+        return cartService.replaceSelections(user.getUsername(), itemId, req.planTypeCodes());
     }
 
     @DeleteMapping("/items/{itemId}")
@@ -49,10 +54,5 @@ public class CartController {
             @PathVariable UUID itemId
     ) {
         cartService.removeItem(user.getUsername(), itemId);
-    }
-
-    @DeleteMapping
-    public void clearCart(@AuthenticationPrincipal UserDetails user) {
-        cartService.clearCart(user.getUsername());
     }
 }

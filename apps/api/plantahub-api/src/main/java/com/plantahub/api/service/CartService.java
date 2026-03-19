@@ -61,113 +61,6 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponse addItem(String email, String productId, List<UUID> planTypeIds) {
-        Cart cart = getOrCreateActiveCart(email);
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("product_not_found"));
-
-        if (!Boolean.TRUE.equals(product.getActive())) {
-            throw new IllegalArgumentException("product_inactive");
-        }
-
-        Set<UUID> uniquePlanTypeIds = normalizePlanTypeIds(planTypeIds);
-        validateProductPlanTypes(product.getId(), uniquePlanTypeIds);
-
-        CartItem item = cart.getItems().stream()
-                .filter(existing -> existing.getProduct().getId().equals(productId))
-                .findFirst()
-                .orElseGet(() -> {
-                    CartItem created = CartItem.builder()
-                            .cart(cart)
-                            .product(product)
-                            .createdAt(Instant.now())
-                            .build();
-                    cart.getItems().add(created);
-                    return created;
-                });
-
-        Set<UUID> existingSelectionIds = item.getSelections().stream()
-                .map(selection -> selection.getPlanType().getId())
-                .collect(Collectors.toSet());
-
-        if (!uniquePlanTypeIds.equals(existingSelectionIds)) {
-            item.getSelections().clear();
-
-            Map<UUID, PlanType> planTypesById = planTypeRepository.findAllById(uniquePlanTypeIds).stream()
-                    .collect(Collectors.toMap(PlanType::getId, Function.identity()));
-
-            for (UUID planTypeId : uniquePlanTypeIds) {
-                PlanType planType = planTypesById.get(planTypeId);
-
-                if (planType == null) {
-                    throw new IllegalArgumentException("plan_type_not_found");
-                }
-
-                item.getSelections().add(
-                        CartItemSelection.builder()
-                                .cartItem(item)
-                                .planType(planType)
-                                .build()
-                );
-            }
-        }
-
-        cart.touch();
-        cartRepository.save(cart);
-
-        Cart detailed = cartRepository.findDetailedByUserEmailAndStatus(email.toLowerCase(), CartStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalStateException("cart_not_found_after_save"));
-
-        return toResponse(detailed);
-    }
-
-    @Transactional
-    public CartResponse replaceSelections(String email, UUID itemId, List<UUID> planTypeIds) {
-        Cart cart = cartRepository.findDetailedByUserEmailAndStatus(email.toLowerCase(), CartStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalArgumentException("cart_not_found"));
-
-        CartItem item = cart.getItems().stream()
-                .filter(existing -> existing.getId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("cart_item_not_found"));
-
-        if (item.getCart().getStatus() != CartStatus.ACTIVE) {
-            throw new IllegalArgumentException("cart_not_active");
-        }
-
-        Set<UUID> uniquePlanTypeIds = normalizePlanTypeIds(planTypeIds);
-        validateProductPlanTypes(item.getProduct().getId(), uniquePlanTypeIds);
-
-        item.getSelections().clear();
-
-        Map<UUID, PlanType> planTypesById = planTypeRepository.findAllById(uniquePlanTypeIds).stream()
-                .collect(Collectors.toMap(PlanType::getId, Function.identity()));
-
-        for (UUID planTypeId : uniquePlanTypeIds) {
-            PlanType planType = planTypesById.get(planTypeId);
-
-            if (planType == null) {
-                throw new IllegalArgumentException("plan_type_not_found");
-            }
-
-            item.getSelections().add(
-                    CartItemSelection.builder()
-                            .cartItem(item)
-                            .planType(planType)
-                            .build()
-            );
-        }
-
-        item.getCart().touch();
-        cartRepository.save(cart);
-
-        Cart detailed = loadDetailedCartOrThrow(email);
-
-        return toResponse(detailed);
-    }
-
-    @Transactional
     public void removeItem(String email, UUID itemId) {
         Cart cart = cartRepository.findDetailedByUserEmailAndStatus(email.toLowerCase(), CartStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("cart_not_found"));
@@ -189,6 +82,121 @@ public class CartService {
         cart.getItems().clear();
         cart.touch();
         cartRepository.save(cart);
+    }
+
+    @Transactional
+    public CartResponse addItem(String email, String productId, List<String> planTypeCodes) {
+
+        Cart cart = getOrCreateActiveCart(email);
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("product_not_found"));
+
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new IllegalArgumentException("product_inactive");
+        }
+
+        Set<String> normalizedCodes = normalizeCodes(planTypeCodes);
+
+        Map<String, ProductPlanType> pptMap = loadProductPlanTypes(productId);
+
+        validateCodes(normalizedCodes, pptMap);
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseGet(() -> {
+                    CartItem created = CartItem.builder()
+                            .cart(cart)
+                            .product(product)
+                            .createdAt(Instant.now())
+                            .build();
+                    cart.getItems().add(created);
+                    return created;
+                });
+
+        item.getSelections().clear();
+
+        for (String code : normalizedCodes) {
+            ProductPlanType ppt = pptMap.get(code);
+
+            item.getSelections().add(
+                    CartItemSelection.builder()
+                            .cartItem(item)
+                            .planType(ppt.getPlanType())
+                            .build()
+            );
+        }
+
+        cart.touch();
+        cartRepository.save(cart);
+
+        return toResponse(cart);
+    }
+
+    @Transactional
+    public CartResponse replaceSelections(String email, UUID itemId, List<String> planTypeCodes) {
+
+        Cart cart = cartRepository.findDetailedByUserEmailAndStatus(email.toLowerCase(), CartStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalArgumentException("cart_not_found"));
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("cart_item_not_found"));
+
+        Set<String> normalizedCodes = normalizeCodes(planTypeCodes);
+
+        String productId = item.getProduct().getId();
+
+        Map<String, ProductPlanType> pptMap = loadProductPlanTypes(productId);
+
+        validateCodes(normalizedCodes, pptMap);
+
+        item.getSelections().clear();
+
+        for (String code : normalizedCodes) {
+            ProductPlanType ppt = pptMap.get(code);
+
+            item.getSelections().add(
+                    CartItemSelection.builder()
+                            .cartItem(item)
+                            .planType(ppt.getPlanType())
+                            .build()
+            );
+        }
+
+        cart.touch();
+
+        return toResponse(cart);
+    }
+
+    private Set<String> normalizeCodes(List<String> codes) {
+        if (codes == null || codes.isEmpty()) {
+            throw new IllegalArgumentException("cart_plan_types_required");
+        }
+
+        return codes.stream()
+                .map(String::toUpperCase)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private Map<String, ProductPlanType> loadProductPlanTypes(String productId) {
+
+        return productPlanTypeRepository.findAvailableByProductIdWithPlanType(productId).stream()
+                .collect(Collectors.toMap(
+                        ppt -> ppt.getPlanType().getCode(),
+                        Function.identity()
+                ));
+    }
+
+    private void validateCodes(Set<String> codes, Map<String, ProductPlanType> allowed) {
+
+        for (String code : codes) {
+            if (!allowed.containsKey(code)) {
+                throw new IllegalArgumentException("invalid_plan_type_for_product: " + code);
+            }
+        }
     }
 
     private Cart getOrCreateActiveCart(String email) {
