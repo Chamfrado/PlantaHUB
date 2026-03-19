@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ScrollToTop from '../../components/common/ScrollTop';
+import { ToastProvider } from '../../components/ui/ToastProvider';
 import CartPage from '../../pages/cart/CartPage';
 import PrivacyPolicyPage from '../../pages/legal/PrivacyPolicyPage';
 import TermsOfServicePage from '../../pages/legal/TermsOfServicePage';
@@ -18,7 +19,7 @@ import ProtectedRoute from './ProtectedRoute';
 
 export default function AppRoutes() {
   return (
-    <>
+    <ToastProvider>
       <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
@@ -71,6 +72,6 @@ export default function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-    </>
+    </ToastProvider>
   );
 }
