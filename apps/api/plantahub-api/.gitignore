@@ -1,5 +1,6 @@
 HELP.md
 target/
+*.jar
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -32,6 +33,13 @@ build/
 ### VS Code ###
 .vscode/
 
+# Sensitive config
+application-secret.yml
+application-local.yml
+.env
+.env.*
+!.env.example
 
-###AWS CONFIG###
-apps/api/plantahub-api/src/main/resources/application-local.yml
+# Dumps and keys
+dumps/
+chaves/
