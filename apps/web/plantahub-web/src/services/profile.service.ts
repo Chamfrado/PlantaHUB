@@ -1,8 +1,18 @@
 import { http } from '../lib/http';
-import type { DeleteProfileRequest, DeleteProfileResponse, ProfileResponse, UpdateProfileRequest } from '../types/api/profile';
+import type {
+  DeleteProfileRequest,
+  DeleteProfileResponse,
+  ProfileResponse,
+  ProfileStatusResponse,
+  UpdateProfileRequest,
+} from '../types/api/profile';
 
 export async function getMyProfile() {
   return http<ProfileResponse>('/v1/me/profile');
+}
+
+export async function getMyProfileStatus() {
+  return http<ProfileStatusResponse>('/v1/me/profile/status');
 }
 
 export async function updateMyProfile(payload: UpdateProfileRequest) {

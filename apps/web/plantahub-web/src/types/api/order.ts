@@ -1,3 +1,13 @@
+export type CreateOrderItemRequest = {
+  productId: string;
+  quantity: number;
+  planTypeCodes: string[];
+};
+
+export type CreateOrderRequest = {
+  items: CreateOrderItemRequest[];
+};
+
 export type SelectionDTO = {
   planTypeCode: string;
   priceCents: number;

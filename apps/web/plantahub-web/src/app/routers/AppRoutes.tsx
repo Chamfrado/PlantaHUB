@@ -1,9 +1,10 @@
-// src/routes/AppRoutes.tsx (or wherever your routes are)
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ScrollToTop from '../../components/common/ScrollTop';
+import CartPage from '../../pages/cart/CartPage';
 import PrivacyPolicyPage from '../../pages/legal/PrivacyPolicyPage';
 import TermsOfServicePage from '../../pages/legal/TermsOfServicePage';
 import LibraryPage from '../../pages/Library/Library';
+import OrderDetailsPage from '../../pages/Orders/OrderDetailsPage';
 import PreferencesPage from '../../pages/Preferences/Preferences';
 import AboutUs from '../../pages/public/About/AboutUs';
 import ContactPage from '../../pages/public/Contact/ContactPage';
@@ -21,7 +22,6 @@ export default function AppRoutes() {
       <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/produtos" element={<ProductsPage />} />
           <Route path="/sobre" element={<AboutUs />} />
@@ -32,7 +32,6 @@ export default function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes */}
           <Route
             path="/configs"
             element={
@@ -41,6 +40,7 @@ export default function AppRoutes() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/biblioteca"
             element={
@@ -50,7 +50,24 @@ export default function AppRoutes() {
             }
           />
 
-          {/* fallback */}
+          <Route
+            path="/carrinho"
+            element={
+              <ProtectedRoute>
+                <CartPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/pedidos/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

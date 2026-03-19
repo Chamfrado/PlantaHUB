@@ -1,20 +1,157 @@
-// src/pages/ProductPage.tsx
 import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import ProductHero from '../../../components/products/ProductHero';
+import ProductPlanSelector from '../../../components/products/ProductPlanSelector';
 import { getProductByRoute } from '../../../data/productSelector';
+import { addCartItem } from '../../../services/cart.service';
+import { createOrder } from '../../../services/order.service';
+import { getProductPlanTypes } from '../../../services/products.service';
+import { getMyProfileStatus } from '../../../services/profile.service';
+import type { PlanTypeOptionDTO } from '../../../types/api/product';
 
 export default function ProductDetails() {
   const { category = '', slug = '' } = useParams();
+  const navigate = useNavigate();
 
   const product = useMemo(() => getProductByRoute(category, slug), [category, slug]);
+
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [planTypes, setPlanTypes] = useState<PlanTypeOptionDTO[]>([]);
+  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [loadingPlanTypes, setLoadingPlanTypes] = useState(true);
+  const [submitting, setSubmitting] = useState<'buy' | 'cart' | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadPlanTypes() {
+      try {
+        setLoadingPlanTypes(true);
+        setActionError(null);
+
+        const response = await getProductPlanTypes(category, slug);
+
+        if (!active) return;
+        setPlanTypes(response);
+      } catch (error) {
+        console.error(error);
+        if (!active) return;
+        setActionError('Não foi possível carregar os tipos de planta deste produto.');
+      } finally {
+        if (active) {
+          setLoadingPlanTypes(false);
+        }
+      }
+    }
+
+    if (category && slug) {
+      void loadPlanTypes();
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [category, slug]);
+
+  function togglePlanType(code: string) {
+    setSelectedCodes(prev =>
+      prev.includes(code) ? prev.filter(item => item !== code) : [...prev, code]
+    );
+  }
+
+  async function validatePurchaseFlow() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      navigate(`/login?redirect=/${category}/${slug}`);
+      return false;
+    }
+
+    try {
+      const profileStatus = await getMyProfileStatus();
+
+      if (!profileStatus.profileCompleted) {
+        navigate(`/configs?redirect=/${category}/${slug}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      setActionError('Não foi possível validar seu perfil no momento.');
+      return false;
+    }
+  }
+
+  async function handleAddToCart() {
+    if (!product) return;
+
+    if (selectedCodes.length === 0) {
+      setActionError('Selecione pelo menos um tipo de planta.');
+      return;
+    }
+
+    const valid = await validatePurchaseFlow();
+    if (!valid) return;
+
+    try {
+      setSubmitting('cart');
+      setActionError(null);
+
+      await addCartItem({
+        productId: product.id,
+        planTypeCodes: selectedCodes,
+      });
+
+      navigate('/carrinho');
+    } catch (error) {
+      console.error(error);
+      setActionError('Não foi possível adicionar o produto ao carrinho.');
+    } finally {
+      setSubmitting(null);
+    }
+  }
+
+  async function handleBuyNow() {
+    if (!product) return;
+
+    if (selectedCodes.length === 0) {
+      setActionError('Selecione pelo menos um tipo de planta.');
+      return;
+    }
+
+    const valid = await validatePurchaseFlow();
+    if (!valid) return;
+
+    try {
+      setSubmitting('buy');
+      setActionError(null);
+
+      const order = await createOrder({
+        items: [
+          {
+            productId: product.id,
+            quantity: 1,
+            planTypeCodes: selectedCodes,
+          },
+        ],
+      });
+
+      navigate(`/pedidos/${order.id}`);
+    } catch (error) {
+      console.error(error);
+      setActionError('Não foi possível criar o pedido.');
+    } finally {
+      setSubmitting(null);
+    }
+  }
 
   if (!product) {
     return (
       <div className="min-h-[60vh] bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="mx-auto max-w-6xl px-6 py-16">
           <h1 className="text-2xl font-extrabold text-neutral-900">Produto não encontrado</h1>
           <p className="mt-2 text-neutral-600">
             Verifique a URL. Ex.: <span className="font-mono">/casas/confort</span>
@@ -26,10 +163,19 @@ export default function ProductDetails() {
 
   return (
     <div className="bg-white">
-      {/* HERO */}
       <ProductHero product={product} />
 
-      {/* WHY CHOOSE */}
+      <ProductPlanSelector
+        planTypes={planTypes}
+        selectedCodes={selectedCodes}
+        onToggle={togglePlanType}
+        onBuyNow={handleBuyNow}
+        onAddToCart={handleAddToCart}
+        loading={loadingPlanTypes}
+        submitting={submitting}
+        error={actionError}
+      />
+
       <Section
         title={product.page.whyChooseTitle ?? 'Why choose this product?'}
         subtitle={
@@ -43,19 +189,18 @@ export default function ProductDetails() {
               key={`${f.title}-${idx}`}
               className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
             >
-              <div className="h-10 w-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-primary-600 font-bold">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 font-bold text-primary-600">
                 <Sparkles className="h-5 w-5" />
               </div>
               <h3 className="mt-4 font-extrabold text-neutral-900">{f.title}</h3>
               {f.description ? (
-                <p className="mt-2 text-sm text-neutral-600 leading-relaxed">{f.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-600">{f.description}</p>
               ) : null}
             </div>
           ))}
         </div>
       </Section>
 
-      {/* INCLUDED */}
       <Section
         title={product.page.includesTitle ?? "What's included in your purchase?"}
         subtitle={
@@ -70,13 +215,13 @@ export default function ProductDetails() {
               className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
             >
               <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-100 bg-orange-50">
                   <Check className="h-4 w-4 text-primary-600" />
                 </div>
                 <div className="min-w-0">
                   <div className="font-extrabold text-neutral-900">{it.title}</div>
                   {it.description ? (
-                    <p className="mt-1 text-sm text-neutral-600 leading-relaxed">
+                    <p className="mt-1 text-sm leading-relaxed text-neutral-600">
                       {it.description}
                     </p>
                   ) : null}
@@ -87,7 +232,6 @@ export default function ProductDetails() {
         </div>
       </Section>
 
-      {/* KEY FACTS */}
       <Section
         title={product.page.keyFactsTitle ?? 'Key facts'}
         subtitle={product.page.keyFactsIntro ?? 'Numbers that showcase the comprehensive value.'}
@@ -105,7 +249,7 @@ export default function ProductDetails() {
         </div>
 
         <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="grid gap-4 md:grid-cols-4 text-center">
+          <div className="grid gap-4 text-center md:grid-cols-4">
             <MiniStat label="File formats" value={`${product.fileFormats?.length ?? 0}`} />
             <MiniStat label="Customizable" value={product.customizable ? '100%' : '—'} />
             <MiniStat label="Support" value="24/7" />
@@ -114,7 +258,6 @@ export default function ProductDetails() {
         </div>
       </Section>
 
-      {/* TESTIMONIALS */}
       <Section
         title={product.page.testimonialsTitle ?? 'Hear from our happy clients'}
         subtitle={product.page.testimonialsIntro ?? 'What people say about our plans.'}
@@ -133,7 +276,7 @@ export default function ProductDetails() {
                 <Star className="h-4 w-4 fill-current" />
               </div>
 
-              <p className="mt-3 text-sm text-neutral-700 leading-relaxed">{t.quote}</p>
+              <p className="mt-3 text-sm leading-relaxed text-neutral-700">{t.quote}</p>
 
               <div className="mt-4 flex items-center gap-3">
                 <div className="h-9 w-9 rounded-full bg-neutral-200" />
@@ -149,20 +292,20 @@ export default function ProductDetails() {
         </div>
       </Section>
 
-      {/* FAQ */}
       <Section
         title={product.page.faqTitle ?? 'Frequently Asked Questions'}
         subtitle={product.page.faqIntro ?? 'Everything you need to know before buying.'}
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <div className="space-y-3">
             {(product.page.faq ?? []).map((f, idx) => {
               const open = openFaq === idx;
+
               return (
                 <div key={`${f.question}-${idx}`} className="rounded-2xl border border-neutral-200">
                   <button
                     onClick={() => setOpenFaq(prev => (prev === idx ? null : idx))}
-                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   >
                     <span className="font-bold text-neutral-900">{f.question}</span>
                     <ChevronDown
@@ -174,9 +317,8 @@ export default function ProductDetails() {
                   </button>
 
                   {open ? (
-                    <div className="px-5 pb-5 text-sm text-neutral-600 leading-relaxed">
-                      {f.answer ??
-                        'Add the answer text later (your model allows optional answers).'}
+                    <div className="px-5 pb-5 text-sm leading-relaxed text-neutral-600">
+                      {f.answer ?? 'Resposta em breve.'}
                     </div>
                   ) : null}
                 </div>
@@ -186,9 +328,8 @@ export default function ProductDetails() {
         </div>
       </Section>
 
-      {/* FINAL CTA */}
       <section className="bg-white">
-        <div className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="mx-auto max-w-6xl px-6 pb-20">
           <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-10 text-center">
             <h2 className="text-3xl font-extrabold text-neutral-900">
               {product.page.finalCtaTitle ?? 'Ready to build the house of your dreams?'}
@@ -198,13 +339,20 @@ export default function ProductDetails() {
             ) : null}
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <button className="rounded-xl bg-primary-500 px-6 py-3 text-white font-semibold hover:bg-primary-600 transition">
-                Download Now{' '}
-                {product.price
-                  ? `— ${formatMoney(product.price.amount, product.price.currency)}`
-                  : ''}
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('purchase-options')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }}
+                className="rounded-xl bg-primary-500 px-6 py-3 font-semibold text-white transition hover:bg-primary-600"
+              >
+                Comprar agora
               </button>
-              <button className="rounded-xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-neutral-900 hover:bg-neutral-100 transition">
+
+              <button className="rounded-xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-neutral-900 transition hover:bg-neutral-100">
                 Contact Support
               </button>
             </div>
@@ -227,8 +375,6 @@ export default function ProductDetails() {
   );
 }
 
-/* ---------- small components ---------- */
-
 function Section({
   title,
   subtitle,
@@ -240,14 +386,13 @@ function Section({
 }) {
   return (
     <section className="bg-white">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-2xl md:text-3xl font-extrabold text-neutral-900 text-center">
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <h2 className="text-center text-2xl font-extrabold text-neutral-900 md:text-3xl">
           {title}
         </h2>
         {subtitle ? (
-          <p className="mt-2 text-neutral-600 text-center max-w-3xl mx-auto">{subtitle}</p>
+          <p className="mx-auto mt-2 max-w-3xl text-center text-neutral-600">{subtitle}</p>
         ) : null}
-
         <div className="mt-10">{children}</div>
       </div>
     </section>
@@ -261,13 +406,4 @@ function MiniStat({ label, value }: { label: string; value: string }) {
       <div className="mt-1 text-xs font-semibold text-neutral-500">{label}</div>
     </div>
   );
-}
-
-function formatMoney(value: number, currency: 'BRL' | 'USD' | 'EUR') {
-  const locale = currency === 'BRL' ? 'pt-BR' : 'en-US';
-  return value.toLocaleString(locale, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  });
 }

@@ -8,6 +8,12 @@ export type ProfileResponse = {
   profileCompleted: boolean;
 };
 
+export type ProfileStatusResponse = {
+  profileCompleted: boolean;
+  cpfLocked: boolean;
+  missingFields: string[];
+};
+
 export type UpdateProfileRequest = {
   fullName?: string;
   cpf?: string;

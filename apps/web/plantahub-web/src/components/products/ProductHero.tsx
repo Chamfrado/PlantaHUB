@@ -151,14 +151,32 @@ export default function ProductHero({ product }: Props) {
 
             {/* CTAs */}
             <div className="mt-5 space-y-3">
-              <button className="w-full rounded-xl bg-primary-500 text-white font-semibold py-3 hover:bg-primary-600 transition inline-flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('purchase-options')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 py-3 font-semibold text-white transition hover:bg-primary-600"
+              >
                 <Download className="h-4 w-4" />
-                Compre Agora - Download Instantâneo
+                Comprar agora
               </button>
 
-              <button className="w-full rounded-xl border border-neutral-300 bg-white text-neutral-900 font-semibold py-3 hover:bg-neutral-100 transition inline-flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('purchase-options')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white py-3 font-semibold text-neutral-900 transition hover:bg-neutral-100"
+              >
                 <ShoppingCart className="h-4 w-4" />
-                Adicionar ao Carrinho
+                Selecionar plantas
               </button>
             </div>
 
