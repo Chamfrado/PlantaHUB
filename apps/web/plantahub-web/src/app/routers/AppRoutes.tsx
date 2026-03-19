@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import ScrollToTop from '../../components/common/ScrollTop';
 import PrivacyPolicyPage from '../../pages/legal/PrivacyPolicyPage';
 import TermsOfServicePage from '../../pages/legal/TermsOfServicePage';
+import LibraryPage from '../../pages/Library/Library';
 import PreferencesPage from '../../pages/Preferences/Preferences';
 import AboutUs from '../../pages/public/About/AboutUs';
 import ContactPage from '../../pages/public/Contact/ContactPage';
@@ -37,6 +38,14 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute>
                 <PreferencesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/biblioteca"
+            element={
+              <ProtectedRoute>
+                <LibraryPage />
               </ProtectedRoute>
             }
           />

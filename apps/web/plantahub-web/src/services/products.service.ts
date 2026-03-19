@@ -1,5 +1,5 @@
 import { http } from '../lib/http';
-import type { ProductSummaryResponse } from '../types/api/product';
+import type { PlanTypeOptionDTO, ProductSummaryResponse } from '../types/api/product';
 
 type ListProductsParams = {
   category?: string;
@@ -20,4 +20,8 @@ export async function listProducts(params: ListProductsParams = {}) {
   const query = searchParams.toString();
 
   return http<ProductSummaryResponse[]>(`/v1/products${query ? `?${query}` : ''}`);
+}
+
+export async function getProductPlanTypes(category: string, slug: string) {
+  return http<PlanTypeOptionDTO[]>(`/v1/products/${category}/${slug}/plan-types`);
 }

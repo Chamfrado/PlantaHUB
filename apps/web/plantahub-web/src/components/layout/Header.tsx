@@ -81,7 +81,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setMenuOpen(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 transition"
+                className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 transition cursor-pointer"
               >
                 <span>Olá, {user?.firstName ?? 'Usuário'}</span>
                 <ChevronDown className="h-4 w-4" />
@@ -90,12 +90,12 @@ export default function Header() {
               {menuOpen ? (
                 <div className="absolute right-0 mt-3 w-56 rounded-2xl border border-neutral-200 bg-white shadow-lg overflow-hidden z-50">
                   <Link
-                    to="/my-library"
+                    to="/biblioteca"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
                   >
                     <BookOpen className="h-4 w-4" />
-                    My Library
+                    Biblioteca
                   </Link>
 
                   <Link
@@ -104,7 +104,7 @@ export default function Header() {
                     className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
                   >
                     <Settings className="h-4 w-4" />
-                    Configs
+                    Configurações
                   </Link>
 
                   <button
