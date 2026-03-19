@@ -43,4 +43,22 @@ public interface DownloadEntitlementRepository extends JpaRepository<DownloadEnt
     List<DownloadEntitlement> findActiveLibraryByEmail(String email);
 
     List<DownloadEntitlement> findByOrderIdAndRevokedAtIsNull(UUID orderId);
+
+    @Query("""
+    select de
+    from DownloadEntitlement de
+    join fetch de.product p
+    join fetch de.planType pt
+    join de.user u
+    where u.email = :email
+      and p.id = :productId
+      and pt.code = :planTypeCode
+      and de.revokedAt is null
+      and de.order.status = com.plantahub.api.domain.orders.enums.OrderStatus.PAID
+""")
+    Optional<DownloadEntitlement> findActiveByUserEmailAndProductIdAndPlanTypeCode(
+            @Param("email") String email,
+            @Param("productId") String productId,
+            @Param("planTypeCode") String planTypeCode
+    );
 }

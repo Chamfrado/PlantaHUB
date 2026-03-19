@@ -36,4 +36,5 @@ public interface DigitalAssetRepository extends JpaRepository<DigitalAsset, UUID
     order by p.id, pt.code, da.version desc, da.createdAt desc
 """)
     List<DigitalAsset> findAssetsForLibrary(List<String> productIds, List<String> planTypeCodes);
+
 }

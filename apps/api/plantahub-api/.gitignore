@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+###AWS CONFIG###
+apps/api/plantahub-api/src/main/resources/application-local.yml

@@ -29,11 +29,14 @@ security:
     secret: "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_64_CHARS_MIN"
     access-token-minutes: 240
 
-aws:
-  region: us-east-2
+app:
   s3:
     bucket: plantahub-assets
+    region: us-east-2
+    access-key: ${APP_S3_ACCESS_KEY:}
+    secret-key: ${APP_S3_SECRET_KEY:}
 
 logging:
   level:
     org.hibernate.SQL: debug
+
