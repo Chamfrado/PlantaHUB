@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+security:
+  jwt:
+    issuer: plantahub
+    secret: ${JWT_SECRET}
+    access-token-minutes: 240
+
+app:
+  s3:
+    bucket: ${APP_S3_BUCKET}
+    region: ${APP_S3_REGION}
+
+logging:
+  level:
+    org.hibernate.SQL: warn

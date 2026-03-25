@@ -2,6 +2,7 @@ package com.plantahub.api.security;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.*;
@@ -25,7 +26,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String auth = request.getHeader("Authorization");
+        String path = request.getServletPath();
+
+        // 🔥 IGNORA ROTAS PÚBLICAS
+        if (path.equals("/health") ||
+                path.startsWith("/swagger") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/v1/auth")) {
+
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        // 🔥 SEM TOKEN → NÃO BLOQUEIA
         if (auth == null || !auth.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
@@ -40,13 +55,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             var authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities()
             );
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            chain.doFilter(request, response);
         } catch (Exception ex) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"invalid_or_expired_token\"}");
+            // 🔥 NÃO QUEBRA A REQUISIÇÃO
+            SecurityContextHolder.clearContext();
         }
+
+        chain.doFilter(request, response);
     }
 }
