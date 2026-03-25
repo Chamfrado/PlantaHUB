@@ -9,25 +9,27 @@ type Benefit = {
 
 const benefits: Benefit[] = [
   {
-    title: 'Modelos BIM Completos',
+    title: 'Projetos Completos',
     description:
-      'Modelos 3D completos com arquitetura, estrutura e sistemas complementares integrados.',
+      'Desenvolvidos com integração entre todos os sistemas da obra, garantindo mais eficiência, compatibilidade e facilidade na execução.',
     icon: <BrickWall className="h-7 w-7" />,
   },
   {
     title: 'Documentação Completa',
     description:
-      'Plantas arquitetônicas, estruturais, elétricas, hidráulicas e de paisagismo incluídas.',
+      'Plantas arquitetônicas, estruturais, elétricas, hidráulicas, paisagistica, material de apoio e renderização incluídas.',
     icon: <StickyNote className="h-7 w-7" />,
   },
   {
-    title: 'Qualidade Certificada',
-    description: 'Projetos certificados conforme padrões profissionais CAU/CREA.',
+    title: 'Projetos Aprovados',
+    description:
+      'Todos os projetos acompanham ART e RRT, garantindo responsabilidade técnica e conformidade com as exigências legais.',
     icon: <CheckCheck className="h-7 w-7" />,
   },
   {
-    title: 'Redução de Custos',
-    description: 'Economize até 70% em custos de projeto com plantas prontas e aprováveis.',
+    title: 'Redução Inteligente de Custo e Tempo',
+    description:
+      'Economize até 60% em comparação com projetos personalizados, sem abrir mão da qualidade.\n  Projetos otimizados para aprovação e execução.',
     icon: <DollarSign className="h-7 w-7" />,
   },
 ];

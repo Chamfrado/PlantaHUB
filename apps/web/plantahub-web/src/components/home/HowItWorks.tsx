@@ -21,44 +21,48 @@ type Stat = {
 const steps: Step[] = [
   {
     number: 1,
-    title: 'Explore os Projetos',
-    description:
-      'Navegue pelo catálogo de plantas certificadas, organizadas por categoria e metragem.',
+    title: 'Defina seu terreno e necessidade',
+    description: ' Escolha o tipo de construção ideal para seu espaço e objetivo.',
   },
   {
     number: 2,
-    title: 'Escolha o Plano',
-    description:
-      'Veja as especificações, documentos inclusos e prévias do projeto antes de comprar.',
+    title: 'Explore os Projetos',
+    description: 'Navegue pelo catálogo com opções organizadas por categoria, estilo e metragem.',
   },
   {
     number: 3,
+    title: ' Escolha o projeto ideal',
+    description: 'Visualize detalhes, documentos inclusos e prévias antes de tomar sua decisão.',
+  },
+  {
+    number: 4,
     title: 'Pagamento Seguro',
     description: 'Finalize a compra com checkout criptografado e confirmação imediata do pedido.',
   },
   {
-    number: 4,
+    number: 5,
     title: 'Download Imediato',
-    description: 'Acesse os arquivos na hora em BIM, DWG e PDF, prontos para construção.',
+    description: 'Receba seu projeto na hora e comece sua obra sem burocracia.',
   },
 ];
 
 const trustItems: TrustItem[] = [
   {
-    title: 'Certificação CAU/CREA',
+    title: 'Arquitetos e Engenheiros Habilitados',
     description:
-      'Projetos desenvolvidos e certificados por profissionais registrados, seguindo padrões técnicos e boas práticas.',
+      'Projetos desenvolvidos por profissionais habilitados, com registro nos órgãos competentes e seguindo rigorosamente as normas técnicas vigentes. Trazendo desgin inteligente e soluções funcionais.',
     icon: <BadgeCheck className="h-7 w-7" />,
   },
   {
-    title: 'Pagamentos Seguros',
-    description: 'Criptografia em nível bancário e boas práticas para manter sua compra protegida.',
+    title: 'Pagamentos 100% Seguros',
+    description:
+      'Ambiente protegido com criptografia de nível bancário, garantindo total segurança em todas as transações.',
     icon: <Lock className="h-7 w-7" />,
   },
   {
-    title: 'Suporte Especializado',
+    title: 'Suporte Humanizado',
     description:
-      'Equipe pronta para tirar dúvidas e orientar tecnicamente durante sua jornada com o projeto.',
+      'Conte com uma equipe preparada para esclarecer dúvidas e oferecer orientação sempre que necessário.',
     icon: <Headset className="h-7 w-7" />,
   },
 ];
@@ -108,7 +112,7 @@ export default function HowItWorks() {
           <p className="mt-3 text-neutral-600">Processo de compra simples, rápido e seguro</p>
         </div>
 
-        <div className="mt-12 grid bg-neutral-50 border-neutral-100 rounded-2xl gap-10 md:grid-cols-4">
+        <div className="mt-12 grid bg-neutral-50 border-neutral-100 rounded-2xl gap-10 md:grid-cols-5">
           {steps.map(s => (
             <StepItem key={s.number} step={s} />
           ))}
@@ -122,7 +126,9 @@ export default function HowItWorks() {
           <h3 className="text-2xl md:text-3xl font-extrabold text-neutral-900">
             Qualidade profissional em que você pode confiar
           </h3>
-          <p className="mt-3 text-neutral-600">Certificado, seguro e com suporte</p>
+          <p className="mt-3 text-neutral-600">
+            Segurança, credibilidade e suporte em cada etapa da sua jornada.
+          </p>
         </div>
 
         <div className="mt-12 grid gap-8 md:grid-cols-3">

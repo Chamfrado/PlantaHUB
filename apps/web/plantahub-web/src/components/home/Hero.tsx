@@ -11,8 +11,8 @@ type HeroProps = {
 
 export default function Hero({
   title = 'Projetos Arquitetônicos\nProntos para Construir',
-  subtitle = 'Projetos BIM, DWG, and PDF projects with all technical documentation. Certificados por CAU/CREA. Construa de forma mais rápida, inteligente e sustentável.',
-  primaryCtaText = 'Explorar projetos',
+  subtitle = ' Transforme sua obra em realidade com agilidade e segurança. Projetos completos em PDF, desenvolvidos por profissionais e prontos para execução. Escolha, adquira e comece a construir hoje mesmo.',
+  primaryCtaText = 'Explorar nossos Projetos',
   secondaryCtaText = 'Como Funciona',
   imageSrc,
 }: HeroProps) {
@@ -66,8 +66,8 @@ export default function Hero({
 
             <div className="mt-10 grid sm:grid-cols-3 gap-6">
               <FeatureItem
-                title="Projetos Certificados"
-                desc="Aprovado pelo CAU/CREA"
+                title="Projetos Aprovados"
+                desc="Projetos acompanham ART e RRT. Garantindo Conformidade e Segurança"
                 icon={
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-primary-600">
                     <Check />
@@ -75,8 +75,8 @@ export default function Hero({
                 }
               />
               <FeatureItem
-                title="Design Sustentável"
-                desc="Soluções ecologicamente responsáveis"
+                title="Design Inteligente"
+                desc="Soluções Concientes e Funcionais"
                 icon={
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-success-500">
                     <Leaf />
