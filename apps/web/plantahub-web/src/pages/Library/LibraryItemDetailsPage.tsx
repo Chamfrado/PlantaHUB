@@ -50,7 +50,9 @@ export default function LibraryItemDetailsPage() {
   );
 
   const planType = useMemo(
-    () => product?.planTypes.find(item => item.code === planTypeCode) ?? null,
+    () =>
+      product?.planTypes.find(item => item.code.toUpperCase() === planTypeCode.toUpperCase()) ??
+      null,
     [product, planTypeCode]
   );
 
@@ -102,6 +104,7 @@ export default function LibraryItemDetailsPage() {
             <h1 className="text-2xl font-extrabold text-neutral-900">
               Não foi possível abrir este item
             </h1>
+
             <p className="mt-2 text-sm text-red-600">
               {error ?? 'Item não encontrado na sua biblioteca.'}
             </p>
@@ -132,7 +135,7 @@ export default function LibraryItemDetailsPage() {
 
         <div className="mt-6 overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
           <div className="grid gap-0 md:grid-cols-[280px_minmax(0,1fr)]">
-            <div className="min-h-220px bg-neutral-100">
+            <div className="min-h-[220px] bg-neutral-100">
               {product.heroImageUrl ? (
                 <img
                   src={product.heroImageUrl}

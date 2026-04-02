@@ -18,19 +18,19 @@ export default function LibraryProductCard({
   onToggleBundleSelection,
 }: Props) {
   const purchasedCodes = useMemo(
-    () => new Set(product.planTypes.map(plan => plan.code)),
+    () => new Set(product.planTypes.map(plan => plan.code.toUpperCase())),
     [product.planTypes]
   );
 
   const missingPlanTypes = useMemo(
-    () => product.availablePlanTypes.filter(plan => !purchasedCodes.has(plan.code)),
+    () => product.availablePlanTypes.filter(plan => !purchasedCodes.has(plan.code.toUpperCase())),
     [product.availablePlanTypes, purchasedCodes]
   );
 
   return (
     <article className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
       <div className="grid gap-0 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="min-h-240px bg-neutral-100">
+        <div className="min-h-[240px] bg-neutral-100">
           {product.heroImageUrl ? (
             <img
               src={product.heroImageUrl}
@@ -39,7 +39,7 @@ export default function LibraryProductCard({
               loading="lazy"
             />
           ) : (
-            <div className="flex min-h-240px items-center justify-center text-sm text-neutral-400">
+            <div className="flex min-h-[240px] items-center justify-center text-sm text-neutral-400">
               Sem imagem
             </div>
           )}
@@ -59,7 +59,7 @@ export default function LibraryProductCard({
 
                 <span className="inline-flex items-center gap-2">
                   <CalendarDays className="h-4 w-4" />
-                  Comprado em {formatDateTime(product.purchasedAt)}
+                  Comprado em {formatDate(product.purchasedAt)}
                 </span>
               </div>
             </div>
@@ -81,7 +81,7 @@ export default function LibraryProductCard({
 
               <div className="mt-4 space-y-3">
                 {product.planTypes.map(plan => {
-                  const bundleKey = `${product.productId}:${plan.code}`;
+                  const bundleKey = `${product.productId}:${plan.code.toUpperCase()}`;
                   const checked = selectedCodes.includes(bundleKey);
 
                   return (
@@ -165,7 +165,7 @@ export default function LibraryProductCard({
   );
 }
 
-function formatDateTime(value: string) {
+function formatDate(value: string) {
   return new Date(value).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',

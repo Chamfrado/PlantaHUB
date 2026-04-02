@@ -39,8 +39,8 @@ export default function LibraryPage() {
                 ...product,
                 availablePlanTypes: allPlanTypes,
               };
-            } catch (err) {
-              console.error(`Erro ao carregar plan types de ${product.slug}`, err);
+            } catch (error) {
+              console.error(`Erro ao carregar plan types de ${product.slug}`, error);
 
               return {
                 ...product,
@@ -51,8 +51,8 @@ export default function LibraryPage() {
         );
 
         setItems(enriched);
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
         setError('Não foi possível carregar sua biblioteca.');
       } finally {
         setLoading(false);
@@ -63,10 +63,12 @@ export default function LibraryPage() {
   }, []);
 
   function toggleBundleSelection(productId: string, planTypeCode: string) {
-    const normalized = `${productId}:${planTypeCode.toUpperCase()}`;
+    const normalizedKey = `${productId}:${planTypeCode.toUpperCase()}`;
 
     setSelectedKeys(prev =>
-      prev.includes(normalized) ? prev.filter(item => item !== normalized) : [...prev, normalized]
+      prev.includes(normalizedKey)
+        ? prev.filter(item => item !== normalizedKey)
+        : [...prev, normalizedKey]
     );
   }
 
