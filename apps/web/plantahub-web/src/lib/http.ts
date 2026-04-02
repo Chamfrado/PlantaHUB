@@ -1,3 +1,5 @@
+import { dispatchSessionExpiredEvent } from './auth-events';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -44,6 +46,7 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
     try {
       if (contentType.includes('application/json')) {
         body = await response.json();
+
         if (
           body &&
           typeof body === 'object' &&
@@ -54,6 +57,7 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
         }
       } else {
         const text = await response.text();
+
         if (text.trim()) {
           message = text;
           body = text;
@@ -61,6 +65,10 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
       }
     } catch {
       // ignore parse errors
+    }
+
+    if (response.status === 401 && token) {
+      dispatchSessionExpiredEvent();
     }
 
     const error = new Error(message) as HttpError;

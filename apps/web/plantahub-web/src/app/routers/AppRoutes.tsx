@@ -9,7 +9,9 @@ import LibraryItemDetailsPage from '../../pages/Library/LibraryItemDetailsPage';
 import OrderDetailsPage from '../../pages/Orders/OrderDetailsPage';
 import PreferencesPage from '../../pages/Preferences/Preferences';
 import AboutUs from '../../pages/public/About/AboutUs';
+import Carrer from '../../pages/public/Carrer/Carrer';
 import ContactPage from '../../pages/public/Contact/ContactPage';
+import FaqPage from '../../pages/public/Faq/Faq';
 import Home from '../../pages/public/Home/Home';
 import Login from '../../pages/public/Login/Login';
 import ProductDetails from '../../pages/public/ProductDetails/ProductDetails';
@@ -35,6 +37,8 @@ export default function AppRoutes() {
             <Route path="/legal/privacidade" element={<PrivacyPolicyPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/trabalhe-conosco" element={<Carrer />} />
+            <Route path="/faq" element={<FaqPage />} />
 
             <Route
               path="/configs"
