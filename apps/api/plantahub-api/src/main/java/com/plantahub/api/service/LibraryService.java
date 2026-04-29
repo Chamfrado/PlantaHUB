@@ -33,7 +33,7 @@ public class LibraryService {
         }
 
         Map<String, ProductBuilder> products = new LinkedHashMap<>();
-
+        Map<String, ProductS3Index> s3IndexByProduct = new HashMap<>();
         for (DownloadEntitlement e : entitlements) {
             var p = e.getProduct();
             var pt = e.getPlanType();
@@ -53,7 +53,12 @@ public class LibraryService {
 
             String planTypeCode = pt.getCode().toUpperCase();
 
-            List<LibraryAssetDTO> assets = resolveAssetsFromS3(p.getId(), planTypeCode);
+            ProductS3Index s3Index = s3IndexByProduct.computeIfAbsent(
+                    p.getId(),
+                    this::loadProductS3Index
+            );
+
+            List<LibraryAssetDTO> assets = resolveAssetsFromIndex(s3Index, planTypeCode);
 
             pb.planTypes.putIfAbsent(
                     planTypeCode,
@@ -74,27 +79,91 @@ public class LibraryService {
         String planPrefix = "products/" + productId + "/" + planTypeCode + "/";
         String apoioPrefix = "products/" + productId + "/APOIO/";
 
-        List<String> planKeys = s3DownloadService.listKeysByPrefix(planPrefix);
-        List<String> apoioKeys = s3DownloadService.listKeysByPrefix(apoioPrefix);
+        List<S3DownloadService.S3AssetInfo> planFiles =
+                s3DownloadService.listAssetsByPrefix(planPrefix);
 
-        List<String> allKeys = new ArrayList<>();
-        allKeys.addAll(planKeys);
-        allKeys.addAll(apoioKeys);
+        List<S3DownloadService.S3AssetInfo> apoioFiles =
+                s3DownloadService.listAssetsByPrefix(apoioPrefix);
 
-        return allKeys.stream()
-                .distinct()
+        Map<String, S3DownloadService.S3AssetInfo> allFiles = new LinkedHashMap<>();
+
+        for (S3DownloadService.S3AssetInfo file : planFiles) {
+            allFiles.put(file.key(), file);
+        }
+
+        for (S3DownloadService.S3AssetInfo file : apoioFiles) {
+            allFiles.put(file.key(), file);
+        }
+
+        return allFiles.values().stream()
                 .map(this::toLibraryAsset)
                 .toList();
     }
 
-    private LibraryAssetDTO toLibraryAsset(String storageKey) {
+    private ProductS3Index loadProductS3Index(String productId) {
+        String productPrefix = "products/" + productId + "/";
+
+        List<S3DownloadService.S3AssetInfo> allFiles =
+                s3DownloadService.listAssetsByPrefix(productPrefix);
+
+        Map<String, List<S3DownloadService.S3AssetInfo>> byFolder = new HashMap<>();
+
+        for (S3DownloadService.S3AssetInfo file : allFiles) {
+            String folder = extractFolderAfterProduct(productId, file.key());
+
+            if (folder == null || folder.isBlank()) {
+                continue;
+            }
+
+            byFolder.computeIfAbsent(folder.toUpperCase(), key -> new ArrayList<>())
+                    .add(file);
+        }
+
+        return new ProductS3Index(byFolder);
+    }
+
+    private String extractFolderAfterProduct(String productId, String key) {
+        String prefix = "products/" + productId + "/";
+
+        if (!key.startsWith(prefix)) {
+            return null;
+        }
+
+        String remaining = key.substring(prefix.length());
+
+        int slash = remaining.indexOf('/');
+
+        if (slash < 0) {
+            return null;
+        }
+
+        return remaining.substring(0, slash);
+    }
+
+    private List<LibraryAssetDTO> resolveAssetsFromIndex(ProductS3Index index, String planTypeCode) {
+        LinkedHashMap<String, S3DownloadService.S3AssetInfo> files = new LinkedHashMap<>();
+
+        index.byFolder()
+                .getOrDefault(planTypeCode.toUpperCase(), List.of())
+                .forEach(file -> files.put(file.key(), file));
+
+        index.byFolder()
+                .getOrDefault("APOIO", List.of())
+                .forEach(file -> files.put(file.key(), file));
+
+        return files.values().stream()
+                .map(this::toLibraryAsset)
+                .toList();
+    }
+
+    private LibraryAssetDTO toLibraryAsset(S3DownloadService.S3AssetInfo file) {
         return new LibraryAssetDTO(
-                stableId(storageKey),
-                extractFilename(storageKey),
-                storageKey,
+                stableId(file.key()),
+                extractFilename(file.key()),
+                file.key(),
                 1,
-                null,
-                null
+                file.sizeBytes(),
+                file.lastModified()
         );
     }
 
@@ -146,4 +215,9 @@ public class LibraryService {
             );
         }
     }
+
+    private record ProductS3Index(
+            Map<String, List<S3DownloadService.S3AssetInfo>> byFolder
+    ) {}
+
 }

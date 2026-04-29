@@ -19,8 +19,17 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 
+import java.time.Instant;
+import java.util.ArrayList;
+
 @Service
 public class S3DownloadService {
+
+    public record S3AssetInfo(
+            String key,
+            Long sizeBytes,
+            Instant lastModified
+    ) {}
 
     private final String bucket;
     private final S3Presigner presigner;
@@ -83,16 +92,40 @@ public class S3DownloadService {
 
 
     public List<String> listKeysByPrefix(String prefix) {
-        ListObjectsV2Request request = ListObjectsV2Request.builder()
-                .bucket(bucket)
-                .prefix(prefix)
-                .build();
-
-        ListObjectsV2Response response = s3Client.listObjectsV2(request);
-
-        return response.contents().stream()
-                .map(S3Object::key)
-                .filter(key -> !key.endsWith("/"))
+        return listAssetsByPrefix(prefix).stream()
+                .map(S3AssetInfo::key)
                 .toList();
+    }
+
+    public List<S3AssetInfo> listAssetsByPrefix(String prefix) {
+        List<S3AssetInfo> result = new ArrayList<>();
+
+        String continuationToken = null;
+
+        do {
+            ListObjectsV2Request.Builder requestBuilder = ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(prefix)
+                    .maxKeys(1000);
+
+            if (continuationToken != null) {
+                requestBuilder.continuationToken(continuationToken);
+            }
+
+            ListObjectsV2Response response = s3Client.listObjectsV2(requestBuilder.build());
+
+            response.contents().stream()
+                    .filter(obj -> !obj.key().endsWith("/"))
+                    .forEach(obj -> result.add(new S3AssetInfo(
+                            obj.key(),
+                            obj.size(),
+                            obj.lastModified()
+                    )));
+
+            continuationToken = response.nextContinuationToken();
+
+        } while (continuationToken != null);
+
+        return result;
     }
 }
