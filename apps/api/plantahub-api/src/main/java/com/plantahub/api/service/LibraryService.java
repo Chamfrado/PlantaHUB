@@ -1,13 +1,12 @@
 package com.plantahub.api.service;
 
-import com.plantahub.api.domain.catalog.DigitalAsset;
 import com.plantahub.api.domain.downloads.DownloadEntitlement;
-import com.plantahub.api.repository.DigitalAssetRepository;
 import com.plantahub.api.repository.DownloadEntitlementRepository;
 import com.plantahub.api.web.dto.library.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
@@ -15,12 +14,14 @@ import java.util.*;
 public class LibraryService {
 
     private final DownloadEntitlementRepository entitlementRepo;
-    private final DigitalAssetRepository assetRepo;
+    private final S3DownloadService s3DownloadService;
 
-    public LibraryService(DownloadEntitlementRepository entitlementRepo,
-                          DigitalAssetRepository assetRepo) {
+    public LibraryService(
+            DownloadEntitlementRepository entitlementRepo,
+            S3DownloadService s3DownloadService
+    ) {
         this.entitlementRepo = entitlementRepo;
-        this.assetRepo = assetRepo;
+        this.s3DownloadService = s3DownloadService;
     }
 
     @Transactional(readOnly = true)
@@ -31,42 +32,12 @@ public class LibraryService {
             return List.of();
         }
 
-        List<String> productIds = entitlements.stream()
-                .map(e -> e.getProduct().getId())
-                .distinct()
-                .toList();
-
-        List<String> planTypeCodes = entitlements.stream()
-                .map(e -> e.getPlanType().getCode())
-                .distinct()
-                .toList();
-
-        var assets = assetRepo.findAssetsForLibrary(productIds, planTypeCodes);
-
-        Map<String, List<LibraryAssetDTO>> assetsIndex = new HashMap<>();
-        for (DigitalAsset a : assets) {
-            String pid = a.getProductPlanType().getProduct().getId();
-            String code = a.getProductPlanType().getPlanType().getCode();
-            String key = pid + "::" + code;
-
-            assetsIndex.computeIfAbsent(key, k -> new ArrayList<>())
-                    .add(new LibraryAssetDTO(
-                            a.getId().toString(),
-                            a.getFilename(),
-                            a.getStorageKey(),
-                            a.getVersion(),
-                            a.getSizeBytes(),
-                            a.getCreatedAt()
-                    ));
-        }
-
         Map<String, ProductBuilder> products = new LinkedHashMap<>();
 
         for (DownloadEntitlement e : entitlements) {
             var p = e.getProduct();
             var pt = e.getPlanType();
             var o = e.getOrder();
-
 
             var pb = products.computeIfAbsent(p.getId(), id -> new ProductBuilder(
                     p.getId(),
@@ -80,15 +51,16 @@ public class LibraryService {
             Instant referenceDate = o.getPaidAt() != null ? o.getPaidAt() : e.getGrantedAt();
             pb.purchasedAt = minInstant(pb.purchasedAt, referenceDate);
 
-            String assetKey = p.getId() + "::" + pt.getCode();
-            var assetList = assetsIndex.getOrDefault(assetKey, List.of());
+            String planTypeCode = pt.getCode().toUpperCase();
+
+            List<LibraryAssetDTO> assets = resolveAssetsFromS3(p.getId(), planTypeCode);
 
             pb.planTypes.putIfAbsent(
-                    pt.getCode(),
+                    planTypeCode,
                     new LibraryPlanTypeDTO(
-                            pt.getCode(),
+                            planTypeCode,
                             pt.getName(),
-                            assetList
+                            assets
                     )
             );
         }
@@ -96,6 +68,43 @@ public class LibraryService {
         return products.values().stream()
                 .map(ProductBuilder::toDto)
                 .toList();
+    }
+
+    private List<LibraryAssetDTO> resolveAssetsFromS3(String productId, String planTypeCode) {
+        String planPrefix = "products/" + productId + "/" + planTypeCode + "/";
+        String apoioPrefix = "products/" + productId + "/APOIO/";
+
+        List<String> planKeys = s3DownloadService.listKeysByPrefix(planPrefix);
+        List<String> apoioKeys = s3DownloadService.listKeysByPrefix(apoioPrefix);
+
+        List<String> allKeys = new ArrayList<>();
+        allKeys.addAll(planKeys);
+        allKeys.addAll(apoioKeys);
+
+        return allKeys.stream()
+                .distinct()
+                .map(this::toLibraryAsset)
+                .toList();
+    }
+
+    private LibraryAssetDTO toLibraryAsset(String storageKey) {
+        return new LibraryAssetDTO(
+                stableId(storageKey),
+                extractFilename(storageKey),
+                storageKey,
+                1,
+                null,
+                null
+        );
+    }
+
+    private String stableId(String value) {
+        return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8)).toString();
+    }
+
+    private String extractFilename(String key) {
+        int idx = key.lastIndexOf('/');
+        return idx >= 0 ? key.substring(idx + 1) : key;
     }
 
     private Instant minInstant(Instant a, Instant b) {
