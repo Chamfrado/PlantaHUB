@@ -7,6 +7,7 @@ import com.plantahub.api.web.dto.downloads.DownloadResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,21 +28,35 @@ public class DownloadService {
     }
 
     public DownloadResponseDTO downloadAll(String email, String productId, String planTypeCode) {
+
         // 1) valida entitlement
-        DownloadEntitlement ent = entitlementService.validateEntitlement(email, productId, planTypeCode);
+        entitlementService.validateEntitlement(email, productId, planTypeCode);
 
-        // 2) lista assets do planType
-        List<DigitalAsset> assets = assetRepo.findAllByProductAndPlanType(productId, planTypeCode);
+        String basePath = "products/" + productId + "/" + planTypeCode + "/";
+        String apoioPath = "products/" + productId + "/APOIO/";
 
-        // 3) gera URL para cada asset
-        var files = assets.stream().map(a -> new DownloadResponseDTO.FileDTO(
-                a.getFilename(),
-                a.getStorageKey(),
-                s3DownloadService.generatePresignedUrl(a.getStorageKey(), Duration.ofMinutes(15)),
-                a.getSizeBytes()
+        // 2) lista arquivos reais no S3
+        List<String> planFiles = s3DownloadService.listKeysByPrefix(basePath);
+        List<String> apoioFiles = s3DownloadService.listKeysByPrefix(apoioPath);
+
+        List<String> allFiles = new ArrayList<>();
+        allFiles.addAll(planFiles);
+        allFiles.addAll(apoioFiles);
+
+        // 3) monta resposta
+        var files = allFiles.stream().map(key -> new DownloadResponseDTO.FileDTO(
+                extractFilename(key),
+                key,
+                s3DownloadService.generatePresignedUrl(key, Duration.ofMinutes(15)),
+                null // size opcional depois
         )).toList();
 
         return new DownloadResponseDTO(productId, planTypeCode, files);
+    }
+
+    private String extractFilename(String key) {
+        int idx = key.lastIndexOf('/');
+        return idx >= 0 ? key.substring(idx + 1) : key;
     }
 
 
