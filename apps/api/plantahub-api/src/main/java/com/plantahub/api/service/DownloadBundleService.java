@@ -1,8 +1,6 @@
 package com.plantahub.api.service;
 
-import com.plantahub.api.domain.catalog.DigitalAsset;
 import com.plantahub.api.domain.downloads.DownloadEntitlement;
-import com.plantahub.api.repository.DigitalAssetRepository;
 import com.plantahub.api.repository.DownloadEntitlementRepository;
 import com.plantahub.api.web.dto.downloads.CreateDownloadBundleRequest;
 import com.plantahub.api.web.dto.downloads.DownloadBundleResponseDTO;
@@ -26,18 +24,15 @@ public class DownloadBundleService {
     private static final Duration ZIP_URL_DURATION = Duration.ofMinutes(15);
 
     private final DownloadEntitlementRepository entitlementRepository;
-    private final DigitalAssetRepository digitalAssetRepository;
     private final S3DownloadService s3DownloadService;
     private final S3ObjectStreamService s3ObjectStreamService;
 
     public DownloadBundleService(
             DownloadEntitlementRepository entitlementRepository,
-            DigitalAssetRepository digitalAssetRepository,
             S3DownloadService s3DownloadService,
             S3ObjectStreamService s3ObjectStreamService
     ) {
         this.entitlementRepository = entitlementRepository;
-        this.digitalAssetRepository = digitalAssetRepository;
         this.s3DownloadService = s3DownloadService;
         this.s3ObjectStreamService = s3ObjectStreamService;
     }
@@ -48,9 +43,9 @@ public class DownloadBundleService {
             throw new IllegalArgumentException("download_bundle_items_required");
         }
 
-        List<ResolvedBundleItem> resolvedItems = resolveItems(email, request);
+        List<ResolvedBundleFile> resolvedFiles = resolveFiles(email, request);
 
-        if (resolvedItems.isEmpty()) {
+        if (resolvedFiles.isEmpty()) {
             throw new IllegalArgumentException("download_bundle_empty");
         }
 
@@ -58,10 +53,11 @@ public class DownloadBundleService {
         String storageKey = buildZipStorageKey(email, filename);
 
         Path tempZip = null;
+
         try {
             tempZip = Files.createTempFile("plantahub-download-", ".zip");
 
-            writeZip(tempZip, resolvedItems);
+            writeZip(tempZip, resolvedFiles);
 
             s3DownloadService.uploadFile(storageKey, tempZip, "application/zip");
 
@@ -85,9 +81,11 @@ public class DownloadBundleService {
         }
     }
 
-    private List<ResolvedBundleItem> resolveItems(String email, CreateDownloadBundleRequest request) {
-        List<ResolvedBundleItem> result = new ArrayList<>();
+    private List<ResolvedBundleFile> resolveFiles(String email, CreateDownloadBundleRequest request) {
+        List<ResolvedBundleFile> result = new ArrayList<>();
+
         Set<String> seenPairs = new HashSet<>();
+        Set<String> seenStorageKeys = new HashSet<>();
 
         for (CreateDownloadBundleRequest.Item item : request.items()) {
             String productId = normalizeProductId(item.productId());
@@ -95,6 +93,7 @@ public class DownloadBundleService {
 
             for (String code : codes) {
                 String pairKey = productId + "::" + code;
+
                 if (!seenPairs.add(pairKey)) {
                     continue;
                 }
@@ -103,44 +102,58 @@ public class DownloadBundleService {
                         .findActiveByUserEmailAndProductIdAndPlanTypeCode(email.toLowerCase(), productId, code)
                         .orElseThrow(() -> new IllegalArgumentException("download_not_entitled"));
 
-                List<DigitalAsset> assets = digitalAssetRepository
-                        .findAllByProductAndPlanType(productId, code);
+                String productFolder = safeFolderName(entitlement.getProduct().getName());
 
-                if (assets.isEmpty()) {
+                String planPrefix = "products/" + productId + "/" + code + "/";
+                String apoioPrefix = "products/" + productId + "/APOIO/";
+
+                List<String> planKeys = s3DownloadService.listKeysByPrefix(planPrefix);
+                List<String> apoioKeys = s3DownloadService.listKeysByPrefix(apoioPrefix);
+
+                if (planKeys.isEmpty() && apoioKeys.isEmpty()) {
                     throw new IllegalArgumentException("download_assets_not_found");
                 }
 
-                result.add(new ResolvedBundleItem(
-                        entitlement.getProduct().getId(),
-                        safeFolderName(entitlement.getProduct().getName()),
-                        entitlement.getPlanType().getCode(),
-                        assets
-                ));
+                for (String key : planKeys) {
+                    if (seenStorageKeys.add(key)) {
+                        result.add(new ResolvedBundleFile(
+                                key,
+                                productFolder + "/" + code + "/" + extractFilename(key)
+                        ));
+                    }
+                }
+
+                for (String key : apoioKeys) {
+                    if (seenStorageKeys.add(key)) {
+                        result.add(new ResolvedBundleFile(
+                                key,
+                                productFolder + "/APOIO/" + extractFilename(key)
+                        ));
+                    }
+                }
             }
         }
 
         return result;
     }
 
-    private void writeZip(Path zipPath, List<ResolvedBundleItem> items) throws IOException {
+    private void writeZip(Path zipPath, List<ResolvedBundleFile> files) throws IOException {
         Set<String> usedPaths = new HashSet<>();
 
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
-            for (ResolvedBundleItem item : items) {
-                for (DigitalAsset asset : item.assets()) {
-                    String entryName = uniqueEntryName(
-                            usedPaths,
-                            item.productFolder() + "/" + item.planTypeCode() + "/" + sanitizeFilename(asset.getFilename())
-                    );
+            for (ResolvedBundleFile file : files) {
+                String entryName = uniqueEntryName(
+                        usedPaths,
+                        sanitizeZipPath(file.zipPath())
+                );
 
-                    zos.putNextEntry(new ZipEntry(entryName));
+                zos.putNextEntry(new ZipEntry(entryName));
 
-                    try (InputStream in = s3ObjectStreamService.openStream(asset.getStorageKey())) {
-                        in.transferTo(zos);
-                    }
-
-                    zos.closeEntry();
+                try (InputStream in = s3ObjectStreamService.openStream(file.storageKey())) {
+                    in.transferTo(zos);
                 }
+
+                zos.closeEntry();
             }
         }
     }
@@ -155,11 +168,14 @@ public class DownloadBundleService {
         String ext = dot >= 0 ? originalPath.substring(dot) : "";
 
         int counter = 2;
+
         while (true) {
             String candidate = base + " (" + counter + ")" + ext;
+
             if (usedPaths.add(candidate)) {
                 return candidate;
             }
+
             counter++;
         }
     }
@@ -176,6 +192,7 @@ public class DownloadBundleService {
         if (productId == null || productId.isBlank()) {
             throw new IllegalArgumentException("product_id_required");
         }
+
         return productId.trim();
     }
 
@@ -185,12 +202,15 @@ public class DownloadBundleService {
         }
 
         LinkedHashSet<String> codes = new LinkedHashSet<>();
+
         for (String code : planTypeCodes) {
             if (code == null || code.isBlank()) {
                 throw new IllegalArgumentException("plan_type_code_invalid");
             }
+
             codes.add(code.trim().toUpperCase());
         }
+
         return codes;
     }
 
@@ -198,20 +218,28 @@ public class DownloadBundleService {
         if (value == null || value.isBlank()) {
             return "produto";
         }
+
         return value.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
     }
 
-    private String sanitizeFilename(String filename) {
-        if (filename == null || filename.isBlank()) {
-            return "arquivo";
-        }
-        return filename.replace("\\", "_").replace("/", "_");
+    private String extractFilename(String key) {
+        int idx = key.lastIndexOf('/');
+        return idx >= 0 ? key.substring(idx + 1) : key;
     }
 
-    private record ResolvedBundleItem(
-            String productId,
-            String productFolder,
-            String planTypeCode,
-            List<DigitalAsset> assets
+    private String sanitizeZipPath(String path) {
+        if (path == null || path.isBlank()) {
+            return "arquivo";
+        }
+
+        return path
+                .replace("\\", "/")
+                .replaceAll("/+", "/")
+                .replaceAll("[\\r\\n]", "_");
+    }
+
+    private record ResolvedBundleFile(
+            String storageKey,
+            String zipPath
     ) {}
 }

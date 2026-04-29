@@ -50,11 +50,24 @@ public class S3DownloadService {
     }
 
     public String generatePresignedUrl(String storageKey, Duration duration) {
+        String filename = extractFilename(storageKey);
+
         PresignedGetObjectRequest presigned = presigner.presignGetObject(builder ->
                 builder.signatureDuration(duration)
-                        .getObjectRequest(req -> req.bucket(bucket).key(storageKey))
+                        .getObjectRequest(req -> req
+                                .bucket(bucket)
+                                .key(storageKey)
+                                .responseContentDisposition("attachment; filename=\"" + filename + "\"")
+                                .responseContentType("application/octet-stream")
+                        )
         );
+
         return presigned.url().toString();
+    }
+
+    private String extractFilename(String key) {
+        int idx = key.lastIndexOf('/');
+        return idx >= 0 ? key.substring(idx + 1) : key;
     }
 
     public void uploadFile(String storageKey, Path file, String contentType) {

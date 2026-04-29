@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useToast } from '../../components/ui/use-toast';
 import { getApiErrorMessage } from '../../lib/api-error';
-import { getDownloadDetails } from '../../services/download.service';
+import { createDownloadBundle, getDownloadDetails } from '../../services/download.service';
 import { getMyLibrary } from '../../services/library.service';
 import type { DownloadResponseDTO } from '../../types/api/download';
 import type { LibraryProductDTO } from '../../types/api/library';
@@ -62,9 +62,20 @@ export default function LibraryItemDetailsPage() {
     try {
       setDownloadingAll(true);
 
-      download.files.forEach(file => {
-        window.open(file.url, '_blank', 'noopener,noreferrer');
+      const bundle = await createDownloadBundle({
+        items: [
+          {
+            productId: download.productId,
+            planTypeCodes: [download.planTypeCode],
+          },
+        ],
       });
+      const a = document.createElement('a');
+      a.href = bundle.url;
+      a.download = bundle.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
       showToast({
         variant: 'success',
@@ -192,15 +203,21 @@ export default function LibraryItemDetailsPage() {
                       </div>
                     </div>
 
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const a = document.createElement('a');
+                        a.href = file.url;
+                        a.download = file.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                      }}
                       className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 transition hover:bg-neutral-100"
                     >
                       <Download className="h-4 w-4" />
                       Baixar arquivo
-                    </a>
+                    </button>
                   </div>
                 ))}
               </div>
