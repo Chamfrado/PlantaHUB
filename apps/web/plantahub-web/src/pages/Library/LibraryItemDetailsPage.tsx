@@ -229,9 +229,26 @@ export default function LibraryItemDetailsPage() {
   );
 }
 
-function formatFileSize(sizeBytes: number) {
-  if (sizeBytes < 1024) return `${sizeBytes} B`;
-  if (sizeBytes < 1024 * 1024) return `${(sizeBytes / 1024).toFixed(1)} KB`;
-  if (sizeBytes < 1024 * 1024 * 1024) return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(sizeBytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+function formatFileSize(bytes?: number | null) {
+  if (bytes == null) return '—';
+
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  const kb = bytes / 1024;
+
+  if (kb < 1024) {
+    return `${kb.toFixed(1)} KB`;
+  }
+
+  const mb = kb / 1024;
+
+  if (mb < 1024) {
+    return `${mb.toFixed(1)} MB`;
+  }
+
+  const gb = mb / 1024;
+
+  return `${gb.toFixed(2)} GB`;
 }
