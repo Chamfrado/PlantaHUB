@@ -22,6 +22,10 @@ import java.util.List;
 import java.time.Instant;
 import java.util.ArrayList;
 
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+
 @Service
 public class S3DownloadService {
 
@@ -127,5 +131,26 @@ public class S3DownloadService {
         } while (continuationToken != null);
 
         return result;
+    }
+
+    public boolean objectExists(String storageKey) {
+        try {
+            s3Client.headObject(
+                    HeadObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(storageKey)
+                            .build()
+            );
+
+            return true;
+        } catch (NoSuchKeyException e) {
+            return false;
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                return false;
+            }
+
+            throw e;
+        }
     }
 }

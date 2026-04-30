@@ -17,11 +17,18 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+
 @Service
 public class DownloadBundleService {
 
+
     private static final long ZIP_URL_EXPIRES_SECONDS = 900L;
     private static final Duration ZIP_URL_DURATION = Duration.ofMinutes(15);
+    private static final String BUNDLE_CACHE_VERSION = "v1";
 
     private final DownloadEntitlementRepository entitlementRepository;
     private final S3DownloadService s3DownloadService;
@@ -49,8 +56,22 @@ public class DownloadBundleService {
             throw new IllegalArgumentException("download_bundle_empty");
         }
 
-        String filename = buildZipFilename();
-        String storageKey = buildZipStorageKey(email, filename);
+        String cacheId = buildBundleCacheId(resolvedFiles);
+        String filename = "plantahub-bundle-" + cacheId + ".zip";
+        String storageKey = "bundles/" + cacheId + "/" + filename;
+
+        // If ZIP already exists, just return the URL.
+        // This is much faster.
+        if (s3DownloadService.objectExists(storageKey)) {
+            String url = s3DownloadService.generatePresignedUrl(storageKey, ZIP_URL_DURATION);
+
+            return new DownloadBundleResponseDTO(
+                    filename,
+                    storageKey,
+                    url,
+                    ZIP_URL_EXPIRES_SECONDS
+            );
+        }
 
         Path tempZip = null;
 
@@ -78,6 +99,29 @@ public class DownloadBundleService {
                 } catch (IOException ignored) {
                 }
             }
+        }
+    }
+
+    private String buildBundleCacheId(List<ResolvedBundleFile> files) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            List<String> keys = files.stream()
+                    .map(ResolvedBundleFile::storageKey)
+                    .sorted()
+                    .toList();
+
+            digest.update(BUNDLE_CACHE_VERSION.getBytes(StandardCharsets.UTF_8));
+
+            for (String key : keys) {
+                digest.update(key.getBytes(StandardCharsets.UTF_8));
+            }
+
+            byte[] hash = digest.digest();
+
+            return HexFormat.of().formatHex(hash).substring(0, 16);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("bundle_cache_hash_failed", e);
         }
     }
 
