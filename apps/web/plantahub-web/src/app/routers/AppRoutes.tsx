@@ -7,6 +7,7 @@ import TermsOfServicePage from '../../pages/legal/TermsOfServicePage';
 import LibraryPage from '../../pages/Library/Library';
 import LibraryItemDetailsPage from '../../pages/Library/LibraryItemDetailsPage';
 import OrderDetailsPage from '../../pages/Orders/OrderDetailsPage';
+import PaymentSuccessPage from '../../pages/Payment/PaymentSuccessPage';
 import PreferencesPage from '../../pages/Preferences/Preferences';
 import AboutUs from '../../pages/public/About/AboutUs';
 import Carrer from '../../pages/public/Carrer/Carrer';
@@ -81,6 +82,15 @@ export default function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <LibraryItemDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/pagamento/sucesso"
+              element={
+                <ProtectedRoute>
+                  <PaymentSuccessPage />
                 </ProtectedRoute>
               }
             />

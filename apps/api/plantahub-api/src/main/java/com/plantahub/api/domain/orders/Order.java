@@ -44,4 +44,25 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
+
+    @Column(name = "payment_provider")
+    private String paymentProvider;
+
+    @Column(name = "payment_url")
+    private String paymentUrl;
+
+    @Column(name = "payment_invoice_slug")
+    private String paymentInvoiceSlug;
+
+    @Column(name = "payment_transaction_nsu")
+    private String paymentTransactionNsu;
+
+    @Column(name = "payment_receipt_url")
+    private String paymentReceiptUrl;
+
+    @Column(name = "payment_capture_method")
+    private String paymentCaptureMethod;
+
+    @Column(name = "payment_paid_amount_cents")
+    private Long paymentPaidAmountCents;
 }

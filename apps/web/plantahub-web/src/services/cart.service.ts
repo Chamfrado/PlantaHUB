@@ -1,10 +1,10 @@
 import { http } from '../lib/http';
 import type {
-    AddCartItemRequest,
-    CartResponse,
-    ReplaceCartItemSelectionsRequest,
+  AddCartItemRequest,
+  CartResponse,
+  ReplaceCartItemSelectionsRequest,
 } from '../types/api/cart';
-import type { OrderResponseDTO } from '../types/api/order';
+import type { CheckoutFromCartResponseDTO } from '../types/api/order';
 
 export async function getMyCart() {
   return http<CartResponse>('/v1/me/cart');
@@ -40,7 +40,7 @@ export async function clearCart() {
 }
 
 export async function checkoutFromCart() {
-  return http<OrderResponseDTO>('/v1/me/checkout/from-cart', {
+  return http<CheckoutFromCartResponseDTO>('/v1/me/checkout/from-cart', {
     method: 'POST',
   });
 }

@@ -1,8 +1,11 @@
 package com.plantahub.api;
 
+import com.plantahub.api.integration.infinitepay.InfinitePayProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+@EnableConfigurationProperties(InfinitePayProperties.class)
 @SpringBootApplication
 public class PlantahubApiApplication {
 

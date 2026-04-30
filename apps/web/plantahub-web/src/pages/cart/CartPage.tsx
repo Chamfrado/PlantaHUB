@@ -1,6 +1,6 @@
 import { Loader2, ShoppingBag, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../app/providers/useCart';
 import { useToast } from '../../components/ui/use-toast';
 import { getApiErrorMessage } from '../../lib/api-error';
@@ -13,8 +13,6 @@ import {
 import type { CartResponse } from '../../types/api/cart';
 
 export default function CartPage() {
-  const navigate = useNavigate();
-
   const [cart, setCart] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
@@ -97,16 +95,21 @@ export default function CartPage() {
     try {
       setCheckingOut(true);
       setError(null);
-      const order = await checkoutFromCart();
+
+      const response = await checkoutFromCart();
       await refreshCart();
+
+      if (!response.paymentUrl) {
+        throw new Error('Link de pagamento não retornado.');
+      }
 
       showToast({
         variant: 'success',
         title: 'Checkout iniciado',
-        description: 'Seu pedido foi criado com sucesso.',
+        description: 'Você será redirecionado para o pagamento.',
       });
 
-      navigate(`/pedidos/${order.id}`);
+      window.location.href = response.paymentUrl;
     } catch (error) {
       const message = getApiErrorMessage(error, 'Não foi possível finalizar o checkout.');
 
