@@ -129,7 +129,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
           </Link>
 
           <Link
-            to="/checkout"
+            to="/carrinho"
             onClick={onClose}
             className="flex-1 rounded-xl bg-primary-500 px-3 py-2 text-center text-sm font-bold text-white hover:bg-primary-600"
           >

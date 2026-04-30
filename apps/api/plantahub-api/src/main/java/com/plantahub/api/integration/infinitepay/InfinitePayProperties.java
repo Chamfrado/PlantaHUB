@@ -1,4 +1,12 @@
-package com.plantahub.api.integration.infinitepay.dto;
+package com.plantahub.api.integration.infinitepay;
 
-public class InfinitePayProperties {
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "infinitepay")
+public record InfinitePayProperties(
+        String handle,
+        String redirectUrl,
+        String webhookUrl,
+        String apiBaseUrl
+) {
 }

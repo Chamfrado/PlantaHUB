@@ -30,3 +30,8 @@ export type OrderResponseDTO = {
   paidAt?: string | null;
   items: OrderItemDTO[];
 };
+
+export type CheckoutFromCartResponseDTO = {
+  order: OrderResponseDTO;
+  paymentUrl: string;
+};

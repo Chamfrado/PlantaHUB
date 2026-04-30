@@ -1,4 +1,9 @@
 package com.plantahub.api.web.dto.checkout;
 
-public class CheckoutFromCartResponseDTO {
+import com.plantahub.api.web.dto.orders.OrderResponseDTO;
+
+public record CheckoutFromCartResponseDTO(
+        OrderResponseDTO order,
+        String paymentUrl
+) {
 }

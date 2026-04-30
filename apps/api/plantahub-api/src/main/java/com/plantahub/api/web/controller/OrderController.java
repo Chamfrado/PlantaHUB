@@ -1,6 +1,7 @@
 package com.plantahub.api.web.controller;
 
 import com.plantahub.api.service.CheckoutService;
+import com.plantahub.api.web.dto.checkout.CheckoutFromCartResponseDTO;
 import com.plantahub.api.web.dto.orders.*;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -57,7 +58,7 @@ public class OrderController {
     }
 
     @PostMapping("/me/checkout/from-cart")
-    public OrderResponseDTO checkoutFromCart(@AuthenticationPrincipal UserDetails user) {
+    public CheckoutFromCartResponseDTO checkoutFromCart(@AuthenticationPrincipal UserDetails user) {
         return checkoutService.createOrderFromCart(user.getUsername());
     }
 }

@@ -154,7 +154,6 @@ export default function ProductPlanSelector({
               </div>
             ) : null}
           </div>
-
           <aside className="h-fit lg:sticky lg:top-24">
             <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm">
               <h3 className="text-xl font-extrabold text-neutral-900">Resumo da compra</h3>

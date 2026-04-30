@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.plantahub.api.web.dto.checkout.CheckoutFromCartResponseDTO;
 
 @Service
 public class CheckoutService {
@@ -28,6 +29,7 @@ public class CheckoutService {
     private final ProfileService profileService;
     private final CartRepository cartRepository;
     private final CartItemSelectionRepository cartItemSelectionRepository;
+    private final InfinitePayPaymentService infinitePayPaymentService;
 
     public CheckoutService(
             AppUserRepository userRepo,
@@ -37,7 +39,8 @@ public class CheckoutService {
             DownloadEntitlementRepository entitlementRepo,
             ProfileService profileService,
             CartRepository cartRepository,
-            CartItemSelectionRepository cartItemSelectionRepository
+            CartItemSelectionRepository cartItemSelectionRepository,
+            InfinitePayPaymentService infinitePayPaymentService
     ) {
         this.userRepo = userRepo;
         this.orderRepo = orderRepo;
@@ -47,6 +50,7 @@ public class CheckoutService {
         this.profileService = profileService;
         this.cartRepository = cartRepository;
         this.cartItemSelectionRepository = cartItemSelectionRepository;
+        this.infinitePayPaymentService = infinitePayPaymentService;
     }
 
     @Transactional
@@ -204,12 +208,13 @@ public class CheckoutService {
     }
 
     @Transactional
-    public OrderResponseDTO createOrderFromCart(String email) {
+    public CheckoutFromCartResponseDTO createOrderFromCart(String email) {
 
-        // 1. Validate profile (reuse your logic)
         profileService.assertProfileComplete(email);
 
-        // 2. Load cart
+        AppUser user = userRepo.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
         Cart cart = cartRepository.findDetailedByUserEmailAndStatus(email.toLowerCase(), CartStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("cart_not_found"));
 
@@ -219,18 +224,23 @@ public class CheckoutService {
             throw new IllegalArgumentException("cart_empty");
         }
 
-        // 3. Convert Cart → CreateOrderRequest
         CreateOrderRequest req = convertCartToRequest(cart);
 
-        // 4. Reuse your existing flow 🔥
-        OrderResponseDTO response = createOrder(email, req);
+        OrderResponseDTO orderResponse = createOrder(email, req);
 
-        // 5. Clear cart AFTER success
+        Order order = orderRepo.findByIdAndUserIdWithItems(orderResponse.id(), user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("order_not_found_after_creation"));
+
+        String paymentUrl = infinitePayPaymentService.createPaymentLinkForOrder(order);
+
         cart.getItems().clear();
         cart.touch();
         cartRepository.save(cart);
 
-        return response;
+        return new CheckoutFromCartResponseDTO(
+                OrderMapper.toDto(order),
+                paymentUrl
+        );
     }
 
     private void revokeEntitlementsFromOrder(Order order) {

@@ -29,3 +29,9 @@ app:
 logging:
   level:
     org.hibernate.SQL: warn
+
+infinitepay:
+  handle: ${INFINITEPAY_HANDLE}
+  redirect-url: ${INFINITEPAY_REDIRECT_URL}
+  webhook-url: ${INFINITEPAY_WEBHOOK_URL}
+  api-base-url: ${INFINITEPAY_API_BASE_URL:https://api.checkout.infinitepay.io}

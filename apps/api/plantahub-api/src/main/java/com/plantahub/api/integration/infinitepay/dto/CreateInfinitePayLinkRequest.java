@@ -1,4 +1,13 @@
 package com.plantahub.api.integration.infinitepay.dto;
 
-public class CreateInfinitePayLinkRequest {
+import java.util.List;
+
+public record CreateInfinitePayLinkRequest(
+        String handle,
+        String redirect_url,
+        String webhook_url,
+        String order_nsu,
+        List<InfinitePayItemDTO> items,
+        InfinitePayCustomerDTO customer
+) {
 }
