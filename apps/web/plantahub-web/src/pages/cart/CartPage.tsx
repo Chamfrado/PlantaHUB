@@ -14,7 +14,6 @@ import type { CartResponse } from '../../types/api/cart';
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartResponse | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -98,7 +97,6 @@ export default function CartPage() {
       setError(null);
 
       const response = await checkoutFromCart();
-      await refreshCart();
 
       if (!response.paymentUrl) {
         throw new Error('Link de pagamento não retornado.');
@@ -110,7 +108,11 @@ export default function CartPage() {
         description: 'Você será redirecionado para o pagamento.',
       });
 
-      window.location.href = response.paymentUrl;
+      void refreshCart().catch(error => {
+        console.error('Failed to refresh cart after checkout redirect started.', error);
+      });
+
+      window.location.assign(response.paymentUrl);
     } catch (error) {
       const message = getApiErrorMessage(error, 'Não foi possível finalizar o checkout.');
 
@@ -127,6 +129,17 @@ export default function CartPage() {
 
   const items = cart?.items ?? [];
   const isEmpty = items.length === 0;
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="flex items-center gap-3 text-neutral-600">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Carregando carrinho...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white">
