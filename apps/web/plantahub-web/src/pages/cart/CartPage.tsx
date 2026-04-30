@@ -14,6 +14,7 @@ import type { CartResponse } from '../../types/api/cart';
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartResponse | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -122,17 +123,6 @@ export default function CartPage() {
     } finally {
       setCheckingOut(false);
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="flex items-center gap-3 text-neutral-600">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Carregando carrinho...
-        </div>
-      </div>
-    );
   }
 
   const items = cart?.items ?? [];
