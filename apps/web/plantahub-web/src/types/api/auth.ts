@@ -4,9 +4,10 @@ export type LoginRequest = {
 };
 
 export type AuthResponse = {
-  accessToken: string;
-  tokenType: string;
-  fullName?: string;
+  accessToken?: string | null;
+  tokenType?: string | null;
+  fullName?: string | null;
+  email?: string | null;
 };
 
 export type RegisterRequest = {

@@ -2,6 +2,7 @@ import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../../../app/providers/useCart';
+import { useAuth } from '../../../contexts/AuthContext';
 import ProductHero from '../../../components/products/ProductHero';
 import ProductPlanSelector from '../../../components/products/ProductPlanSelector';
 import { useToast } from '../../../components/ui/use-toast';
@@ -28,6 +29,7 @@ export default function ProductDetails() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   const { refreshCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const location = useLocation();
   const { showToast } = useToast();
@@ -72,9 +74,7 @@ export default function ProductDetails() {
     let active = true;
 
     async function loadOwnedPlanTypes() {
-      const token = localStorage.getItem('token');
-
-      if (!token || !product?.id) {
+      if (!isAuthenticated || !product?.id) {
         if (active) {
           setOwnedPlanTypeCodes([]);
         }
@@ -113,7 +113,7 @@ export default function ProductDetails() {
     return () => {
       active = false;
     };
-  }, [product?.id]);
+  }, [isAuthenticated, product?.id]);
 
   useEffect(() => {
     if (!planTypes.length) return;
@@ -160,9 +160,7 @@ export default function ProductDetails() {
   }
 
   async function validatePurchaseFlow() {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
+    if (!isAuthenticated) {
       navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return false;
     }

@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: framework
 
 spring:
   datasource:
@@ -22,6 +23,9 @@ security:
     access-token-minutes: 240
 
 app:
+  web-base-url: ${APP_WEB_BASE_URL:https://plantahub.com.br}
+  auth:
+    cookie-secure: ${AUTH_COOKIE_SECURE:true}
   s3:
     bucket: ${APP_S3_BUCKET}
     region: ${APP_S3_REGION}

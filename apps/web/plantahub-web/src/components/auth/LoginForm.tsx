@@ -1,4 +1,4 @@
-import { Chrome, Lock, Mail } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -44,10 +44,6 @@ export default function LoginForm() {
     }
   }
 
-  function handleGoogleLogin() {
-    console.log('login com Google');
-  }
-
   return (
     <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
       <div className="text-center">
@@ -61,22 +57,7 @@ export default function LoginForm() {
         </div>
       ) : null}
 
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
-        className="mt-6 w-full inline-flex items-center justify-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition"
-      >
-        <Chrome className="h-5 w-5" />
-        Entrar com Google
-      </button>
-
-      <div className="my-6 flex items-center gap-4">
-        <div className="h-px flex-1 bg-neutral-200" />
-        <span className="text-xs font-medium uppercase tracking-wide text-neutral-400">ou</span>
-        <div className="h-px flex-1 bg-neutral-200" />
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
           <label htmlFor="email" className="mb-2 block text-sm font-semibold text-neutral-800">
             E-mail
