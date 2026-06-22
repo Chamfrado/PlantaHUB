@@ -17,6 +17,7 @@ export default function LoginForm() {
 
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
+  const sessionExpired = searchParams.get('expired') === '1';
   const { showToast } = useToast();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -53,6 +54,12 @@ export default function LoginForm() {
         <h2 className="text-2xl font-extrabold text-neutral-900">Entrar</h2>
         <p className="mt-2 text-sm text-neutral-600">Acesse sua conta para continuar</p>
       </div>
+
+      {sessionExpired ? (
+        <div className="mt-6 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-800">
+          Sua sessão expirou. Entre novamente para continuar.
+        </div>
+      ) : null}
 
       <button
         type="button"

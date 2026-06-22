@@ -9,7 +9,7 @@ import { getProductByRoute } from '../../../data/productSelector';
 import { getApiErrorMessage } from '../../../lib/api-error';
 import { addCartItem } from '../../../services/cart.service';
 import { getMyLibrary } from '../../../services/library.service';
-import { createOrder } from '../../../services/order.service';
+import { checkoutDirect } from '../../../services/order.service';
 import { getProductPlanTypes } from '../../../services/products.service';
 import { getMyProfileStatus } from '../../../services/profile.service';
 import type { PlanTypeOptionDTO } from '../../../types/api/product';
@@ -264,7 +264,7 @@ export default function ProductDetails() {
       setSubmitting('buy');
       setActionError(null);
 
-      const order = await createOrder({
+      const response = await checkoutDirect({
         items: [
           {
             productId: product.id,
@@ -274,20 +274,24 @@ export default function ProductDetails() {
         ],
       });
 
+      if (!response.paymentUrl) {
+        throw new Error('Link de pagamento não retornado.');
+      }
+
       showToast({
         variant: 'success',
-        title: 'Pedido criado com sucesso',
-        description: 'Agora é só concluir o pagamento.',
+        title: 'Checkout iniciado',
+        description: 'Você será redirecionado para o pagamento.',
       });
 
-      navigate(`/pedidos/${order.id}`);
+      window.location.href = response.paymentUrl;
     } catch (error) {
-      const message = getApiErrorMessage(error, 'Não foi possível criar o pedido.');
+      const message = getApiErrorMessage(error, 'Não foi possível iniciar o checkout.');
 
       setActionError(message);
       showToast({
         variant: 'error',
-        title: 'Erro ao criar pedido',
+        title: 'Erro no checkout',
         description: message,
       });
     } finally {

@@ -9,6 +9,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AUTH_SESSION_EXPIRED_EVENT, resetSessionExpiredFlag } from '../lib/auth-events';
 import { loginRequest, registerRequest } from '../services/auth.service';
 
 type AuthUser = {
@@ -99,6 +101,7 @@ function clearStoredAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,6 +121,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    function handleSessionExpired() {
+      const currentPath = window.location.pathname + window.location.search;
+      const existingParams = new URLSearchParams(window.location.search);
+      const redirect =
+        window.location.pathname === '/login'
+          ? existingParams.get('redirect') || '/'
+          : currentPath;
+
+      clearStoredAuth();
+      setToken(null);
+      setUser(null);
+
+      navigate(
+        `/login?expired=1&redirect=${encodeURIComponent(redirect)}`,
+        { replace: true }
+      );
+    }
+
+    window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, [navigate]);
+
   const login = useCallback(async ({ email, password }: LoginPayload) => {
     const response = await loginRequest({ email, password });
 
@@ -131,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     setToken(response.accessToken);
+    resetSessionExpiredFlag();
     setUser({
       fullName: fullName ?? null,
       firstName: getFirstName(fullName ?? null),
@@ -151,6 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     setToken(response.accessToken);
+    resetSessionExpiredFlag();
     setUser({
       fullName,
       firstName: getFirstName(fullName),
@@ -160,6 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     clearStoredAuth();
+    resetSessionExpiredFlag();
     setToken(null);
     setUser(null);
   }, []);

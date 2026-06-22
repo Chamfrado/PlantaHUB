@@ -1,5 +1,9 @@
 import { http } from '../lib/http';
-import type { CreateOrderRequest, OrderResponseDTO } from '../types/api/order';
+import type {
+  CheckoutFromCartResponseDTO,
+  CreateOrderRequest,
+  OrderResponseDTO,
+} from '../types/api/order';
 
 export async function getMyOrders() {
   return http<OrderResponseDTO[]>('/v1/me/orders');
@@ -7,6 +11,13 @@ export async function getMyOrders() {
 
 export async function createOrder(payload: CreateOrderRequest) {
   return http<OrderResponseDTO>('/v1/me/orders', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export async function checkoutDirect(payload: CreateOrderRequest) {
+  return http<CheckoutFromCartResponseDTO>('/v1/me/checkout/direct', {
     method: 'POST',
     body: payload,
   });

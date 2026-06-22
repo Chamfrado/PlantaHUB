@@ -243,6 +243,26 @@ public class CheckoutService {
         );
     }
 
+    @Transactional
+    public CheckoutFromCartResponseDTO createDirectCheckout(String email, CreateOrderRequest req) {
+        profileService.assertProfileComplete(email);
+
+        AppUser user = userRepo.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
+        OrderResponseDTO orderResponse = createOrder(email, req);
+
+        Order order = orderRepo.findByIdAndUserIdWithItems(orderResponse.id(), user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("order_not_found_after_creation"));
+
+        String paymentUrl = infinitePayPaymentService.createPaymentLinkForOrder(order);
+
+        return new CheckoutFromCartResponseDTO(
+                OrderMapper.toDto(order),
+                paymentUrl
+        );
+    }
+
     private void revokeEntitlementsFromOrder(Order order) {
         var entitlements = entitlementRepo.findByOrderIdAndRevokedAtIsNull(order.getId());
         Instant now = Instant.now();
