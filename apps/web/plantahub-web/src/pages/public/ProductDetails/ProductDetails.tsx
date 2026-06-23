@@ -2,6 +2,7 @@ import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../../../app/providers/useCart';
+import { useAuth } from '../../../contexts/AuthContext';
 import ProductHero from '../../../components/products/ProductHero';
 import ProductPlanSelector from '../../../components/products/ProductPlanSelector';
 import { useToast } from '../../../components/ui/use-toast';
@@ -9,7 +10,7 @@ import { getProductByRoute } from '../../../data/productSelector';
 import { getApiErrorMessage } from '../../../lib/api-error';
 import { addCartItem } from '../../../services/cart.service';
 import { getMyLibrary } from '../../../services/library.service';
-import { createOrder } from '../../../services/order.service';
+import { checkoutDirect } from '../../../services/order.service';
 import { getProductPlanTypes } from '../../../services/products.service';
 import { getMyProfileStatus } from '../../../services/profile.service';
 import type { PlanTypeOptionDTO } from '../../../types/api/product';
@@ -28,6 +29,7 @@ export default function ProductDetails() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   const { refreshCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const location = useLocation();
   const { showToast } = useToast();
@@ -72,9 +74,7 @@ export default function ProductDetails() {
     let active = true;
 
     async function loadOwnedPlanTypes() {
-      const token = localStorage.getItem('token');
-
-      if (!token || !product?.id) {
+      if (!isAuthenticated || !product?.id) {
         if (active) {
           setOwnedPlanTypeCodes([]);
         }
@@ -113,7 +113,7 @@ export default function ProductDetails() {
     return () => {
       active = false;
     };
-  }, [product?.id]);
+  }, [isAuthenticated, product?.id]);
 
   useEffect(() => {
     if (!planTypes.length) return;
@@ -160,9 +160,7 @@ export default function ProductDetails() {
   }
 
   async function validatePurchaseFlow() {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
+    if (!isAuthenticated) {
       navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return false;
     }
@@ -264,7 +262,7 @@ export default function ProductDetails() {
       setSubmitting('buy');
       setActionError(null);
 
-      const order = await createOrder({
+      const response = await checkoutDirect({
         items: [
           {
             productId: product.id,
@@ -274,20 +272,24 @@ export default function ProductDetails() {
         ],
       });
 
+      if (!response.paymentUrl) {
+        throw new Error('Link de pagamento não retornado.');
+      }
+
       showToast({
         variant: 'success',
-        title: 'Pedido criado com sucesso',
-        description: 'Agora é só concluir o pagamento.',
+        title: 'Checkout iniciado',
+        description: 'Você será redirecionado para o pagamento.',
       });
 
-      navigate(`/pedidos/${order.id}`);
+      window.location.href = response.paymentUrl;
     } catch (error) {
-      const message = getApiErrorMessage(error, 'Não foi possível criar o pedido.');
+      const message = getApiErrorMessage(error, 'Não foi possível iniciar o checkout.');
 
       setActionError(message);
       showToast({
         variant: 'error',
-        title: 'Erro ao criar pedido',
+        title: 'Erro no checkout',
         description: message,
       });
     } finally {

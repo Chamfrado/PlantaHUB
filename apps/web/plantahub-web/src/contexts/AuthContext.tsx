@@ -9,7 +9,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { loginRequest, registerRequest } from '../services/auth.service';
+import { useNavigate } from 'react-router-dom';
+import { AUTH_SESSION_EXPIRED_EVENT, resetSessionExpiredFlag } from '../lib/auth-events';
+import {
+  getCurrentAuthUser,
+  loginRequest,
+  logoutRequest,
+  registerRequest,
+} from '../services/auth.service';
 
 type AuthUser = {
   fullName: string | null;
@@ -35,13 +42,11 @@ type AuthContextValue = {
   token: string | null;
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 };
 
-const TOKEN_KEY = 'token';
-const TOKEN_TYPE_KEY = 'tokenType';
-const USER_FULL_NAME_KEY = 'userFullName';
-const USER_EMAIL_KEY = 'userEmail';
+const LEGACY_AUTH_KEYS = ['token', 'tokenType', 'userFullName', 'userEmail'];
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -50,131 +55,106 @@ function getFirstName(fullName: string | null) {
   return fullName.trim().split(' ')[0] ?? null;
 }
 
-function getStoredAuth() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const tokenType = localStorage.getItem(TOKEN_TYPE_KEY) ?? 'Bearer';
-  const fullName = localStorage.getItem(USER_FULL_NAME_KEY);
-  const email = localStorage.getItem(USER_EMAIL_KEY);
+function toAuthUser(payload: { fullName?: string | null; email?: string | null }): AuthUser {
+  const fullName = payload.fullName ?? null;
 
   return {
-    token,
-    tokenType,
     fullName,
-    email,
+    firstName: getFirstName(fullName),
+    email: payload.email ?? null,
   };
 }
 
-function persistAuth({
-  token,
-  tokenType,
-  fullName,
-  email,
-}: {
-  token: string;
-  tokenType: string;
-  fullName?: string | null;
-  email?: string | null;
-}) {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(TOKEN_TYPE_KEY, tokenType);
-
-  if (fullName) {
-    localStorage.setItem(USER_FULL_NAME_KEY, fullName);
-  } else {
-    localStorage.removeItem(USER_FULL_NAME_KEY);
+function clearLegacyAuthStorage() {
+  for (const key of LEGACY_AUTH_KEYS) {
+    localStorage.removeItem(key);
   }
-
-  if (email) {
-    localStorage.setItem(USER_EMAIL_KEY, email);
-  } else {
-    localStorage.removeItem(USER_EMAIL_KEY);
-  }
-}
-
-function clearStoredAuth() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(TOKEN_TYPE_KEY);
-  localStorage.removeItem(USER_FULL_NAME_KEY);
-  localStorage.removeItem(USER_EMAIL_KEY);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = getStoredAuth();
+  const refreshSession = useCallback(async () => {
+    try {
+      const response = await getCurrentAuthUser();
+      setUser(toAuthUser(response));
+      resetSessionExpiredFlag();
+    } catch {
+      setUser(null);
+    }
+  }, []);
 
-    if (stored.token) {
-      setToken(stored.token);
-      setUser({
-        fullName: stored.fullName,
-        firstName: getFirstName(stored.fullName),
-        email: stored.email,
-      });
+  useEffect(() => {
+    async function loadSession() {
+      clearLegacyAuthStorage();
+      await refreshSession();
+      setIsLoading(false);
     }
 
-    setIsLoading(false);
-  }, []);
+    void loadSession();
+  }, [refreshSession]);
+
+  useEffect(() => {
+    function handleSessionExpired() {
+      const currentPath = window.location.pathname + window.location.search;
+      const existingParams = new URLSearchParams(window.location.search);
+      const redirect =
+        window.location.pathname === '/login'
+          ? existingParams.get('redirect') || '/'
+          : currentPath;
+
+      clearLegacyAuthStorage();
+      setUser(null);
+
+      navigate(`/login?expired=1&redirect=${encodeURIComponent(redirect)}`, { replace: true });
+    }
+
+    window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, [navigate]);
 
   const login = useCallback(async ({ email, password }: LoginPayload) => {
     const response = await loginRequest({ email, password });
-
-    const fullName = response.fullName ?? localStorage.getItem(USER_FULL_NAME_KEY);
-
-    persistAuth({
-      token: response.accessToken,
-      tokenType: response.tokenType,
-      fullName,
-      email,
-    });
-
-    setToken(response.accessToken);
-    setUser({
-      fullName: fullName ?? null,
-      firstName: getFirstName(fullName ?? null),
-      email,
-    });
+    clearLegacyAuthStorage();
+    resetSessionExpiredFlag();
+    setUser(toAuthUser({ ...response, email: response.email ?? email }));
   }, []);
 
   const register = useCallback(async ({ fullName, email, password }: RegisterPayload) => {
     await registerRequest({ fullName, email, password });
-
     const response = await loginRequest({ email, password });
-
-    persistAuth({
-      token: response.accessToken,
-      tokenType: response.tokenType,
-      fullName,
-      email,
-    });
-
-    setToken(response.accessToken);
-    setUser({
-      fullName,
-      firstName: getFirstName(fullName),
-      email,
-    });
+    clearLegacyAuthStorage();
+    resetSessionExpiredFlag();
+    setUser(toAuthUser({ ...response, fullName: response.fullName ?? fullName, email }));
   }, []);
 
-  const logout = useCallback(() => {
-    clearStoredAuth();
-    setToken(null);
-    setUser(null);
+  const logout = useCallback(async () => {
+    try {
+      await logoutRequest();
+    } finally {
+      clearLegacyAuthStorage();
+      resetSessionExpiredFlag();
+      setUser(null);
+    }
   }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      isAuthenticated: !!token,
+      isAuthenticated: !!user,
       isLoading,
       user,
-      token,
+      token: null,
       login,
       register,
       logout,
+      refreshSession,
     }),
-    [token, isLoading, user, login, register, logout]
+    [user, isLoading, login, register, logout, refreshSession]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

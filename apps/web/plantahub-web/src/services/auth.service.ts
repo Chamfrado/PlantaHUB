@@ -8,6 +8,16 @@ export async function loginRequest(payload: LoginRequest): Promise<AuthResponse>
   });
 }
 
+export async function getCurrentAuthUser(): Promise<AuthResponse> {
+  return http<AuthResponse>('/v1/auth/me');
+}
+
+export async function logoutRequest(): Promise<void> {
+  return http<void>('/v1/auth/logout', {
+    method: 'POST',
+  });
+}
+
 export async function registerRequest(payload: RegisterRequest): Promise<void> {
   await http<void>('/v1/auth/register', {
     method: 'POST',

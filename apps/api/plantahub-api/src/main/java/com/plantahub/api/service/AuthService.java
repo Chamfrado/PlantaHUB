@@ -7,6 +7,7 @@ import com.plantahub.api.security.JwtService;
 import com.plantahub.api.web.dto.auth.AuthResponse;
 import com.plantahub.api.web.dto.auth.LoginRequest;
 import com.plantahub.api.web.dto.auth.RegisterRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,6 +53,7 @@ public class AuthService {
         repo.save(user);
     }
 
+    @Transactional
     public AuthResponse login(LoginRequest req) {
         String email = req.email().toLowerCase();
 
@@ -61,7 +63,21 @@ public class AuthService {
         var user = repo.findByEmailAndActiveTrueAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("user_deleted"));
 
-        String jwt = jwtService.generateAccessToken(email, user.getRole().name());
-        return new AuthResponse(jwt, "Bearer", user.getFullName());
+        return createAuthResponse(user, issueToken(user));
+    }
+
+    public AuthResponse me(String email) {
+        var user = repo.findByEmailAndActiveTrueAndDeletedAtIsNull(email.toLowerCase())
+                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
+
+        return createAuthResponse(user, null);
+    }
+
+    public String issueToken(AppUser user) {
+        return jwtService.generateAccessToken(user.getEmail(), user.getRole().name());
+    }
+
+    public AuthResponse createAuthResponse(AppUser user, String token) {
+        return new AuthResponse(token, "Bearer", user.getFullName(), user.getEmail());
     }
 }

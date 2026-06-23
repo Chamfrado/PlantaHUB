@@ -15,23 +15,12 @@ type HttpError = Error & {
   body?: unknown;
 };
 
-function getStoredToken() {
-  return localStorage.getItem('token');
-}
-
-function getStoredTokenType() {
-  return localStorage.getItem('tokenType') ?? 'Bearer';
-}
-
 export async function http<T>(path: string, options: HttpOptions = {}): Promise<T> {
-  const token = getStoredToken();
-  const tokenType = getStoredTokenType();
-
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? 'GET',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
       ...(options.headers ?? {}),
     },
     body: options.body ? JSON.stringify(options.body) : undefined,
@@ -67,7 +56,7 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
       // ignore parse errors
     }
 
-    if (response.status === 401 && token) {
+    if (response.status === 401 && path !== '/v1/auth/me' && path !== '/v1/auth/login') {
       dispatchSessionExpiredEvent();
     }
 

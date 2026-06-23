@@ -42,6 +42,7 @@ public class AppUser {
     private String cpf;
 
     @Column(name = "active", nullable = false)
+    @Builder.Default
     private boolean active = true;
 
     @Column(name = "deleted_at")

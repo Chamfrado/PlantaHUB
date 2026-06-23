@@ -61,4 +61,12 @@ public class OrderController {
     public CheckoutFromCartResponseDTO checkoutFromCart(@AuthenticationPrincipal UserDetails user) {
         return checkoutService.createOrderFromCart(user.getUsername());
     }
+
+    @PostMapping("/me/checkout/direct")
+    public CheckoutFromCartResponseDTO checkoutDirect(
+            @AuthenticationPrincipal UserDetails user,
+            @Valid @RequestBody CreateOrderRequest req
+    ) {
+        return checkoutService.createDirectCheckout(user.getUsername(), req);
+    }
 }
