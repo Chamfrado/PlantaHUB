@@ -52,12 +52,17 @@ export default function ContactPage() {
 
     if (!isValid) return;
 
-    // TODO: integrar backend / email service
-    console.log('Contact form submit', form);
+    const subject = encodeURIComponent(`[PlantaHUB] ${form.subject.trim()}`);
+    const body = encodeURIComponent(
+      [
+        `Nome: ${form.name.trim()}`,
+        `Email: ${form.email.trim()}`,
+        '',
+        form.message.trim(),
+      ].join('\n')
+    );
 
-    // feedback simples (pode trocar por toast)
-    alert('Mensagem enviada! Em breve retornaremos seu contato.');
-
+    window.location.href = `mailto:contato@plantahub.com.br?subject=${subject}&body=${body}`;
     setForm({ name: '', email: '', subject: '', message: '' });
   }
 
