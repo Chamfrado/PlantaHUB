@@ -11,6 +11,7 @@ public record OrderResponseDTO(
         String currency,
         Instant createdAt,
         Instant paidAt,
+        String paymentUrl,
         List<OrderItemDTO> items
 ) {
     public record OrderItemDTO(

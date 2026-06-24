@@ -57,6 +57,14 @@ public class OrderController {
         return checkoutService.refundMock(user.getUsername(), orderId);
     }
 
+    @PostMapping("/me/orders/{orderId}/payment-link")
+    public CheckoutFromCartResponseDTO paymentLink(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID orderId
+    ) {
+        return checkoutService.getPaymentLinkForPendingOrder(user.getUsername(), orderId);
+    }
+
     @PostMapping("/me/checkout/from-cart")
     public CheckoutFromCartResponseDTO checkoutFromCart(@AuthenticationPrincipal UserDetails user) {
         return checkoutService.createOrderFromCart(user.getUsername());

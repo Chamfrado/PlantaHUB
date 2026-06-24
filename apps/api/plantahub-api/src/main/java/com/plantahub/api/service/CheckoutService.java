@@ -11,8 +11,11 @@ import com.plantahub.api.domain.orders.enums.OrderStatus;
 import com.plantahub.api.repository.*;
 import com.plantahub.api.web.dto.orders.*;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,6 +23,8 @@ import com.plantahub.api.web.dto.checkout.CheckoutFromCartResponseDTO;
 
 @Service
 public class CheckoutService {
+
+    private final Duration pendingOrderTtl;
 
     private final AppUserRepository userRepo;
     private final OrderRepository orderRepo;
@@ -40,7 +45,8 @@ public class CheckoutService {
             ProfileService profileService,
             CartRepository cartRepository,
             CartItemSelectionRepository cartItemSelectionRepository,
-            InfinitePayPaymentService infinitePayPaymentService
+            InfinitePayPaymentService infinitePayPaymentService,
+            @Value("${orders.pending-expiration-hours:48}") long pendingExpirationHours
     ) {
         this.userRepo = userRepo;
         this.orderRepo = orderRepo;
@@ -51,6 +57,7 @@ public class CheckoutService {
         this.cartRepository = cartRepository;
         this.cartItemSelectionRepository = cartItemSelectionRepository;
         this.infinitePayPaymentService = infinitePayPaymentService;
+        this.pendingOrderTtl = Duration.ofHours(pendingExpirationHours);
     }
 
     @Transactional
@@ -157,8 +164,21 @@ public class CheckoutService {
         }
     }
 
+    @Transactional
     public List<OrderResponseDTO> myOrders(String email) {
+        cancelExpiredPendingOrders();
         return orderRepo.findMyOrders(email).stream().map(OrderMapper::toDto).toList();
+    }
+
+    @Transactional
+    @Scheduled(fixedDelayString = "${orders.pending-expiration-scan-ms:3600000}")
+    public void cancelExpiredPendingOrders() {
+        Instant cutoff = pendingExpirationCutoff();
+        List<Order> expiredOrders = orderRepo.findByStatusAndCreatedAtLessThanEqual(OrderStatus.PENDING, cutoff);
+
+        for (Order order : expiredOrders) {
+            order.setStatus(OrderStatus.CANCELED);
+        }
     }
 
     @Transactional
@@ -244,6 +264,32 @@ public class CheckoutService {
     }
 
     @Transactional
+    public CheckoutFromCartResponseDTO getPaymentLinkForPendingOrder(String email, UUID orderId) {
+        Order order = orderRepo.findByIdAndUserEmailWithItems(orderId, email)
+                .orElseThrow(() -> new IllegalArgumentException("order_not_found"));
+
+        if (isExpiredPendingOrder(order)) {
+            order.setStatus(OrderStatus.CANCELED);
+            throw new IllegalArgumentException("order_expired");
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("order_not_payable");
+        }
+
+        String paymentUrl = order.getPaymentUrl();
+
+        if (paymentUrl == null || paymentUrl.isBlank()) {
+            paymentUrl = infinitePayPaymentService.createPaymentLinkForOrder(order);
+        }
+
+        return new CheckoutFromCartResponseDTO(
+                OrderMapper.toDto(order),
+                paymentUrl
+        );
+    }
+
+    @Transactional
     public CheckoutFromCartResponseDTO createDirectCheckout(String email, CreateOrderRequest req) {
         profileService.assertProfileComplete(email);
 
@@ -309,5 +355,15 @@ public class CheckoutService {
             item.getSelections().clear();
             item.getSelections().addAll(grouped.getOrDefault(item.getId(), List.of()));
         }
+    }
+
+    private boolean isExpiredPendingOrder(Order order) {
+        return order.getStatus() == OrderStatus.PENDING
+                && order.getCreatedAt() != null
+                && !order.getCreatedAt().isAfter(pendingExpirationCutoff());
+    }
+
+    private Instant pendingExpirationCutoff() {
+        return Instant.now().minus(pendingOrderTtl);
     }
 }

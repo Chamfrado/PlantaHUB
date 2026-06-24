@@ -11,6 +11,7 @@ public class OrderMapper {
                 o.getCurrency(),
                 o.getCreatedAt(),
                 o.getPaidAt(),
+                o.getPaymentUrl(),
                 o.getItems().stream().map(i ->
                         new OrderResponseDTO.OrderItemDTO(
                                 i.getId(),

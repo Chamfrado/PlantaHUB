@@ -23,6 +23,12 @@ export async function checkoutDirect(payload: CreateOrderRequest) {
   });
 }
 
+export async function getOrderPaymentLink(orderId: string) {
+  return http<CheckoutFromCartResponseDTO>(`/v1/me/orders/${orderId}/payment-link`, {
+    method: 'POST',
+  });
+}
+
 export async function payMock(orderId: string) {
   return http<OrderResponseDTO>(`/v1/me/orders/${orderId}/pay-mock`, {
     method: 'POST',
