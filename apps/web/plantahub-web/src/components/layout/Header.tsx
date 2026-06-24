@@ -2,7 +2,6 @@ import { BookOpen, ChevronDown, LogOut, Settings, ShoppingCart } from 'lucide-re
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../app/providers/useCart';
-import logotipo from '../../assets/logotipo.png';
 import { useAuth } from '../../contexts/AuthContext';
 import MiniCartDropdown from '../cart/MiniCartDropdown';
 
@@ -13,7 +12,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  const base = 'text-sm font-semibold text-neutral-700 hover:text-primary-500 transition';
+  const base = 'text-sm font-semibold text-brand-muted hover:text-primary-500 transition';
   const active = 'text-primary-600';
 
   const [openCart, setOpenCart] = useState(false);
@@ -53,11 +52,19 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full bg-white border-b">
+    <header className="w-full border-b border-neutral-200 bg-white">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logotipo} alt="PlantaHUB" className="h-9 w-9 rounded-lg" />
-          <span className="font-semibold text-lg text-neutral-900">PlantaHUB</span>
+        <Link to="/" className="flex items-center">
+          <img
+            src="/brand/logo-horizontal.png"
+            alt="PlantaHUB"
+            className="hidden h-9 w-auto object-contain sm:block"
+          />
+          <img
+            src="/brand/logo-symbol.png"
+            alt="PlantaHUB"
+            className="h-10 w-auto object-contain sm:hidden"
+          />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -78,7 +85,7 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {isAuthenticated && (
             <div className="relative" ref={cartRef}>
               <button
@@ -106,16 +113,17 @@ export default function Header() {
             <>
               <Link
                 to="/login"
-                className="text-sm font-semibold text-neutral-700 hover:text-primary-500 transition"
+                className="text-sm font-semibold text-brand-muted hover:text-primary-500 transition"
               >
                 Entrar
               </Link>
 
               <Link
                 to="/register"
-                className="px-5 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold"
+                className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold sm:px-5"
               >
-                Criar conta
+                <span className="sm:hidden">Criar</span>
+                <span className="hidden sm:inline">Criar conta</span>
               </Link>
             </>
           ) : (

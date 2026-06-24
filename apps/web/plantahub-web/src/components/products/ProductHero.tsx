@@ -38,22 +38,22 @@ export default function ProductHero({ product }: Props) {
     <section className="bg-white">
       <div className="max-w-7xl mx-auto px-6 pt-8 pb-10">
         {/* Breadcrumb */}
-        <div className="text-sm text-neutral-500">
-          <Link className="hover:text-neutral-900 cursor-pointer" to="/">
+        <div className="text-sm text-brand-muted">
+          <Link className="hover:text-brand-black cursor-pointer" to="/">
             Home
           </Link>
           <span className="mx-2">/</span>
-          <Link className="hover:text-neutral-900" to={`/products`}>
+          <Link className="hover:text-brand-black" to={`/products`}>
             {labelCategory(product.category)}
           </Link>
           <span className="mx-2">/</span>
-          <span className="text-neutral-800 font-semibold">{title}</span>
+          <span className="text-brand-black font-semibold">{title}</span>
         </div>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
           {/* LEFT — Gallery */}
           <div>
-            <div className="rounded-2xl border border-neutral-200 overflow-hidden bg-neutral-50">
+            <div className="rounded-2xl border border-neutral-200 overflow-hidden bg-brand-light">
               {activeImg ? (
                 <img
                   src={activeImg}
@@ -99,12 +99,12 @@ export default function ProductHero({ product }: Props) {
               <BadgePill tone="green">ECOLÓGICO</BadgePill>
             </div>
 
-            <h1 className="mt-3 text-4xl font-extrabold text-neutral-900">{title}</h1>
+            <h1 className="mt-3 text-4xl font-extrabold text-brand-black">{title}</h1>
 
-            {subtitle ? <p className="mt-2 text-neutral-600 font-semibold">{subtitle}</p> : null}
+            {subtitle ? <p className="mt-2 text-brand-muted font-semibold">{subtitle}</p> : null}
 
             {description ? (
-              <p className="mt-3 text-neutral-600 leading-relaxed">{description}</p>
+              <p className="mt-3 text-brand-muted leading-relaxed">{description}</p>
             ) : null}
 
             {/* quick stats row */}
@@ -135,16 +135,16 @@ export default function ProductHero({ product }: Props) {
             <div className="mt-5">
               {price ? (
                 <div className="flex items-end gap-2">
-                  <div className="text-4xl font-extrabold text-neutral-900">{price}</div>
-                  <div className="pb-1 text-sm font-semibold text-neutral-500">
+                  <div className="text-4xl font-extrabold text-brand-black">{price}</div>
+                  <div className="pb-1 text-sm font-semibold text-brand-muted">
                     {product.price?.currency ?? ''}
                   </div>
                 </div>
               ) : (
-                <div className="text-xl font-extrabold text-neutral-900">Consulte valores</div>
+                <div className="text-xl font-extrabold text-brand-black">Consulte valores</div>
               )}
 
-              <p className="mt-2 text-sm text-neutral-600">
+              <p className="mt-2 text-sm text-brand-muted">
                 Compra única. Acesso vitalício ao produto e todas as suas atualizações.
               </p>
             </div>
@@ -173,7 +173,7 @@ export default function ProductHero({ product }: Props) {
                     block: 'start',
                   });
                 }}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white py-3 font-semibold text-neutral-900 transition hover:bg-neutral-100"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white py-3 font-semibold text-brand-black transition hover:bg-neutral-100"
               >
                 <ShoppingCart className="h-4 w-4" />
                 Selecionar plantas
@@ -181,7 +181,7 @@ export default function ProductHero({ product }: Props) {
             </div>
 
             {/* trust row */}
-            <div className="mt-4 flex flex-wrap items-center gap-6 text-xs font-semibold text-neutral-600">
+            <div className="mt-4 flex flex-wrap items-center gap-6 text-xs font-semibold text-brand-muted">
               <span className="inline-flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-primary-500" />
                 Pagamento Seguro
@@ -208,7 +208,7 @@ function BadgePill({ children, tone }: { children: React.ReactNode; tone: 'orang
   const cls =
     tone === 'orange'
       ? 'bg-orange-50 text-primary-700 border-orange-100'
-      : 'bg-emerald-50 text-emerald-700 border-emerald-100';
+      : 'bg-green-50 text-brand-green border-green-100';
 
   return (
     <span className={`px-3 py-1 rounded-full text-[11px] font-extrabold border ${cls}`}>
@@ -223,8 +223,8 @@ function InfoMini({ icon, label, value }: { icon: React.ReactNode; label: string
       <div className="h-10 w-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center">
         {icon}
       </div>
-      <div className="text-xs font-extrabold text-neutral-700">{label}</div>
-      <div className="text-sm font-extrabold text-neutral-900">{value}</div>
+      <div className="text-xs font-extrabold text-brand-muted">{label}</div>
+      <div className="text-sm font-extrabold text-brand-black">{value}</div>
     </div>
   );
 }

@@ -27,8 +27,13 @@ export default function FinalCTA({
     navigator('/contato');
   }
   return (
-    <section className="bg-primary-500">
+    <section className="bg-brand-graphite">
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20 text-center">
+        <img
+          src="/brand/logo-negative.png"
+          alt="PlantaHUB"
+          className="mx-auto mb-8 h-16 w-auto object-contain"
+        />
         <h2 className="text-3xl md:text-4xl font-extrabold text-white">{title}</h2>
 
         <p className="mt-4 text-white/90 max-w-2xl mx-auto">{subtitle}</p>
@@ -36,7 +41,7 @@ export default function FinalCTA({
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <button
             onClick={onPrimaryClick}
-            className="px-7 py-3 rounded-xl bg-white text-primary-600 font-semibold shadow-sm hover:bg-white/95 transition cursor-pointer"
+            className="px-7 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm hover:bg-primary-600 transition cursor-pointer"
           >
             {primaryLabel}
           </button>
@@ -52,7 +57,7 @@ export default function FinalCTA({
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-white/95 text-sm font-semibold">
           {bullets.map(b => (
             <div key={b} className="inline-flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-primary-600 text-xs">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-green text-brand-black text-xs">
                 ✓
               </span>
               <span>{b}</span>

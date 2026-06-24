@@ -1,6 +1,5 @@
 import { BadgeCheck, Facebook, Instagram, Linkedin, Lock, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logotipo from '../../assets/logotipo.png';
 
 type LinkItem = { label: string; href: string };
 
@@ -24,17 +23,16 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-slate-950 text-slate-200">
+    <footer className="bg-brand-graphite text-slate-200">
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-14">
         <div className="grid gap-12 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <img
-                src={logotipo}
+                src="/brand/logo-negative.png"
                 alt="PlantaHUB logo"
-                className="h-10 w-10 rounded-lg object-contain"
+                className="h-14 w-auto object-contain"
               />
-              <span className="text-lg font-semibold text-white">PlantaHUB</span>
             </div>
 
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
@@ -131,7 +129,7 @@ function SocialLink({
 function Badge({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
     <div className="inline-flex items-center gap-2 text-slate-400">
-      <Icon className="h-4 w-4 text-primary-500" />
+      <Icon className="h-4 w-4 text-brand-green" />
       <span>{label}</span>
     </div>
   );

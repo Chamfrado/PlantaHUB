@@ -77,13 +77,13 @@ const stats: Stat[] = [
 function StepItem({ step }: { step: Step }) {
   return (
     <div className="text-center">
-      <div className="mx-auto h-12 w-12 rounded-full bg-orange-50 flex items-center justify-center">
+      <div className="mx-auto h-12 w-12 rounded-full bg-white border border-orange-100 flex items-center justify-center">
         <span className="font-extrabold text-primary-500">{step.number}</span>
       </div>
 
-      <h4 className="mt-5 font-bold text-neutral-900">{step.title}</h4>
+      <h4 className="mt-5 font-bold text-brand-black">{step.title}</h4>
 
-      <p className="mt-3 text-sm leading-relaxed text-neutral-600">{step.description}</p>
+      <p className="mt-3 text-sm leading-relaxed text-brand-muted">{step.description}</p>
     </div>
   );
 }
@@ -91,13 +91,13 @@ function StepItem({ step }: { step: Step }) {
 function TrustCard({ item }: { item: TrustItem }) {
   return (
     <div className="text-center">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-orange-50 flex items-center justify-center text-2xl text-primary-500">
+      <div className="mx-auto h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center text-2xl text-brand-green">
         {item.icon}
       </div>
 
-      <h4 className="mt-6 font-bold text-neutral-900">{item.title}</h4>
+      <h4 className="mt-6 font-bold text-brand-black">{item.title}</h4>
 
-      <p className="mt-3 text-sm leading-relaxed text-neutral-600">{item.description}</p>
+      <p className="mt-3 text-sm leading-relaxed text-brand-muted">{item.description}</p>
     </div>
   );
 }
@@ -108,11 +108,11 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
         {/* HOW IT WORKS */}
         <div className="text-center  max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-900">Como funciona</h2>
-          <p className="mt-3 text-neutral-600">Processo de compra simples, rápido e seguro</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black">Como funciona</h2>
+          <p className="mt-3 text-brand-muted">Processo de compra simples, rápido e seguro</p>
         </div>
 
-        <div className="mt-12 grid bg-neutral-50 border-neutral-100 rounded-2xl gap-10 md:grid-cols-5">
+        <div className="mt-12 grid rounded-2xl border border-neutral-100 bg-brand-light gap-10 p-6 md:grid-cols-5">
           {steps.map(s => (
             <StepItem key={s.number} step={s} />
           ))}
@@ -123,10 +123,10 @@ export default function HowItWorks() {
 
         {/* TRUST */}
         <div className="text-center max-w-3xl mx-auto">
-          <h3 className="text-2xl md:text-3xl font-extrabold text-neutral-900">
+          <h3 className="text-2xl md:text-3xl font-extrabold text-brand-black">
             Qualidade profissional em que você pode confiar
           </h3>
-          <p className="mt-3 text-neutral-600">
+          <p className="mt-3 text-brand-muted">
             Segurança, credibilidade e suporte em cada etapa da sua jornada.
           </p>
         </div>
@@ -138,12 +138,12 @@ export default function HowItWorks() {
         </div>
 
         {/* Stats bar */}
-        <div className="mt-14 bg-neutral-50 border border-neutral-100 rounded-2xl px-6 py-8">
+        <div className="mt-14 bg-brand-graphite border border-brand-graphite rounded-2xl px-6 py-8">
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
             {stats.map((st, idx) => (
               <div key={idx} className="text-center">
-                <div className="text-2xl font-extrabold text-primary-500">{st.value}</div>
-                <div className="mt-1 text-sm text-neutral-600">{st.label}</div>
+                <div className="text-2xl font-extrabold text-brand-green">{st.value}</div>
+                <div className="mt-1 text-sm text-slate-200">{st.label}</div>
               </div>
             ))}
           </div>

@@ -19,16 +19,16 @@ export default function ProductDetailsCard({ product }: Props) {
       <div className="grid gap-6 md:grid-cols-3">
         {/* Coluna 1 — O que inclui */}
         <div>
-          <h4 className="font-bold text-neutral-900">{page.includesTitle ?? 'O que inclui'}</h4>
+          <h4 className="font-bold text-brand-black">{page.includesTitle ?? 'O que inclui'}</h4>
 
-          <ul className="mt-3 space-y-3 text-sm text-neutral-600">
+          <ul className="mt-3 space-y-3 text-sm text-brand-muted">
             {page.includedItems?.map((item, idx) => (
               <li key={idx} className="flex gap-2">
                 <span className="text-primary-500">•</span>
                 <div>
-                  <div className="font-semibold text-neutral-800">{item.title}</div>
+                  <div className="font-semibold text-brand-black">{item.title}</div>
                   {item.description ? (
-                    <div className="text-neutral-600">{item.description}</div>
+                    <div className="text-brand-muted">{item.description}</div>
                   ) : null}
                 </div>
               </li>
@@ -38,17 +38,17 @@ export default function ProductDetailsCard({ product }: Props) {
 
         {/* Coluna 2 — Detalhes / Diferenciais */}
         <div>
-          <h4 className="font-bold text-neutral-900">
+          <h4 className="font-bold text-brand-black">
             {page.whyChooseTitle ?? 'Diferenciais do projeto'}
           </h4>
 
-          <ul className="mt-3 space-y-3 text-sm text-neutral-600">
+          <ul className="mt-3 space-y-3 text-sm text-brand-muted">
             {page.whyChooseFeatures?.map((f, idx) => (
               <li key={idx} className="flex gap-2">
                 <span className="text-primary-500">•</span>
                 <div>
-                  <div className="font-semibold text-neutral-800">{f.title}</div>
-                  {f.description ? <div className="text-neutral-600">{f.description}</div> : null}
+                  <div className="font-semibold text-brand-black">{f.title}</div>
+                  {f.description ? <div className="text-brand-muted">{f.description}</div> : null}
                 </div>
               </li>
             ))}
@@ -56,15 +56,15 @@ export default function ProductDetailsCard({ product }: Props) {
         </div>
 
         {/* Coluna 3 — Arquivos / Entrega / CTA */}
-        <div className="rounded-xl bg-neutral-50 p-4 border border-neutral-100">
-          <div className="text-sm font-semibold text-neutral-900">Arquivos disponíveis</div>
+        <div className="rounded-xl bg-brand-light p-4 border border-neutral-100">
+          <div className="text-sm font-semibold text-brand-black">Arquivos disponíveis</div>
 
           {product.fileFormats?.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {product.fileFormats.map(f => (
                 <span
                   key={f}
-                  className="inline-flex items-center gap-2 rounded-full bg-white border border-neutral-200 px-3 py-1 text-xs font-semibold text-neutral-700"
+                  className="inline-flex items-center gap-2 rounded-full bg-white border border-neutral-200 px-3 py-1 text-xs font-semibold text-brand-muted"
                 >
                   <FileText className="h-4 w-4 text-primary-500" />
                   {f}
@@ -73,7 +73,7 @@ export default function ProductDetailsCard({ product }: Props) {
             </div>
           ) : null}
 
-          <div className="mt-4 space-y-2 text-sm text-neutral-700">
+          <div className="mt-4 space-y-2 text-sm text-brand-muted">
             {product.delivery ? (
               <div className="inline-flex items-center gap-2">
                 <Download className="h-4 w-4 text-primary-500" />

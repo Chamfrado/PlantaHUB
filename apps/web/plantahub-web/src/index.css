@@ -3,6 +3,15 @@
 
 @theme {
   /* =========================
+     PLANTAHUB BRAND
+     ========================= */
+  --color-brand-green: #7dbd3b;
+  --color-brand-black: #111111;
+  --color-brand-graphite: #1b1b1b;
+  --color-brand-light: #f5f6f7;
+  --color-brand-muted: #5f6368;
+
+  /* =========================
      PRIMARY
      ========================= */
   --color-primary-50: #fff3eb;
@@ -83,11 +92,11 @@ body,
 }
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-family: Inter, 'Source Sans 3', Calibri, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #ffffff;
-  color: #111827;
+  background: #f5f6f7;
+  color: #111111;
 }
 
 a {

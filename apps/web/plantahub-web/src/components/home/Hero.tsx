@@ -22,41 +22,41 @@ export default function Hero({
   const onSecondaryClick = () => navigate('/sobre');
 
   return (
-    <section className="bg-white">
+    <section className="bg-brand-light">
       <div className="max-w-7xl mx-auto px-6 py-14 md:py-20">
         <div className="grid md:grid-cols-2 gap-10 items-center">
           {/* LEFT */}
           <div>
             {/* badge */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-4 py-2 text-sm font-medium text-primary-600">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white">
+            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-semibold text-primary-600">
+              <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white">
                 <Zap className="text-primary-500" />
               </span>
-              Reduza o planejamento da sua construção em até 60%
+              <span className="min-w-0 leading-snug">Reduza o planejamento da sua construção em até 60%</span>
             </div>
 
             {/* title */}
-            <h1 className="mt-8 text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900 whitespace-pre-line">
+            <h1 className="mt-8 text-4xl md:text-5xl font-extrabold tracking-tight text-brand-black whitespace-pre-line">
               {title}
             </h1>
 
             {/* subtitle */}
-            <p className="mt-6 text-base md:text-lg leading-relaxed text-neutral-600 max-w-xl">
+            <p className="mt-6 text-base md:text-lg leading-relaxed text-brand-muted max-w-xl">
               {subtitle}
             </p>
 
             {/* CTAs */}
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="mt-8 grid gap-4 sm:flex sm:flex-wrap sm:items-center">
               <button
                 onClick={onPrimaryClick}
-                className="px-6 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm hover:bg-primary-600 transition cursor-pointer"
+                className="w-full px-6 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm hover:bg-primary-600 transition cursor-pointer sm:w-auto"
               >
                 {primaryCtaText}
               </button>
 
               <button
                 onClick={onSecondaryClick}
-                className="px-6 py-3 rounded-xl border border-neutral-300 bg-white text-neutral-900 font-semibold cursor-pointer hover:bg-neutral-50 transition"
+                className="w-full px-6 py-3 rounded-xl border border-neutral-300 bg-white text-brand-black font-semibold cursor-pointer hover:border-brand-black hover:bg-white transition sm:w-auto"
               >
                 {secondaryCtaText}
               </button>
@@ -78,7 +78,7 @@ export default function Hero({
                 title="Design Inteligente"
                 desc="Soluções Concientes e Funcionais"
                 icon={
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-success-500">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-50 text-brand-green">
                     <Leaf />
                   </span>
                 }
@@ -98,10 +98,10 @@ export default function Hero({
           {/* RIGHT */}
           <div className="relative">
             {/* soft background block (como no print) */}
-            <div className="absolute -right-2 -bottom-3 md:-right-6 md:-bottom-6 h-[88%] w-[88%] rounded-3xl bg-orange-50" />
+            <div className="absolute -right-2 -bottom-3 md:-right-6 md:-bottom-6 h-[88%] w-[88%] rounded-3xl bg-primary-500" />
 
             {/* image card */}
-            <div className="relative rounded-3xl bg-white shadow-lg border border-neutral-100 overflow-hidden">
+            <div className="relative rounded-3xl bg-white shadow-lg border border-neutral-200 overflow-hidden">
               <div className="aspect-4/3 w-full bg-neutral-50">
                 {imageSrc ? (
                   <img
@@ -139,8 +139,8 @@ function FeatureItem({
     <div className="flex items-start gap-3">
       {icon}
       <div>
-        <div className="text-sm font-semibold text-neutral-900">{title}</div>
-        <div className="text-xs text-neutral-500 mt-1">{desc}</div>
+        <div className="text-sm font-semibold text-brand-black">{title}</div>
+        <div className="text-xs text-brand-muted mt-1">{desc}</div>
       </div>
     </div>
   );
