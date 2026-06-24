@@ -123,12 +123,12 @@ export default function FaqPage() {
               return (
                 <div
                   key={`${item.category}-${item.question}`}
-                  className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm"
+                  className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenIndex(prev => (prev === index ? null : index))}
-                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition hover:bg-brand-light"
                   >
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-wide text-primary-600">
@@ -141,17 +141,19 @@ export default function FaqPage() {
 
                     <ChevronDown
                       className={[
-                        'h-5 w-5 shrink-0 text-brand-muted transition',
+                        'h-5 w-5 shrink-0 text-brand-muted transition duration-300',
                         open ? 'rotate-180' : 'rotate-0',
                       ].join(' ')}
                     />
                   </button>
 
-                  {open ? (
-                    <div className="border-t border-neutral-100 px-6 py-5 text-sm leading-relaxed text-brand-muted">
-                      {item.answer}
+                  <div className="accordion-panel" data-open={open} aria-hidden={!open}>
+                    <div>
+                      <div className="border-t border-neutral-100 px-6 py-5 text-sm leading-relaxed text-brand-muted">
+                        {item.answer}
+                      </div>
                     </div>
-                  ) : null}
+                  </div>
                 </div>
               );
             })}

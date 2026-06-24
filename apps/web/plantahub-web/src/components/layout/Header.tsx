@@ -91,7 +91,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setOpenCart(prev => !prev)}
-                className="relative rounded-xl border border-neutral-200 bg-white p-2 shadow-sm hover:bg-neutral-50 transition"
+                className="relative rounded-xl border border-neutral-200 bg-white p-2 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-neutral-50 hover:shadow-md active:translate-y-0"
               >
                 <ShoppingCart className="h-5 w-5 text-neutral-700" />
 
@@ -103,7 +103,7 @@ export default function Header() {
               </button>
 
               {openCart ? (
-                <div className="absolute right-0 mt-2 z-[1100] translate-y-0 opacity-100 transition-all duration-200">
+                <div className="animate-dropdown-in absolute right-0 z-[1100] mt-2">
                   <MiniCartDropdown onClose={() => setOpenCart(false)} />
                 </div>
               ) : null}
@@ -130,14 +130,14 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setMenuOpen(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 transition cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-neutral-50 hover:shadow-md active:translate-y-0 cursor-pointer"
               >
                 <span>Olá, {user?.firstName ?? 'Usuário'}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
 
               {menuOpen ? (
-                <div className="absolute right-0 z-[1100] mt-3 w-56 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-lg">
+                <div className="animate-dropdown-in absolute right-0 z-[1100] mt-3 w-56 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-lg">
                   <Link
                     to="/biblioteca"
                     onClick={() => setMenuOpen(false)}

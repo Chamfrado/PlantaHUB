@@ -15,11 +15,16 @@ export default function ProductCard({
   const img = product.heroImageUrl ?? product.galleryImageUrls?.[0];
 
   return (
-    <article className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden transition hover:border-orange-200 hover:shadow-md">
+    <article className="group bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg">
       {/* Image */}
       <div className="relative h-56 w-full">
         {img ? (
-          <img src={img} alt={title} className="h-full w-full object-cover" loading="lazy" />
+          <img
+            src={img}
+            alt={title}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
         ) : (
           <div className="h-full w-full bg-neutral-100 border-b border-neutral-200" />
         )}
@@ -80,7 +85,7 @@ export default function ProductCard({
 
           <button
             onClick={() => onViewDetails?.(product)}
-            className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold cursor-pointer hover:bg-primary-600 transition"
+            className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold cursor-pointer transition duration-200 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
           >
             {actionLabel}
           </button>

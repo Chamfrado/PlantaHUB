@@ -12,7 +12,7 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
   const subtitle = product.page?.subheadline ?? product.shortDescription ?? '';
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white px-6 py-5">
+    <div className="rounded-2xl border border-neutral-200 bg-white px-6 py-5 transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between gap-6 text-left"
@@ -54,7 +54,7 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
 
           <ChevronDown
             className={[
-              'h-5 w-5 text-brand-muted transition',
+              'h-5 w-5 text-brand-muted transition duration-300',
               isOpen ? 'rotate-180' : 'rotate-0',
             ].join(' ')}
           />
@@ -62,11 +62,18 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
       </button>
 
       {/* Expanded */}
-      {isOpen ? (
-        <div id={`product-panel-${product.id}`} className="mt-4">
-          <ProductDetailsCard product={product} />
+      <div
+        id={`product-panel-${product.id}`}
+        className="accordion-panel"
+        data-open={isOpen}
+        aria-hidden={!isOpen}
+      >
+        <div>
+          <div className="mt-4 animate-pop-in">
+            <ProductDetailsCard product={product} />
+          </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

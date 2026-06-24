@@ -15,7 +15,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
 
   if (loadingCart) {
     return (
-      <div className="w-80 rounded-2xl border bg-white p-4 shadow-xl">
+      <div className="animate-dropdown-in w-80 rounded-2xl border bg-white p-4 shadow-xl">
         <p className="text-sm text-neutral-500">Carregando carrinho...</p>
       </div>
     );
@@ -23,7 +23,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="w-80 rounded-2xl border bg-white p-6 shadow-xl text-center">
+      <div className="animate-dropdown-in w-80 rounded-2xl border bg-white p-6 shadow-xl text-center">
         <p className="font-semibold text-neutral-800">Seu carrinho está vazio</p>
         <Link
           to="/"
@@ -72,11 +72,14 @@ export default function MiniCartDropdown({ onClose }: Props) {
     }
   }
   return (
-    <div className="w-80 rounded-2xl border bg-white shadow-xl">
+    <div className="animate-dropdown-in w-80 rounded-2xl border bg-white shadow-xl">
       {/* HEADER */}
       <div className="flex items-center justify-between border-b px-4 py-3">
         <span className="font-bold text-neutral-800">Seu carrinho</span>
-        <button onClick={onClose}>
+        <button
+          onClick={onClose}
+          className="rounded-lg p-1 transition hover:rotate-90 hover:bg-neutral-100"
+        >
           <X className="h-4 w-4 text-neutral-500" />
         </button>
       </div>
@@ -84,7 +87,10 @@ export default function MiniCartDropdown({ onClose }: Props) {
       {/* ITEMS */}
       <div className="max-h-64 overflow-y-auto px-4 py-3 space-y-3">
         {cart.items.map(item => (
-          <div key={item.itemId} className="flex gap-3 items-start">
+          <div
+            key={item.itemId}
+            className="flex gap-3 items-start rounded-xl p-1 transition duration-200 hover:bg-brand-light"
+          >
             <img
               src={item.heroImageUrl}
               alt={item.name}
@@ -104,7 +110,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
             </div>
             <button
               onClick={() => handleRemove(item.itemId)}
-              className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-red-500 transition"
+              className="rounded-lg p-1 text-neutral-400 transition hover:rotate-90 hover:bg-neutral-100 hover:text-red-500"
             >
               <X className="h-4 w-4" />
             </button>
@@ -123,7 +129,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
           <Link
             to="/carrinho"
             onClick={onClose}
-            className="flex-1 rounded-xl border px-3 py-2 text-center text-sm font-semibold hover:bg-neutral-50"
+            className="flex-1 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition duration-200 hover:-translate-y-0.5 hover:bg-neutral-50"
           >
             Ver carrinho
           </Link>
@@ -131,7 +137,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
           <Link
             to="/carrinho"
             onClick={onClose}
-            className="flex-1 rounded-xl bg-primary-500 px-3 py-2 text-center text-sm font-bold text-white hover:bg-primary-600"
+            className="flex-1 rounded-xl bg-primary-500 px-3 py-2 text-center text-sm font-bold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
           >
             Finalizar
           </Link>

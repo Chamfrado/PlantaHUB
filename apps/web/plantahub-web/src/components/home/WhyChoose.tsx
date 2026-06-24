@@ -53,9 +53,9 @@ export default function WhyChoose() {
           {benefits.map((b, idx) => (
             <div
               key={idx}
-              className="bg-brand-light rounded-2xl p-8 shadow-sm border border-neutral-100 hover:shadow-md transition"
+              className="group bg-brand-light rounded-2xl p-8 shadow-sm border border-neutral-100 transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg"
             >
-              <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-primary-600 text-xl ring-1 ring-orange-100">
+              <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-primary-600 text-xl ring-1 ring-orange-100 transition duration-300 group-hover:scale-105">
                 {b.icon}
               </div>
 

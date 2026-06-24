@@ -26,7 +26,7 @@ export default function Hero({
       <div className="mx-auto w-full max-w-7xl px-6 py-14 md:py-20">
         <div className="grid min-w-0 md:grid-cols-2 gap-10 items-center">
           {/* LEFT */}
-          <div className="min-w-0 max-w-80 md:max-w-none">
+          <div className="animate-pop-in min-w-0 max-w-80 md:max-w-none">
             {/* badge */}
             <div className="inline-flex w-full max-w-full items-start gap-2 rounded-2xl border border-orange-100 bg-white px-4 py-2 text-sm font-semibold text-primary-600 sm:w-auto sm:items-center sm:rounded-full">
               <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white">
@@ -49,14 +49,14 @@ export default function Hero({
             <div className="mt-8 grid gap-4 sm:flex sm:flex-wrap sm:items-center">
               <button
                 onClick={onPrimaryClick}
-                className="w-full px-6 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm hover:bg-primary-600 transition cursor-pointer sm:w-auto"
+                className="w-full px-6 py-3 rounded-xl bg-primary-500 text-white font-semibold shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg cursor-pointer sm:w-auto"
               >
                 {primaryCtaText}
               </button>
 
               <button
                 onClick={onSecondaryClick}
-                className="w-full px-6 py-3 rounded-xl border border-neutral-300 bg-white text-brand-black font-semibold cursor-pointer hover:border-brand-black hover:bg-white transition sm:w-auto"
+                className="w-full px-6 py-3 rounded-xl border border-neutral-300 bg-white text-brand-black font-semibold cursor-pointer transition duration-200 hover:-translate-y-0.5 hover:border-brand-black hover:bg-white hover:shadow-md sm:w-auto"
               >
                 {secondaryCtaText}
               </button>
@@ -96,12 +96,12 @@ export default function Hero({
           </div>
 
           {/* RIGHT */}
-          <div className="relative min-w-0 max-w-[calc(100vw-4rem)] md:max-w-none">
+          <div className="animate-pop-in relative min-w-0 max-w-[calc(100vw-4rem)] md:max-w-none">
             {/* soft background block (como no print) */}
             <div className="absolute -right-2 -bottom-3 md:-right-6 md:-bottom-6 h-[88%] w-[88%] rounded-3xl bg-primary-500" />
 
             {/* image card */}
-            <div className="relative rounded-3xl bg-white shadow-lg border border-neutral-200 overflow-hidden">
+            <div className="relative rounded-3xl bg-white shadow-lg border border-neutral-200 overflow-hidden transition duration-500 hover:-translate-y-1 hover:shadow-2xl">
               <div className="aspect-4/3 w-full bg-neutral-50">
                 {imageSrc ? (
                   <img
