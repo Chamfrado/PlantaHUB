@@ -20,15 +20,15 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <span className="inline-flex items-center rounded-full bg-orange-50 text-primary-700 border border-orange-100 px-3 py-1 text-xs font-extrabold tracking-wide">
+              <span className="inline-flex items-center rounded-full bg-white text-primary-700 border border-orange-100 px-3 py-1 text-xs font-extrabold tracking-wide">
                 SOBRE A PLANTAHUB
               </span>
 
-              <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-neutral-900 leading-tight">
+              <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-brand-black leading-tight">
                 Arquitetura impulsionada por tecnologia
               </h1>
 
-              <p className="mt-4 text-neutral-600 leading-relaxed max-w-xl">
+              <p className="mt-4 text-brand-muted leading-relaxed max-w-xl">
                 Transformamos conhecimento arquitetônico em soluções digitais escaláveis para
                 conectar profissionais e impulsionar uma construção mais inteligente, eficiente e
                 sustentável.
@@ -41,11 +41,11 @@ export default function AboutUs() {
                 <div className="absolute -top-4 -right-4 h-14 w-14 rounded-xl border-2 border-primary-500" />
                 <div className="absolute -bottom-5 -left-6 h-20 w-20 rounded-2xl bg-orange-100/70" />
 
-                <div className="rounded-2xl border border-neutral-200 overflow-hidden shadow-sm bg-neutral-50">
+                <div className="rounded-2xl border border-neutral-200 overflow-hidden shadow-sm bg-brand-light">
                   <img
-                    src="/brand/logotipo.png"
+                    src="/brand/logo-primary.png"
                     alt="Equipe PlantaHUB"
-                    className="w-full h-80 md:h-80 object-cover"
+                    className="w-full h-80 md:h-80 object-contain bg-white p-10"
                     loading="lazy"
                   />
                 </div>
@@ -59,7 +59,7 @@ export default function AboutUs() {
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-neutral-900">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">
               Manifesto da Marca
             </h2>
             <div className="mt-3 mx-auto h-1 w-10 rounded-full bg-primary-500" />
@@ -67,14 +67,14 @@ export default function AboutUs() {
 
           <div className="mt-10 max-w-4xl mx-auto rounded-2xl border border-neutral-200 bg-white p-8">
             <div className="grid gap-6 md:grid-cols-2">
-              <p className="text-neutral-600 leading-relaxed">
+              <p className="text-brand-muted leading-relaxed">
                 Acreditamos que a arquitetura deve ser{' '}
-                <span className="font-bold text-neutral-900">
+                <span className="font-bold text-brand-black">
                   acessível, inteligente e responsável
                 </span>
                 .
               </p>
-              <p className="text-neutral-600 leading-relaxed">
+              <p className="text-brand-muted leading-relaxed">
                 Acreditamos que construir não precisa ser lento, caro ou desconectado da tecnologia.
               </p>
             </div>
@@ -98,7 +98,7 @@ export default function AboutUs() {
             />
           </div>
 
-          <div className="mt-10 max-w-4xl mx-auto rounded-2xl bg-neutral-900 text-white p-8">
+          <div className="mt-10 max-w-4xl mx-auto rounded-2xl bg-brand-graphite text-white p-8">
             <p className="text-sm text-neutral-200 leading-relaxed">
               Existimos para transformar conhecimento arquitetônico em soluções digitais escaláveis,
               conectando arquitetos, engenheiros e construtores por meio de um marketplace simples,
@@ -117,11 +117,11 @@ export default function AboutUs() {
           </div>
 
           <div className="mt-10 text-center max-w-4xl mx-auto">
-            <p className="text-neutral-600">
+            <p className="text-brand-muted">
               Projetamos não apenas para as necessidades de hoje, mas para um ambiente construído
               mais eficiente, sustentável e inteligente.
             </p>
-            <p className="mt-2 font-extrabold text-neutral-900">
+            <p className="mt-2 font-extrabold text-brand-black">
               Isso é arquitetura impulsionada por tecnologia.
               <span className="text-primary-600"> Isso é PLANTAHUB.</span>
             </p>
@@ -130,7 +130,7 @@ export default function AboutUs() {
       </section>
 
       {/* MISSION / VISION / VALUES */}
-      <section className="bg-neutral-50">
+      <section className="bg-brand-light">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid gap-6 md:grid-cols-3">
             <InfoCard
@@ -156,10 +156,10 @@ export default function AboutUs() {
           </div>
 
           <div className="mt-16 text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-neutral-900">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">
               Três Pilares de Integração
             </h2>
-            <p className="mt-2 text-neutral-600">
+            <p className="mt-2 text-brand-muted">
               Onde construção, tecnologia e sustentabilidade convergem
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function AboutUs() {
       </section>
 
       {/* COMPLIANCE + STATS */}
-      <section className="bg-neutral-900 text-white">
+      <section className="bg-brand-graphite text-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
@@ -237,10 +237,10 @@ export default function AboutUs() {
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-neutral-900">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">
               Humanizado. Profissional. Confiável.
             </h2>
-            <p className="mt-2 text-neutral-600 max-w-3xl mx-auto">
+            <p className="mt-2 text-brand-muted max-w-3xl mx-auto">
               Por trás de cada planta existe um time de profissionais experientes comprometidos em
               transformar sua visão em realidade com precisão e cuidado.
             </p>
@@ -262,7 +262,7 @@ export default function AboutUs() {
           </div>
 
           <div className="mt-12 max-w-4xl mx-auto rounded-2xl border border-neutral-200 bg-white p-8 text-center">
-            <p className="text-neutral-600 leading-relaxed">
+            <p className="text-brand-muted leading-relaxed">
               Combinamos décadas de experiência em arquitetura com tecnologia de ponta para entregar
               soluções tecnicamente excelentes e profundamente responsáveis às necessidades humanas
               e ambientais.
@@ -282,7 +282,7 @@ export default function AboutUs() {
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <button className="rounded-xl bg-white text-neutral-900 font-semibold px-6 py-3 hover:bg-neutral-100 transition inline-flex items-center gap-2">
+            <button className="rounded-xl bg-white text-brand-black font-semibold px-6 py-3 hover:bg-neutral-100 transition inline-flex items-center gap-2">
               Explorar Plantas <ArrowRight className="h-4 w-4" />
             </button>
             <button className="rounded-xl border border-white/40 text-white font-semibold px-6 py-3 hover:bg-white/10 transition">
@@ -303,8 +303,8 @@ function MiniValue({ icon, title, text }: { icon: React.ReactNode; title: string
       <div className="mx-auto h-12 w-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center">
         {icon}
       </div>
-      <div className="mt-3 font-extrabold text-neutral-900">{title}</div>
-      <div className="mt-1 text-sm text-neutral-600">{text}</div>
+      <div className="mt-3 font-extrabold text-brand-black">{title}</div>
+      <div className="mt-1 text-sm text-brand-muted">{text}</div>
     </div>
   );
 }
@@ -312,8 +312,8 @@ function MiniValue({ icon, title, text }: { icon: React.ReactNode; title: string
 function FooterMetric({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div>
-      <div className="font-extrabold text-neutral-900">{title}</div>
-      <div className="mt-1 text-sm text-neutral-600">{subtitle}</div>
+      <div className="font-extrabold text-brand-black">{title}</div>
+      <div className="mt-1 text-sm text-brand-muted">{subtitle}</div>
     </div>
   );
 }
@@ -334,10 +334,10 @@ function InfoCard({
       <div className="h-10 w-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center">
         {icon}
       </div>
-      <div className="mt-4 font-extrabold text-neutral-900">{title}</div>
-      {text ? <p className="mt-2 text-sm text-neutral-600 leading-relaxed">{text}</p> : null}
+      <div className="mt-4 font-extrabold text-brand-black">{title}</div>
+      {text ? <p className="mt-2 text-sm text-brand-muted leading-relaxed">{text}</p> : null}
       {list?.length ? (
-        <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+        <ul className="mt-3 space-y-2 text-sm text-brand-muted">
           {list.map(x => (
             <li key={x} className="flex items-center gap-2">
               <span className="text-primary-500">✓</span>
@@ -366,9 +366,9 @@ function PillarCard({
       <div className="h-12 w-12 rounded-2xl bg-primary-500 flex items-center justify-center">
         {icon}
       </div>
-      <div className="mt-4 font-extrabold text-neutral-900">{title}</div>
-      <p className="mt-2 text-sm text-neutral-600 leading-relaxed">{text}</p>
-      <ul className="mt-4 space-y-2 text-sm text-neutral-700">
+      <div className="mt-4 font-extrabold text-brand-black">{title}</div>
+      <p className="mt-2 text-sm text-brand-muted leading-relaxed">{text}</p>
+      <ul className="mt-4 space-y-2 text-sm text-brand-muted">
         {bullets.map(b => (
           <li key={b} className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
@@ -427,9 +427,9 @@ function TeamMember({
       <div className="mx-auto h-20 w-20 rounded-full overflow-hidden bg-neutral-200">
         <img src={avatar} alt={name} className="h-full w-full object-cover" loading="lazy" />
       </div>
-      <div className="mt-3 font-extrabold text-neutral-900">{name}</div>
-      <div className="mt-1 text-sm text-neutral-600">{role}</div>
-      <div className="mt-1 text-xs font-semibold text-neutral-500">{cert}</div>
+      <div className="mt-3 font-extrabold text-brand-black">{name}</div>
+      <div className="mt-1 text-sm text-brand-muted">{role}</div>
+      <div className="mt-1 text-xs font-semibold text-brand-muted">{cert}</div>
     </div>
   );
 }

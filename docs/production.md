@@ -11,6 +11,7 @@ SPRING_DATASOURCE_USERNAME=...
 SPRING_DATASOURCE_PASSWORD=...
 JWT_SECRET=use-a-long-random-secret-at-least-64-characters
 APP_WEB_BASE_URL=https://plantahub.com.br
+APP_CORS_ALLOWED_ORIGINS=https://plantahub.com.br,https://www.plantahub.com.br
 AUTH_COOKIE_SECURE=true
 APP_S3_BUCKET=...
 APP_S3_REGION=...
@@ -33,5 +34,6 @@ VITE_API_URL=https://api.plantahub.com.br
 - Serve both frontend and API over HTTPS.
 - Keep `AUTH_COOKIE_SECURE=true` in production so session cookies are sent only over HTTPS.
 - Keep CORS restricted to `https://plantahub.com.br` and `https://www.plantahub.com.br`.
+- Keep Springdoc/Swagger disabled in the `prod` profile.
 - Do not store JWTs in `localStorage`; the app now uses an `HttpOnly` `access_token` cookie.
 - Rotate `JWT_SECRET` if it was ever exposed or reused from development.

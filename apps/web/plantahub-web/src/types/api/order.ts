@@ -28,6 +28,7 @@ export type OrderResponseDTO = {
   currency: string;
   createdAt: string;
   paidAt?: string | null;
+  paymentUrl?: string | null;
   items: OrderItemDTO[];
 };
 

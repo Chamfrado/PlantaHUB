@@ -51,8 +51,8 @@ export default function ProductCarouselSection({
         {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div>
-            <h2 className="text-3xl font-extrabold text-neutral-900">{title}</h2>
-            {subtitle ? <p className="mt-2 text-neutral-600">{subtitle}</p> : null}
+            <h2 className="text-3xl font-extrabold text-brand-black">{title}</h2>
+            {subtitle ? <p className="mt-2 text-brand-muted">{subtitle}</p> : null}
           </div>
 
           {enableTiers ? <TierTabs value={tier} onChange={setTier} /> : null}
@@ -61,12 +61,13 @@ export default function ProductCarouselSection({
         {/* Cards */}
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {visibleProducts.map(product => (
-            <ProductCard
-              key={`${product.category}-${product.id}`}
-              product={product}
-              onViewDetails={onViewDetails}
-              actionLabel={actionLabel}
-            />
+            <div key={`${product.category}-${product.id}`} className="animate-pop-in">
+              <ProductCard
+                product={product}
+                onViewDetails={onViewDetails}
+                actionLabel={actionLabel}
+              />
+            </div>
           ))}
         </div>
 
@@ -74,7 +75,7 @@ export default function ProductCarouselSection({
         <div className="mt-10 flex justify-center">
           <button
             onClick={onFooterCtaClick}
-            className="px-6 py-3 rounded-xl border border-neutral-300 bg-white font-semibold cursor-pointer text-neutral-900 hover:bg-neutral-100 transition inline-flex items-center gap-2"
+            className="px-6 py-3 rounded-xl border border-neutral-300 bg-white font-semibold cursor-pointer text-brand-black transition duration-200 hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-md inline-flex items-center gap-2"
           >
             {footerCtaLabel} <span className="text-lg">→</span>
           </button>
@@ -100,8 +101,10 @@ function TierTabs({ value, onChange }: { value: TierSlug; onChange: (v: TierSlug
             key={t.value}
             onClick={() => onChange(t.value)}
             className={[
-              'px-4 py-2 rounded-lg text-sm font-semibold transition',
-              active ? 'bg-primary-500 text-white' : 'text-neutral-700 hover:bg-neutral-100',
+              'px-4 py-2 rounded-lg text-sm font-semibold transition duration-200',
+              active
+                ? 'bg-primary-500 text-white shadow-sm'
+                : 'text-brand-muted hover:-translate-y-0.5 hover:bg-neutral-100',
             ].join(' ')}
           >
             {t.label}

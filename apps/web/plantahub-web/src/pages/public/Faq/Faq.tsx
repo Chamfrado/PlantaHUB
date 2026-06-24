@@ -70,18 +70,18 @@ export default function FaqPage() {
 
   return (
     <section className="bg-white">
-      <div className="border-b border-neutral-200 bg-neutral-50">
+      <div className="border-b border-neutral-200 bg-brand-light">
         <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
           <div className="max-w-3xl">
-            <span className="inline-flex rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-primary-600">
+            <span className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary-600 border border-orange-100">
               FAQ
             </span>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-neutral-900 md:text-5xl">
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-brand-black md:text-5xl">
               Perguntas frequentes sobre compras, biblioteca, downloads e parcerias
             </h1>
 
-            <p className="mt-5 text-lg leading-relaxed text-neutral-600">
+            <p className="mt-5 text-lg leading-relaxed text-brand-muted">
               Reunimos aqui as dúvidas mais comuns para ajudar clientes e parceiros a entender
               melhor como a PlantaHUB funciona.
             </p>
@@ -93,7 +93,7 @@ export default function FaqPage() {
                   value={search}
                   onChange={event => setSearch(event.target.value)}
                   placeholder="Buscar pergunta ou assunto"
-                  className="w-full bg-transparent text-sm text-neutral-800 outline-none placeholder:text-neutral-400"
+                  className="w-full bg-transparent text-sm text-brand-black outline-none placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -103,15 +103,15 @@ export default function FaqPage() {
 
       <div className="mx-auto max-w-5xl px-6 py-16">
         {!filteredItems.length ? (
-          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-10 text-center">
+          <div className="rounded-3xl border border-neutral-200 bg-brand-light p-10 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary-600 shadow-sm">
               <HelpCircle className="h-6 w-6" />
             </div>
 
-            <h2 className="mt-4 text-2xl font-extrabold text-neutral-900">
+            <h2 className="mt-4 text-2xl font-extrabold text-brand-black">
               Nenhum resultado encontrado
             </h2>
-            <p className="mt-2 text-neutral-600">
+            <p className="mt-2 text-brand-muted">
               Tente usar outras palavras-chave ou navegue pelas perguntas disponíveis.
             </p>
           </div>
@@ -123,35 +123,37 @@ export default function FaqPage() {
               return (
                 <div
                   key={`${item.category}-${item.question}`}
-                  className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm"
+                  className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenIndex(prev => (prev === index ? null : index))}
-                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition hover:bg-brand-light"
                   >
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-wide text-primary-600">
                         {item.category}
                       </div>
-                      <div className="mt-1 text-lg font-extrabold text-neutral-900">
+                      <div className="mt-1 text-lg font-extrabold text-brand-black">
                         {item.question}
                       </div>
                     </div>
 
                     <ChevronDown
                       className={[
-                        'h-5 w-5 shrink-0 text-neutral-500 transition',
+                        'h-5 w-5 shrink-0 text-brand-muted transition duration-300',
                         open ? 'rotate-180' : 'rotate-0',
                       ].join(' ')}
                     />
                   </button>
 
-                  {open ? (
-                    <div className="border-t border-neutral-100 px-6 py-5 text-sm leading-relaxed text-neutral-600">
-                      {item.answer}
+                  <div className="accordion-panel" data-open={open} aria-hidden={!open}>
+                    <div>
+                      <div className="border-t border-neutral-100 px-6 py-5 text-sm leading-relaxed text-brand-muted">
+                        {item.answer}
+                      </div>
                     </div>
-                  ) : null}
+                  </div>
                 </div>
               );
             })}

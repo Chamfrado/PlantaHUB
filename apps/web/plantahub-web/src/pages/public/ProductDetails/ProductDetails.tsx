@@ -301,8 +301,8 @@ export default function ProductDetails() {
     return (
       <div className="min-h-[60vh] bg-white">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h1 className="text-2xl font-extrabold text-neutral-900">Produto não encontrado</h1>
-          <p className="mt-2 text-neutral-600">
+          <h1 className="text-2xl font-extrabold text-brand-black">Produto não encontrado</h1>
+          <p className="mt-2 text-brand-muted">
             Verifique a URL. Ex.: <span className="font-mono">/casas/confort</span>
           </p>
         </div>
@@ -356,9 +356,9 @@ export default function ProductDetails() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 font-bold text-primary-600">
                 <Sparkles className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 font-extrabold text-neutral-900">{f.title}</h3>
+              <h3 className="mt-4 font-extrabold text-brand-black">{f.title}</h3>
               {f.description ? (
-                <p className="mt-2 text-sm leading-relaxed text-neutral-600">{f.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{f.description}</p>
               ) : null}
             </div>
           ))}
@@ -383,9 +383,9 @@ export default function ProductDetails() {
                   <Check className="h-4 w-4 text-primary-600" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-extrabold text-neutral-900">{it.title}</div>
+                  <div className="font-extrabold text-brand-black">{it.title}</div>
                   {it.description ? (
-                    <p className="mt-1 text-sm leading-relaxed text-neutral-600">
+                    <p className="mt-1 text-sm leading-relaxed text-brand-muted">
                       {it.description}
                     </p>
                   ) : null}
@@ -407,7 +407,7 @@ export default function ProductDetails() {
               className="rounded-2xl border border-orange-100 bg-orange-50 p-10 text-center"
             >
               <div className="text-5xl font-extrabold text-primary-600">{k.value}</div>
-              <div className="mt-2 font-bold text-neutral-900">{k.label}</div>
+              <div className="mt-2 font-bold text-brand-black">{k.label}</div>
             </div>
           ))}
         </div>
@@ -440,14 +440,14 @@ export default function ProductDetails() {
                 <Star className="h-4 w-4 fill-current" />
               </div>
 
-              <p className="mt-3 text-sm leading-relaxed text-neutral-700">{t.quote}</p>
+              <p className="mt-3 text-sm leading-relaxed text-brand-muted">{t.quote}</p>
 
               <div className="mt-4 flex items-center gap-3">
                 <div className="h-9 w-9 rounded-full bg-neutral-200" />
                 <div>
-                  <div className="text-sm font-extrabold text-neutral-900">{t.authorName}</div>
+                  <div className="text-sm font-extrabold text-brand-black">{t.authorName}</div>
                   {t.authorTitle ? (
-                    <div className="text-xs text-neutral-500">{t.authorTitle}</div>
+                    <div className="text-xs text-brand-muted">{t.authorTitle}</div>
                   ) : null}
                 </div>
               </div>
@@ -471,17 +471,17 @@ export default function ProductDetails() {
                     onClick={() => setOpenFaq(prev => (prev === idx ? null : idx))}
                     className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   >
-                    <span className="font-bold text-neutral-900">{f.question}</span>
+                    <span className="font-bold text-brand-black">{f.question}</span>
                     <ChevronDown
                       className={[
-                        'h-5 w-5 text-neutral-500 transition',
+                        'h-5 w-5 text-brand-muted transition',
                         open ? 'rotate-180' : 'rotate-0',
                       ].join(' ')}
                     />
                   </button>
 
                   {open ? (
-                    <div className="px-5 pb-5 text-sm leading-relaxed text-neutral-600">
+                    <div className="px-5 pb-5 text-sm leading-relaxed text-brand-muted">
                       {f.answer ?? 'Resposta em breve.'}
                     </div>
                   ) : null}
@@ -494,12 +494,12 @@ export default function ProductDetails() {
 
       <section className="bg-white">
         <div className="mx-auto max-w-6xl px-6 pb-20">
-          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-10 text-center">
-            <h2 className="text-3xl font-extrabold text-neutral-900">
+          <div className="rounded-3xl border border-neutral-200 bg-brand-light p-10 text-center">
+            <h2 className="text-3xl font-extrabold text-brand-black">
               {product.page.finalCtaTitle ?? 'Ready to build the house of your dreams?'}
             </h2>
             {product.page.finalCtaSubtitle ? (
-              <p className="mt-2 text-neutral-600">{product.page.finalCtaSubtitle}</p>
+              <p className="mt-2 text-brand-muted">{product.page.finalCtaSubtitle}</p>
             ) : null}
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -516,12 +516,12 @@ export default function ProductDetails() {
                 Comprar agora
               </button>
 
-              <button className="rounded-xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-neutral-900 transition hover:bg-neutral-100">
+              <button className="rounded-xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-brand-black transition hover:bg-neutral-100">
                 Contact Support
               </button>
             </div>
 
-            <div className="mt-6 flex flex-wrap justify-center gap-6 text-xs font-semibold text-neutral-600">
+            <div className="mt-6 flex flex-wrap justify-center gap-6 text-xs font-semibold text-brand-muted">
               <span className="inline-flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-primary-500" /> Secure SSL Payment
               </span>
@@ -551,11 +551,11 @@ function Section({
   return (
     <section className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="text-center text-2xl font-extrabold text-neutral-900 md:text-3xl">
+        <h2 className="text-center text-2xl font-extrabold text-brand-black md:text-3xl">
           {title}
         </h2>
         {subtitle ? (
-          <p className="mx-auto mt-2 max-w-3xl text-center text-neutral-600">{subtitle}</p>
+          <p className="mx-auto mt-2 max-w-3xl text-center text-brand-muted">{subtitle}</p>
         ) : null}
         <div className="mt-10">{children}</div>
       </div>
@@ -566,8 +566,8 @@ function Section({
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-lg font-extrabold text-neutral-900">{value}</div>
-      <div className="mt-1 text-xs font-semibold text-neutral-500">{label}</div>
+      <div className="text-lg font-extrabold text-brand-black">{value}</div>
+      <div className="mt-1 text-xs font-semibold text-brand-muted">{label}</div>
     </div>
   );
 }

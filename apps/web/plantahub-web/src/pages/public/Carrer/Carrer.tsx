@@ -66,19 +66,19 @@ export default function Carrer() {
 
   return (
     <section className="bg-white">
-      <div className="border-b border-neutral-200 bg-neutral-50">
+      <div className="border-b border-neutral-200 bg-brand-light">
         <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
           <div className="max-w-3xl">
             <span className="inline-flex rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-primary-600">
               Trabalhe conosco
             </span>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-neutral-900 md:text-5xl">
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-brand-black md:text-5xl">
               Publique suas plantas na PlantaHUB e transforme seus projetos em novas oportunidades
               de venda
             </h1>
 
-            <p className="mt-5 text-lg leading-relaxed text-neutral-600">
+            <p className="mt-5 text-lg leading-relaxed text-brand-muted">
               Estamos em busca de arquitetos, projetistas e parceiros que desejam comercializar
               plantas com organização, alcance digital e negociação transparente de margem.
             </p>
@@ -94,7 +94,7 @@ export default function Carrer() {
 
               <a
                 href="#como-funciona"
-                className="inline-flex items-center rounded-2xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-neutral-900 transition hover:bg-neutral-100"
+                className="inline-flex items-center rounded-2xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-brand-black transition hover:bg-neutral-100"
               >
                 Entender o processo
               </a>
@@ -114,18 +114,18 @@ export default function Carrer() {
                 {item.icon}
               </div>
 
-              <h2 className="mt-4 text-lg font-extrabold text-neutral-900">{item.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600">{item.description}</p>
+              <h2 className="mt-4 text-lg font-extrabold text-brand-black">{item.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-brand-muted">{item.description}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div id="como-funciona" className="bg-neutral-50">
+      <div id="como-funciona" className="bg-brand-light">
         <div className="mx-auto max-w-7xl px-6 py-16">
           <div className="max-w-3xl">
-            <h2 className="text-3xl font-extrabold text-neutral-900">Como funciona a parceria</h2>
-            <p className="mt-3 text-neutral-600">
+            <h2 className="text-3xl font-extrabold text-brand-black">Como funciona a parceria</h2>
+            <p className="mt-3 text-brand-muted">
               Nosso processo foi pensado para facilitar a entrada de novos parceiros e garantir
               consistência no catálogo da plataforma.
             </p>
@@ -138,8 +138,8 @@ export default function Carrer() {
                 className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm"
               >
                 <div className="text-sm font-extrabold text-primary-600">{step.number}</div>
-                <h3 className="mt-2 text-xl font-extrabold text-neutral-900">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-600">{step.description}</p>
+                <h3 className="mt-2 text-xl font-extrabold text-brand-black">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{step.description}</p>
               </div>
             ))}
           </div>
@@ -153,34 +153,34 @@ export default function Carrer() {
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-primary-600">
                 <FileText className="h-5 w-5" />
               </div>
-              <h2 className="text-2xl font-extrabold text-neutral-900">O que esperamos receber</h2>
+              <h2 className="text-2xl font-extrabold text-brand-black">O que esperamos receber</h2>
             </div>
 
             <div className="mt-6 space-y-4">
               {requirements.map(item => (
                 <div key={item} className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                  <p className="text-sm leading-relaxed text-neutral-700">{item}</p>
+                  <p className="text-sm leading-relaxed text-brand-muted">{item}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-8 shadow-sm">
+          <div className="rounded-3xl border border-neutral-200 bg-brand-light p-8 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-100 bg-white text-primary-600">
                 <Mail className="h-5 w-5" />
               </div>
-              <h2 className="text-2xl font-extrabold text-neutral-900">Canal de contato</h2>
+              <h2 className="text-2xl font-extrabold text-brand-black">Canal de contato</h2>
             </div>
 
-            <p className="mt-4 text-sm leading-relaxed text-neutral-600">
+            <p className="mt-4 text-sm leading-relaxed text-brand-muted">
               Envie sua apresentação, links, portfólio e uma breve explicação sobre os tipos de
               plantas que você deseja comercializar.
             </p>
 
             <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5">
-              <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <div className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
                 E-mail sugerido
               </div>
               <a

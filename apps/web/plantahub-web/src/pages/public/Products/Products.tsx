@@ -20,11 +20,11 @@ export default function ProductsPage() {
   }
 
   return (
-    <section className="bg-neutral-50">
+    <section className="bg-brand-light">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-extrabold text-neutral-900">Plantas Arquitetônicas</h1>
+        <h1 className="text-3xl font-extrabold text-brand-black">Plantas Arquitetônicas</h1>
 
-        <p className="mt-2 text-neutral-600 max-w-3xl">
+        <p className="mt-2 text-brand-muted max-w-3xl">
           Explore nossa coleção premium de projetos completos. Cada pacote inclui documentação
           pronta para construção.
         </p>
@@ -42,7 +42,7 @@ export default function ProductsPage() {
               active={tab === 'studios'}
               onClick={() => handleTabChange('studios')}
             />
-            <span className="text-neutral-400 py-4">Mais em breve</span>
+            <span className="text-brand-muted/70 py-4">Mais em breve</span>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ function Tab({ label, active, onClick }: { label: string; active: boolean; onCli
         'py-4 border-b-2 transition',
         active
           ? 'border-primary-500 text-primary-600'
-          : 'border-transparent text-neutral-600 hover:text-neutral-900',
+          : 'border-transparent text-brand-muted hover:text-brand-black',
       ].join(' ')}
     >
       {label}

@@ -15,18 +15,23 @@ export default function ProductCard({
   const img = product.heroImageUrl ?? product.galleryImageUrls?.[0];
 
   return (
-    <article className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+    <article className="group bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg">
       {/* Image */}
       <div className="relative h-56 w-full">
         {img ? (
-          <img src={img} alt={title} className="h-full w-full object-cover" loading="lazy" />
+          <img
+            src={img}
+            alt={title}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
         ) : (
           <div className="h-full w-full bg-neutral-100 border-b border-neutral-200" />
         )}
 
         {typeof product.areaM2 === 'number' && (
           <div className="absolute top-4 right-4">
-            <span className="px-3 py-1 rounded-full bg-white/95 text-sm font-semibold text-neutral-900 border border-neutral-200 shadow-sm">
+            <span className="px-3 py-1 rounded-full bg-white/95 text-sm font-semibold text-brand-black border border-neutral-200 shadow-sm">
               {product.areaM2} m²
             </span>
           </div>
@@ -45,7 +50,7 @@ export default function ProductCard({
                   'px-3 py-1 rounded-full text-xs font-semibold',
                   isTierTag(t, product.slug)
                     ? 'bg-orange-50 text-primary-600'
-                    : 'bg-neutral-100 text-neutral-700',
+                    : 'bg-green-50 text-brand-green',
                 ].join(' ')}
               >
                 {t}
@@ -54,13 +59,13 @@ export default function ProductCard({
           </div>
         ) : null}
 
-        <h3 className="mt-4 text-lg font-extrabold text-neutral-900">{title}</h3>
+        <h3 className="mt-4 text-lg font-extrabold text-brand-black">{title}</h3>
 
-        <p className="mt-2 text-sm text-neutral-600 leading-relaxed min-h-11">{subtitle}</p>
+        <p className="mt-2 text-sm text-brand-muted leading-relaxed min-h-11">{subtitle}</p>
 
         {/* formats */}
         {product.fileFormats?.length ? (
-          <div className="mt-4 flex items-center gap-4 text-xs font-semibold text-neutral-700">
+          <div className="mt-4 flex items-center gap-4 text-xs font-semibold text-brand-muted">
             {product.fileFormats.map(f => (
               <div key={f} className="inline-flex items-center gap-2">
                 <FormatIcon />
@@ -80,7 +85,7 @@ export default function ProductCard({
 
           <button
             onClick={() => onViewDetails?.(product)}
-            className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold cursor-pointer hover:bg-primary-600 transition"
+            className="px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold cursor-pointer transition duration-200 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
           >
             {actionLabel}
           </button>

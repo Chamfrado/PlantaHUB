@@ -40,10 +40,10 @@ export default function WhyChoose() {
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
         {/* Title */}
         <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-900">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black">
             Por que escolher nossas plantas arquitetônicas
           </h2>
-          <p className="mt-4 text-neutral-600 text-base md:text-lg">
+          <p className="mt-4 text-brand-muted text-base md:text-lg">
             Completas, profissionais e prontas para construir
           </p>
         </div>
@@ -53,15 +53,15 @@ export default function WhyChoose() {
           {benefits.map((b, idx) => (
             <div
               key={idx}
-              className="bg-neutral-50 rounded-2xl p-8 shadow-sm border border-neutral-100 hover:shadow-md transition"
+              className="group bg-brand-light rounded-2xl p-8 shadow-sm border border-neutral-100 transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg"
             >
-              <div className="h-12 w-12 rounded-2xl bg-orange-50 flex items-center justify-center text-primary-600 text-xl">
+              <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-primary-600 text-xl ring-1 ring-orange-100 transition duration-300 group-hover:scale-105">
                 {b.icon}
               </div>
 
-              <h3 className="mt-6 text-lg font-bold text-neutral-900">{b.title}</h3>
+              <h3 className="mt-6 text-lg font-bold text-brand-black">{b.title}</h3>
 
-              <p className="mt-4 text-sm leading-relaxed text-neutral-600">{b.description}</p>
+              <p className="mt-4 text-sm leading-relaxed text-brand-muted">{b.description}</p>
             </div>
           ))}
         </div>

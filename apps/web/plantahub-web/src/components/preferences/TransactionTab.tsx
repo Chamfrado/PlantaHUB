@@ -1,6 +1,6 @@
 import { CreditCard } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { getMyOrders } from '../../services/order.service';
+import { getMyOrders, getOrderPaymentLink } from '../../services/order.service';
 import type { OrderResponseDTO } from '../../types/api/order';
 
 type TransactionRow = {
@@ -16,6 +16,7 @@ export default function TransactionsTab() {
   const [orders, setOrders] = useState<OrderResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [payingOrderId, setPayingOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadOrders() {
@@ -47,6 +48,26 @@ export default function TransactionsTab() {
     }));
   }, [orders]);
 
+  async function handlePayNow(orderId: string) {
+    try {
+      setPayingOrderId(orderId);
+      setError(null);
+
+      const response = await getOrderPaymentLink(orderId);
+
+      setOrders(current =>
+        current.map(order => (order.id === response.order.id ? response.order : order))
+      );
+
+      window.location.href = response.paymentUrl;
+    } catch (err) {
+      console.error(err);
+      setError('Não foi possível abrir o pagamento deste pedido.');
+    } finally {
+      setPayingOrderId(null);
+    }
+  }
+
   if (loading) {
     return <CardSkeleton text="Carregando transações..." />;
   }
@@ -73,6 +94,7 @@ export default function TransactionsTab() {
                 <Th>Pagamento confirmado</Th>
                 <Th>Produto</Th>
                 <Th>Status</Th>
+                <Th>Ação</Th>
                 <Th align="right">Valor total</Th>
               </tr>
             </thead>
@@ -86,6 +108,18 @@ export default function TransactionsTab() {
                   <Td>{row.product}</Td>
                   <Td>
                     <StatusBadge status={row.status} />
+                  </Td>
+                  <Td>
+                    {isPendingStatus(row.status) ? (
+                      <button
+                        type="button"
+                        onClick={() => handlePayNow(row.id)}
+                        disabled={payingOrderId === row.id}
+                        className="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-3 text-xs font-bold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {payingOrderId === row.id ? 'Abrindo...' : 'Pagar agora'}
+                      </button>
+                    ) : null}
                   </Td>
                   <Td align="right">{formatMoneyFromCents(row.totalCents)}</Td>
                 </tr>
@@ -120,7 +154,7 @@ function StatusBadge({ status }: { status: string }) {
       ? 'bg-green-50 text-green-700 border-green-200'
       : normalized === 'pending'
         ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-        : normalized === 'cancelled'
+        : normalized === 'canceled' || normalized === 'cancelled'
           ? 'bg-red-50 text-red-700 border-red-200'
           : 'bg-neutral-100 text-neutral-700 border-neutral-200';
 
@@ -131,6 +165,10 @@ function StatusBadge({ status }: { status: string }) {
       {status}
     </span>
   );
+}
+
+function isPendingStatus(status: string) {
+  return status.toLowerCase() === 'pending';
 }
 
 function SectionCard({

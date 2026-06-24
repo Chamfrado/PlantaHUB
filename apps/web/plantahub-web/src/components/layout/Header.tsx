@@ -2,7 +2,6 @@ import { BookOpen, ChevronDown, LogOut, Settings, ShoppingCart } from 'lucide-re
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../app/providers/useCart';
-import logotipo from '../../assets/logotipo.png';
 import { useAuth } from '../../contexts/AuthContext';
 import MiniCartDropdown from '../cart/MiniCartDropdown';
 
@@ -13,7 +12,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  const base = 'text-sm font-semibold text-neutral-700 hover:text-primary-500 transition';
+  const base = 'text-sm font-semibold text-brand-muted hover:text-primary-500 transition';
   const active = 'text-primary-600';
 
   const [openCart, setOpenCart] = useState(false);
@@ -53,11 +52,19 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full bg-white border-b">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logotipo} alt="PlantaHUB" className="h-9 w-9 rounded-lg" />
-          <span className="font-semibold text-lg text-neutral-900">PlantaHUB</span>
+    <header className="relative z-[1000] w-screen max-w-full overflow-visible border-b border-neutral-200 bg-white">
+      <div className="relative mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
+        <Link to="/" className="flex items-center">
+          <img
+            src="/brand/logo-primary.png"
+            alt="PlantaHUB"
+            className="hidden h-9 w-auto object-contain sm:block"
+          />
+          <img
+            src="/brand/logo-symbol.png"
+            alt="PlantaHUB"
+            className="h-10 w-auto object-contain sm:hidden"
+          />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -78,13 +85,13 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="absolute right-6 flex items-center gap-2 sm:static sm:gap-4">
           {isAuthenticated && (
             <div className="relative" ref={cartRef}>
               <button
                 type="button"
                 onClick={() => setOpenCart(prev => !prev)}
-                className="relative rounded-xl border border-neutral-200 bg-white p-2 shadow-sm hover:bg-neutral-50 transition"
+                className="relative rounded-xl border border-neutral-200 bg-white p-2 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-neutral-50 hover:shadow-md active:translate-y-0"
               >
                 <ShoppingCart className="h-5 w-5 text-neutral-700" />
 
@@ -96,7 +103,7 @@ export default function Header() {
               </button>
 
               {openCart ? (
-                <div className="absolute right-0 mt-2 z-50 translate-y-0 opacity-100 transition-all duration-200">
+                <div className="animate-dropdown-in absolute right-0 z-[1100] mt-2">
                   <MiniCartDropdown onClose={() => setOpenCart(false)} />
                 </div>
               ) : null}
@@ -106,14 +113,14 @@ export default function Header() {
             <>
               <Link
                 to="/login"
-                className="text-sm font-semibold text-neutral-700 hover:text-primary-500 transition"
+                className="text-sm font-semibold text-brand-muted hover:text-primary-500 transition"
               >
                 Entrar
               </Link>
 
               <Link
                 to="/register"
-                className="px-5 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold"
+                className="hidden px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold sm:inline-flex sm:px-5"
               >
                 Criar conta
               </Link>
@@ -123,14 +130,14 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setMenuOpen(prev => !prev)}
-                className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 transition cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-neutral-50 hover:shadow-md active:translate-y-0 cursor-pointer"
               >
                 <span>Olá, {user?.firstName ?? 'Usuário'}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
 
               {menuOpen ? (
-                <div className="absolute right-0 mt-3 w-56 rounded-2xl border border-neutral-200 bg-white shadow-lg overflow-hidden z-50">
+                <div className="animate-dropdown-in absolute right-0 z-[1100] mt-3 w-56 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-lg">
                   <Link
                     to="/biblioteca"
                     onClick={() => setMenuOpen(false)}
