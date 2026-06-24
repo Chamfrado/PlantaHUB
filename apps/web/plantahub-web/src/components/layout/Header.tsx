@@ -52,11 +52,11 @@ export default function Header() {
   }
 
   return (
-    <header className="w-screen max-w-full overflow-hidden border-b border-neutral-200 bg-white">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
+    <header className="relative z-[1000] w-screen max-w-full overflow-visible border-b border-neutral-200 bg-white">
+      <div className="relative mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
         <Link to="/" className="flex items-center">
           <img
-            src="/brand/logo-horizontal.png"
+            src="/brand/logo-primary.png"
             alt="PlantaHUB"
             className="hidden h-9 w-auto object-contain sm:block"
           />
@@ -85,7 +85,7 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="absolute right-6 flex items-center gap-2 sm:static sm:gap-4">
           {isAuthenticated && (
             <div className="relative" ref={cartRef}>
               <button
@@ -103,7 +103,7 @@ export default function Header() {
               </button>
 
               {openCart ? (
-                <div className="absolute right-0 mt-2 z-50 translate-y-0 opacity-100 transition-all duration-200">
+                <div className="absolute right-0 mt-2 z-[1100] translate-y-0 opacity-100 transition-all duration-200">
                   <MiniCartDropdown onClose={() => setOpenCart(false)} />
                 </div>
               ) : null}
@@ -137,7 +137,7 @@ export default function Header() {
               </button>
 
               {menuOpen ? (
-                <div className="absolute right-0 mt-3 w-56 rounded-2xl border border-neutral-200 bg-white shadow-lg overflow-hidden z-50">
+                <div className="absolute right-0 z-[1100] mt-3 w-56 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-lg">
                   <Link
                     to="/biblioteca"
                     onClick={() => setMenuOpen(false)}
