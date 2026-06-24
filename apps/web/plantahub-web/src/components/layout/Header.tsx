@@ -52,8 +52,8 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b border-neutral-200 bg-white">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <header className="w-screen max-w-full overflow-hidden border-b border-neutral-200 bg-white">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
         <Link to="/" className="flex items-center">
           <img
             src="/brand/logo-horizontal.png"
@@ -120,10 +120,9 @@ export default function Header() {
 
               <Link
                 to="/register"
-                className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold sm:px-5"
+                className="hidden px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition text-sm font-semibold sm:inline-flex sm:px-5"
               >
-                <span className="sm:hidden">Criar</span>
-                <span className="hidden sm:inline">Criar conta</span>
+                Criar conta
               </Link>
             </>
           ) : (

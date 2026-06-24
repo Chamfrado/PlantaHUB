@@ -22,17 +22,17 @@ export default function Hero({
   const onSecondaryClick = () => navigate('/sobre');
 
   return (
-    <section className="bg-brand-light">
-      <div className="max-w-7xl mx-auto px-6 py-14 md:py-20">
-        <div className="grid md:grid-cols-2 gap-10 items-center">
+    <section className="overflow-hidden bg-brand-light">
+      <div className="mx-auto w-full max-w-7xl px-6 py-14 md:py-20">
+        <div className="grid min-w-0 md:grid-cols-2 gap-10 items-center">
           {/* LEFT */}
-          <div>
+          <div className="min-w-0 max-w-[calc(100vw-3rem)] md:max-w-none">
             {/* badge */}
-            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-semibold text-primary-600">
+            <div className="inline-flex w-full max-w-full items-start gap-2 rounded-2xl border border-orange-100 bg-white px-4 py-2 text-sm font-semibold text-primary-600 sm:w-auto sm:items-center sm:rounded-full">
               <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white">
                 <Zap className="text-primary-500" />
               </span>
-              <span className="min-w-0 leading-snug">Reduza o planejamento da sua construção em até 60%</span>
+              <span className="min-w-0 break-words leading-snug">Reduza o planejamento da sua construção em até 60%</span>
             </div>
 
             {/* title */}
@@ -96,7 +96,7 @@ export default function Hero({
           </div>
 
           {/* RIGHT */}
-          <div className="relative">
+          <div className="relative min-w-0 max-w-[calc(100vw-3rem)] md:max-w-none">
             {/* soft background block (como no print) */}
             <div className="absolute -right-2 -bottom-3 md:-right-6 md:-bottom-6 h-[88%] w-[88%] rounded-3xl bg-primary-500" />
 

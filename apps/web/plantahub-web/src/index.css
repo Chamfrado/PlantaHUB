@@ -89,6 +89,12 @@ html,
 body,
 #root {
   height: 100%;
+  max-width: 100%;
+}
+
+#root {
+  width: 100vw;
+  overflow-x: hidden;
 }
 body {
   margin: 0;
@@ -97,6 +103,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #f5f6f7;
   color: #111111;
+  overflow-x: hidden;
 }
 
 a {
