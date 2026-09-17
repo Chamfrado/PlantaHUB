@@ -11,6 +11,7 @@ import {
   removeCartItem,
 } from '../../services/cart.service';
 import type { CartResponse } from '../../types/api/cart';
+import { formatCurrency } from '../../utils/format';
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartResponse | null>(null);
@@ -210,7 +211,7 @@ export default function CartPage() {
 
                     <div className="text-right">
                       <div className="text-lg font-extrabold text-neutral-900">
-                        {formatMoney(item.itemTotalCents, cart?.currency ?? 'BRL')}
+                        {formatCurrency(item.itemTotalCents, cart?.currency ?? 'BRL')}
                       </div>
 
                       <button
@@ -244,7 +245,7 @@ export default function CartPage() {
                 <div className="mt-3 flex items-center justify-between">
                   <span className="text-sm font-semibold text-neutral-600">Total</span>
                   <span className="text-2xl font-extrabold text-neutral-900">
-                    {formatMoney(cart?.totalCents ?? 0, cart?.currency ?? 'BRL')}
+                    {formatCurrency(cart?.totalCents ?? 0, cart?.currency ?? 'BRL')}
                   </span>
                 </div>
 
@@ -265,14 +266,3 @@ export default function CartPage() {
   );
 }
 
-function formatMoney(valueInCents: number, currency: string) {
-  const resolvedCurrency =
-    currency === 'USD' || currency === 'EUR' || currency === 'BRL' ? currency : 'BRL';
-
-  return (valueInCents / 100).toLocaleString(resolvedCurrency === 'BRL' ? 'pt-BR' : 'en-US', {
-    style: 'currency',
-    currency: resolvedCurrency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}

@@ -1,4 +1,4 @@
-import { BookOpen, ChevronDown, LogOut, Settings, ShoppingCart } from 'lucide-react';
+import { BookOpen, ChevronDown, LogOut, Settings, ShieldCheck, ShoppingCart } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../app/providers/useCart';
@@ -7,7 +7,7 @@ import MiniCartDropdown from '../cart/MiniCartDropdown';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -146,6 +146,17 @@ export default function Header() {
                     <BookOpen className="h-4 w-4" />
                     Biblioteca
                   </Link>
+
+                  {isAdmin ? (
+                    <Link
+                      to="/admin"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 border-b border-neutral-100 px-4 py-3 text-sm font-semibold text-primary-600 hover:bg-orange-50"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      Administração
+                    </Link>
+                  ) : null}
 
                   <Link
                     to="/configs"

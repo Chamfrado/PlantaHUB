@@ -1,23 +1,49 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductAccordion from '../../../components/products/ProductAccordion';
-import { PRODUCTS } from '../../../data/products';
-import type { ProductCategory } from '../../../types/ProductData';
-
-const VALID_CATEGORIES: ProductCategory[] = ['casas', 'chales', 'studios'];
+import { useAsync } from '../../../hooks/useAsync';
+import { getApiErrorMessage } from '../../../lib/api-error';
+import { mapProductSummary } from '../../../mappers/product.mapper';
+import { listCategories } from '../../../services/categories.service';
+import { listProducts } from '../../../services/products.service';
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Busca tudo uma vez e filtra em memória. São poucas dezenas de produtos: uma requisição
+  // só, troca de aba instantânea, e a lista de categorias exibidas pode sair da resposta
+  // caso o endpoint de categorias ainda não exista no ambiente.
+  const products = useAsync('products:all', () => listProducts());
+  const categories = useAsync('categories', () => listCategories());
+
+  const items = useMemo(
+    () => (products.data ?? []).map(mapProductSummary),
+    [products.data]
+  );
+
+  const tabs = useMemo(() => {
+    if (categories.data && categories.data.length > 0) {
+      return categories.data.map(c => ({ slug: c.slug, label: c.name }));
+    }
+
+    // Reserva: deriva das categorias que os produtos realmente têm.
+    const seen = new Map<string, string>();
+    items.forEach(p => seen.set(p.category, p.categoryName));
+    return Array.from(seen, ([slug, label]) => ({ slug, label }));
+  }, [categories.data, items]);
+
   const categoryFromUrl = searchParams.get('category');
 
-  const tab: ProductCategory = isValidCategory(categoryFromUrl) ? categoryFromUrl : 'casas';
+  // Sem categoria válida na URL, cai na primeira que existe — e não numa string fixa.
+  const activeCategory =
+    categoryFromUrl && tabs.some(t => t.slug === categoryFromUrl)
+      ? categoryFromUrl
+      : (tabs[0]?.slug ?? '');
 
-  const products = useMemo(() => PRODUCTS, []);
-
-  function handleTabChange(category: ProductCategory) {
-    setSearchParams({ category });
-  }
+  const visible = useMemo(
+    () => items.filter(p => p.category === activeCategory),
+    [items, activeCategory]
+  );
 
   return (
     <section className="bg-brand-light">
@@ -29,33 +55,35 @@ export default function ProductsPage() {
           pronta para construção.
         </p>
 
-        <div className="mt-8 border-b border-neutral-200">
-          <div className="flex gap-8 text-sm font-semibold">
-            <Tab label="Casas" active={tab === 'casas'} onClick={() => handleTabChange('casas')} />
-            <Tab
-              label="Chalés"
-              active={tab === 'chales'}
-              onClick={() => handleTabChange('chales')}
-            />
-            <Tab
-              label="Studios"
-              active={tab === 'studios'}
-              onClick={() => handleTabChange('studios')}
-            />
-            <span className="text-brand-muted/70 py-4">Mais em breve</span>
+        {tabs.length > 0 && (
+          <div className="mt-8 border-b border-neutral-200">
+            <div className="flex flex-wrap gap-8 text-sm font-semibold">
+              {tabs.map(tab => (
+                <Tab
+                  key={tab.slug}
+                  label={tab.label}
+                  active={tab.slug === activeCategory}
+                  onClick={() => setSearchParams({ category: tab.slug })}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-8">
-          <ProductAccordion products={products} category={tab} />
+          {products.loading ? (
+            <ProductListSkeleton />
+          ) : products.error ? (
+            <ErrorState message={getApiErrorMessage(products.error, 'Não foi possível carregar os produtos.')} onRetry={products.reload} />
+          ) : visible.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <ProductAccordion products={visible} />
+          )}
         </div>
       </div>
     </section>
   );
-}
-
-function isValidCategory(value: string | null): value is ProductCategory {
-  return !!value && VALID_CATEGORIES.includes(value as ProductCategory);
 }
 
 function Tab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
@@ -71,5 +99,38 @@ function Tab({ label, active, onClick }: { label: string; active: boolean; onCli
     >
       {label}
     </button>
+  );
+}
+
+/** Placeholders com a altura do conteúdo real, para a página não pular quando carregar. */
+function ProductListSkeleton() {
+  return (
+    <div className="space-y-4" aria-busy="true" aria-label="Carregando produtos">
+      {[0, 1, 2].map(i => (
+        <div key={i} className="h-28 rounded-2xl border border-neutral-200 bg-white animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
+      <p className="text-brand-black font-semibold">{message}</p>
+      <button
+        onClick={onRetry}
+        className="mt-4 rounded-xl bg-primary-500 px-5 py-2.5 font-semibold text-white transition hover:bg-primary-600"
+      >
+        Tentar novamente
+      </button>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-brand-muted">
+      Nenhum produto publicado nesta categoria ainda.
+    </div>
   );
 }

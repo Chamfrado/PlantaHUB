@@ -340,7 +340,7 @@ export default function ContactPage() {
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              to="/casas"
+              to="/produtos"
               className="rounded-xl bg-white text-brand-black font-semibold px-6 py-3 hover:bg-neutral-100 transition inline-flex items-center gap-2"
             >
               Explorar Plantas <ArrowRight className="h-4 w-4" />

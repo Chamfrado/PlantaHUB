@@ -5,6 +5,12 @@ import { useToast } from '../../components/ui/use-toast';
 import { getApiErrorMessage } from '../../lib/api-error';
 import { getMyOrders, payMock } from '../../services/order.service';
 import type { OrderResponseDTO } from '../../types/api/order';
+import { formatCurrency } from '../../utils/format';
+
+// O endpoint /pay-mock so existe fora de producao (DevOrderController usa
+// @Profile("!prod")): ele marca o pedido como pago e libera os arquivos sem cobrar nada.
+// Mostrar o botao no build de producao deixaria um caminho de compra gratis a um clique.
+const IS_DEV = import.meta.env.DEV;
 
 export default function OrderDetailsPage() {
   const { orderId = '' } = useParams();
@@ -127,24 +133,43 @@ export default function OrderDetailsPage() {
               >
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <div className="text-sm font-semibold text-neutral-500">
-                      Produto ID: {item.productId}
-                    </div>
+                    {item.productName ? (
+                      <div className="text-base font-bold text-neutral-900">
+                        {item.productCategory && item.productSlug ? (
+                          <Link
+                            to={`/${item.productCategory}/${item.productSlug}`}
+                            className="hover:text-primary-600 transition"
+                          >
+                            {item.productName}
+                          </Link>
+                        ) : (
+                          item.productName
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-base font-bold text-neutral-900">{item.productId}</div>
+                    )}
+
+                    {/* O id fica visível de propósito: o suporte precisa dele. */}
+                    <div className="mt-0.5 text-xs text-neutral-400">ID: {item.productId}</div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       {item.selections.map(selection => (
                         <span
                           key={`${item.id}-${selection.planTypeCode}`}
-                          className="rounded-full border border-orange-100 bg-white px-3 py-1 text-xs font-bold text-primary-600"
+                          className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-white px-3 py-1 text-xs font-bold text-primary-600"
                         >
-                          {selection.planTypeCode}
+                          {selection.planTypeName ?? selection.planTypeCode}
+                          <span className="font-semibold text-neutral-500">
+                            {formatCurrency(selection.priceCents, order.currency)}
+                          </span>
                         </span>
                       ))}
                     </div>
                   </div>
 
                   <div className="text-lg font-extrabold text-neutral-900">
-                    {formatMoney(item.totalCents, order.currency)}
+                    {formatCurrency(item.totalCents, order.currency)}
                   </div>
                 </div>
               </div>
@@ -155,7 +180,7 @@ export default function OrderDetailsPage() {
             <div>
               <div className="text-sm font-semibold text-neutral-500">Total do pedido</div>
               <div className="text-3xl font-extrabold text-neutral-900">
-                {formatMoney(order.totalCents, order.currency)}
+                {formatCurrency(order.totalCents, order.currency)}
               </div>
             </div>
 
@@ -164,7 +189,7 @@ export default function OrderDetailsPage() {
                 <CheckCircle2 className="h-5 w-5" />
                 Pagamento confirmado
               </div>
-            ) : (
+            ) : IS_DEV ? (
               <button
                 type="button"
                 onClick={handlePayMock}
@@ -178,6 +203,14 @@ export default function OrderDetailsPage() {
                 )}
                 Pagar com mock
               </button>
+            ) : (
+              <Link
+                to="/carrinho"
+                className="inline-flex items-center gap-2 rounded-2xl bg-primary-500 px-5 py-3 font-semibold text-white transition hover:bg-primary-600"
+              >
+                <CreditCard className="h-4 w-4" />
+                Concluir pagamento
+              </Link>
             )}
           </div>
 
@@ -197,14 +230,3 @@ export default function OrderDetailsPage() {
   );
 }
 
-function formatMoney(valueInCents: number, currency: string) {
-  const resolvedCurrency =
-    currency === 'USD' || currency === 'EUR' || currency === 'BRL' ? currency : 'BRL';
-
-  return (valueInCents / 100).toLocaleString(resolvedCurrency === 'BRL' ? 'pt-BR' : 'en-US', {
-    style: 'currency',
-    currency: resolvedCurrency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
