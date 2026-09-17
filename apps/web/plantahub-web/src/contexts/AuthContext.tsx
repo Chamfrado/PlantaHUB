@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
@@ -18,10 +17,13 @@ import {
   registerRequest,
 } from '../services/auth.service';
 
+export type UserRole = 'USER' | 'ADMIN';
+
 type AuthUser = {
   fullName: string | null;
   firstName: string | null;
   email: string | null;
+  role: UserRole | null;
 };
 
 type LoginPayload = {
@@ -39,7 +41,11 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: AuthUser | null;
-  token: string | null;
+  /**
+   * Somente para a interface decidir o que mostrar. A autorizacao de verdade acontece no
+   * servidor, em cada endpoint /v1/admin/**: qualquer um pode alterar isto no navegador.
+   */
+  isAdmin: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
@@ -55,13 +61,24 @@ function getFirstName(fullName: string | null) {
   return fullName.trim().split(' ')[0] ?? null;
 }
 
-function toAuthUser(payload: { fullName?: string | null; email?: string | null }): AuthUser {
+/** O Spring Security costuma emitir "ROLE_ADMIN"; a API devolve "ADMIN". Aceita os dois. */
+function normalizeRole(value?: string | null): UserRole | null {
+  if (!value) return null;
+  return value.trim().toUpperCase().replace(/^ROLE_/, '') === 'ADMIN' ? 'ADMIN' : 'USER';
+}
+
+function toAuthUser(payload: {
+  fullName?: string | null;
+  email?: string | null;
+  role?: string | null;
+}): AuthUser {
   const fullName = payload.fullName ?? null;
 
   return {
     fullName,
     firstName: getFirstName(fullName),
     email: payload.email ?? null,
+    role: normalizeRole(payload.role),
   };
 }
 
@@ -148,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       isLoading,
       user,
-      token: null,
+      isAdmin: user?.role === 'ADMIN',
       login,
       register,
       logout,
