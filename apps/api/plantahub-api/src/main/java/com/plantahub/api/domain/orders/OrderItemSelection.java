@@ -30,4 +30,10 @@ public class OrderItemSelection {
 
     @Column(name = "price_cents", nullable = false)
     private Integer priceCents;
+
+    @Column(name = "plan_type_code_snapshot", length = 40)
+    private String planTypeCodeSnapshot;
+
+    @Column(name = "plan_type_name_snapshot", length = 120)
+    private String planTypeNameSnapshot;
 }

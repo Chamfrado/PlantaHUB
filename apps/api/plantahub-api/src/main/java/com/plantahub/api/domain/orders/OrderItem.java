@@ -34,6 +34,20 @@ public class OrderItem {
     @Column(name = "total_cents", nullable = false)
     private Integer totalCents; // base + addons
 
+    // Snapshots: o pedido para de depender do catalogo vivo. Renomear um produto nao
+    // pode reescrever o historico de quem ja comprou.
+    @Column(name = "product_name_snapshot", length = 160)
+    private String productNameSnapshot;
+
+    @Column(name = "product_slug_snapshot", length = 120)
+    private String productSlugSnapshot;
+
+    @Column(name = "product_category_snapshot", length = 40)
+    private String productCategorySnapshot;
+
+    @Column(name = "product_image_snapshot", columnDefinition = "text")
+    private String productImageSnapshot;
+
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItemSelection> selections = new HashSet<>();
 
