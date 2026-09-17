@@ -1,12 +1,8 @@
 package com.plantahub.api.service;
 
-import com.plantahub.api.domain.downloads.DownloadEntitlement;
 import com.plantahub.api.domain.orders.Order;
-import com.plantahub.api.domain.orders.OrderItem;
-import com.plantahub.api.domain.orders.OrderItemSelection;
 import com.plantahub.api.domain.orders.enums.OrderStatus;
 import com.plantahub.api.integration.infinitepay.dto.InfinitePayWebhookDTO;
-import com.plantahub.api.repository.DownloadEntitlementRepository;
 import com.plantahub.api.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +14,14 @@ import java.util.UUID;
 public class InfinitePayWebhookService {
 
     private final OrderRepository orderRepository;
-    private final DownloadEntitlementRepository entitlementRepo;
+    private final EntitlementGrantService entitlementGrantService;
 
     public InfinitePayWebhookService(
             OrderRepository orderRepository,
-            DownloadEntitlementRepository entitlementRepo
+            EntitlementGrantService entitlementGrantService
     ) {
         this.orderRepository = orderRepository;
-        this.entitlementRepo = entitlementRepo;
+        this.entitlementGrantService = entitlementGrantService;
     }
 
     @Transactional
@@ -58,7 +54,7 @@ public class InfinitePayWebhookService {
         order.setPaymentCaptureMethod(payload.capture_method());
         order.setPaymentPaidAmountCents(payload.paid_amount());
 
-        grantEntitlementsFromOrder(order);
+        entitlementGrantService.grantForPaidOrder(order);
 
         orderRepository.save(order);
     }
@@ -70,31 +66,6 @@ public class InfinitePayWebhookService {
 
         if (!payload.amount().equals(order.getTotalCents().longValue())) {
             throw new IllegalArgumentException("payment_amount_mismatch");
-        }
-    }
-
-    private void grantEntitlementsFromOrder(Order order) {
-        UUID userId = order.getUser().getId();
-
-        for (OrderItem item : order.getItems()) {
-            String productId = item.getProduct().getId();
-
-            for (OrderItemSelection sel : item.getSelections()) {
-                UUID planTypeId = sel.getPlanType().getId();
-
-                if (entitlementRepo.existsByUserIdAndProductIdAndPlanTypeId(userId, productId, planTypeId)) {
-                    continue;
-                }
-
-                DownloadEntitlement ent = new DownloadEntitlement();
-                ent.setUser(order.getUser());
-                ent.setOrder(order);
-                ent.setProduct(item.getProduct());
-                ent.setPlanType(sel.getPlanType());
-                ent.setGrantedAt(Instant.now());
-
-                entitlementRepo.save(ent);
-            }
         }
     }
 }
