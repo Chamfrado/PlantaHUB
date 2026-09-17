@@ -1,10 +1,9 @@
 package com.plantahub.api;
 
+import com.plantahub.api.support.AbstractApiTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class PlantahubApiApplicationTests {
+class PlantahubApiApplicationTests extends AbstractApiTest {
 
 	@Test
 	void contextLoads() {
