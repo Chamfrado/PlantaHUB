@@ -1,7 +1,9 @@
-import type { Product } from '../../types/ProductData';
+import type { ProductSummaryView } from '../../types/product-view';
+import { formatCurrency } from '../../utils/format';
+
 type Props = {
-  product: Product;
-  onViewDetails?: (product: Product) => void;
+  product: ProductSummaryView;
+  onViewDetails?: (product: ProductSummaryView) => void;
   actionLabel?: string;
 };
 
@@ -10,14 +12,17 @@ export default function ProductCard({
   onViewDetails,
   actionLabel = 'Ver detalhes',
 }: Props) {
-  const title = product.page?.headline ?? product.name;
-  const subtitle = product.page?.subheadline ?? product.shortDescription ?? '';
-  const img = product.heroImageUrl ?? product.galleryImageUrls?.[0];
+  const title = product.name;
+  const subtitle = product.shortDescription ?? '';
+  const img = product.heroImageUrl;
 
   return (
-    <article className="group bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg">
+    // `h-full flex flex-col` com o rodape em `mt-auto`: sem isso cada cartao tinha a
+    // altura do proprio conteudo, e uma etiqueta a mais ou uma descricao mais longa
+    // deixava um quadro maior que o vizinho na mesma linha da grade.
+    <article className="group flex h-full flex-col bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg">
       {/* Image */}
-      <div className="relative h-56 w-full">
+      <div className="relative h-56 w-full shrink-0">
         {img ? (
           <img
             src={img}
@@ -39,18 +44,19 @@ export default function ProductCard({
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="flex flex-1 flex-col p-6">
         {/* tags */}
-        {product.tags?.length ? (
+        {product.tags.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {product.tags.map(t => (
+            {product.tags.map((t, idx) => (
               <span
                 key={t}
                 className={[
                   'px-3 py-1 rounded-full text-xs font-semibold',
-                  isTierTag(t, product.slug)
-                    ? 'bg-orange-50 text-primary-600'
-                    : 'bg-green-50 text-brand-green',
+                  // A primeira etiqueta ganha destaque. A regra anterior pintava de laranja
+                  // quando o texto fosse "confort", "prime" ou "diamond" — nomes de produto
+                  // escritos no codigo, que deixam de existir com o catalogo administravel.
+                  idx === 0 ? 'bg-orange-50 text-primary-600' : 'bg-green-50 text-brand-green',
                 ].join(' ')}
               >
                 {t}
@@ -64,7 +70,7 @@ export default function ProductCard({
         <p className="mt-2 text-sm text-brand-muted leading-relaxed min-h-11">{subtitle}</p>
 
         {/* formats */}
-        {product.fileFormats?.length ? (
+        {product.fileFormats.length > 0 ? (
           <div className="mt-4 flex items-center gap-4 text-xs font-semibold text-brand-muted">
             {product.fileFormats.map(f => (
               <div key={f} className="inline-flex items-center gap-2">
@@ -76,11 +82,21 @@ export default function ProductCard({
         ) : null}
 
         {/* price + button */}
-        <div className="mt-6 flex items-center justify-between gap-4 ">
-          <div className="text-xl font-extrabold text-primary-500">
-            {product.price
-              ? formatMoney(product.price.amount, product.price.currency)
-              : 'Preço sob consulta'}
+        <div className="mt-auto flex items-end justify-between gap-4 pt-6">
+          <div>
+            {product.basePriceCents !== null ? (
+              <>
+                {/* "A partir de" porque o valor e a oferta mais barata do produto: cada
+                    colecao tem seu preco, e o cliente monta a compra. Mostrar o numero
+                    sozinho sugeriria que este e o preco de levar tudo. */}
+                <div className="text-xs font-semibold text-brand-muted">A partir de</div>
+                <div className="text-xl font-extrabold text-primary-500">
+                  {formatCurrency(product.basePriceCents)}
+                </div>
+              </>
+            ) : (
+              <div className="text-sm font-semibold text-brand-muted">Preço sob consulta</div>
+            )}
           </div>
 
           <button
@@ -93,25 +109,6 @@ export default function ProductCard({
       </div>
     </article>
   );
-}
-
-function formatMoney(value: number, currency: 'BRL' | 'USD' | 'EUR') {
-  const locale = currency === 'BRL' ? 'pt-BR' : 'en-US';
-  return value.toLocaleString(locale, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  });
-}
-
-function isTierTag(tag: string, slug?: string) {
-  const t = tag.trim().toLowerCase();
-  const s = (slug ?? '').trim().toLowerCase();
-
-  const byTag = t === 'comfort' || t === 'confort' || t === 'prime' || t === 'diamond';
-  const bySlug = s === 'confort' || s === 'prime' || s === 'diamond';
-
-  return byTag || bySlug;
 }
 
 function FormatIcon() {
