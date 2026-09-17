@@ -1,8 +1,14 @@
 package com.plantahub.api.service;
 
+import com.plantahub.api.domain.catalog.DigitalAsset;
 import com.plantahub.api.domain.downloads.DownloadEntitlement;
+import com.plantahub.api.domain.downloads.EntitlementAsset;
 import com.plantahub.api.repository.DownloadEntitlementRepository;
+import com.plantahub.api.repository.EntitlementAssetRepository;
+import com.plantahub.api.shared.storage.ObjectStoragePort;
+import com.plantahub.api.shared.storage.StoredObject;
 import com.plantahub.api.web.dto.library.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,42 +16,65 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
+/**
+ * A biblioteca do cliente: o que ele comprou e quais arquivos vieram junto.
+ *
+ * <p>Passou a ser resolvida em duas consultas SQL. Antes, montar esta tela custava uma
+ * listagem completa no S3 <b>por produto, a cada requisicao</b>, e os identificadores dos
+ * arquivos eram um hash do caminho em vez do id real da linha.
+ */
 @Service
 public class LibraryService {
 
     private final DownloadEntitlementRepository entitlementRepo;
-    private final S3DownloadService s3DownloadService;
+    private final EntitlementAssetRepository pinnedAssetRepo;
+    private final ObjectStoragePort storage;
+    private final boolean legacyFallbackEnabled;
 
     public LibraryService(
             DownloadEntitlementRepository entitlementRepo,
-            S3DownloadService s3DownloadService
+            EntitlementAssetRepository pinnedAssetRepo,
+            ObjectStoragePort storage,
+            @Value("${app.downloads.legacy-fallback:true}") boolean legacyFallbackEnabled
     ) {
         this.entitlementRepo = entitlementRepo;
-        this.s3DownloadService = s3DownloadService;
+        this.pinnedAssetRepo = pinnedAssetRepo;
+        this.storage = storage;
+        this.legacyFallbackEnabled = legacyFallbackEnabled;
     }
 
     @Transactional(readOnly = true)
     public List<LibraryProductDTO> myLibrary(String email) {
-        var entitlements = entitlementRepo.findActiveLibraryByEmail(email.toLowerCase());
+        String normalizedEmail = email.toLowerCase();
+
+        var entitlements = entitlementRepo.findActiveLibraryByEmail(normalizedEmail);
 
         if (entitlements.isEmpty()) {
             return List.of();
         }
 
+        // Todos os arquivos de todas as compras, numa consulta so.
+        Map<UUID, List<DigitalAsset>> assetsByEntitlement = new HashMap<>();
+        for (EntitlementAsset pin : pinnedAssetRepo.findPinnedForLibrary(normalizedEmail)) {
+            assetsByEntitlement
+                    .computeIfAbsent(pin.getEntitlement().getId(), id -> new ArrayList<>())
+                    .add(pin.getDigitalAsset());
+        }
+
         Map<String, ProductBuilder> products = new LinkedHashMap<>();
-        Map<String, ProductS3Index> s3IndexByProduct = new HashMap<>();
+
+        // Carregado sob demanda: so uma compra sem arquivos pinados precisa do S3, e
+        // enquanto nao houver nenhuma, esta tela nao toca no bucket.
+        Map<String, ProductS3Index> legacyIndexByProduct = new HashMap<>();
+
         for (DownloadEntitlement e : entitlements) {
             var p = e.getProduct();
             var pt = e.getPlanType();
             var o = e.getOrder();
 
             var pb = products.computeIfAbsent(p.getId(), id -> new ProductBuilder(
-                    p.getId(),
-                    p.getCategory(),
-                    p.getSlug(),
-                    p.getName(),
-                    p.getHeroImageUrl(),
-                    p.getAreaM2()
+                    p.getId(), p.getCategory(), p.getSlug(), p.getName(),
+                    p.getHeroImageUrl(), p.getAreaM2()
             ));
 
             Instant referenceDate = o.getPaidAt() != null ? o.getPaidAt() : e.getGrantedAt();
@@ -53,76 +82,79 @@ public class LibraryService {
 
             String planTypeCode = pt.getCode().toUpperCase();
 
-            ProductS3Index s3Index = s3IndexByProduct.computeIfAbsent(
-                    p.getId(),
-                    this::loadProductS3Index
-            );
+            List<DigitalAsset> pinned = assetsByEntitlement.get(e.getId());
 
-            List<LibraryAssetDTO> assets = resolveAssetsFromIndex(s3Index, planTypeCode);
+            List<LibraryAssetDTO> assets = pinned != null && !pinned.isEmpty()
+                    ? pinned.stream().map(this::toLibraryAsset).toList()
+                    : legacyAssets(legacyIndexByProduct, p.getId(), planTypeCode);
 
             pb.planTypes.putIfAbsent(
                     planTypeCode,
-                    new LibraryPlanTypeDTO(
-                            planTypeCode,
-                            pt.getName(),
-                            assets
-                    )
+                    new LibraryPlanTypeDTO(planTypeCode, pt.getName(), assets)
             );
         }
 
-        return products.values().stream()
-                .map(ProductBuilder::toDto)
-                .toList();
+        return products.values().stream().map(ProductBuilder::toDto).toList();
     }
 
-    private List<LibraryAssetDTO> resolveAssetsFromS3(String productId, String planTypeCode) {
-        String planPrefix = "products/" + productId + "/" + planTypeCode + "/";
-        String apoioPrefix = "products/" + productId + "/APOIO/";
-
-        List<S3DownloadService.S3AssetInfo> planFiles =
-                s3DownloadService.listAssetsByPrefix(planPrefix);
-
-        List<S3DownloadService.S3AssetInfo> apoioFiles =
-                s3DownloadService.listAssetsByPrefix(apoioPrefix);
-
-        Map<String, S3DownloadService.S3AssetInfo> allFiles = new LinkedHashMap<>();
-
-        for (S3DownloadService.S3AssetInfo file : planFiles) {
-            allFiles.put(file.key(), file);
-        }
-
-        for (S3DownloadService.S3AssetInfo file : apoioFiles) {
-            allFiles.put(file.key(), file);
-        }
-
-        return allFiles.values().stream()
-                .map(this::toLibraryAsset)
-                .toList();
+    private LibraryAssetDTO toLibraryAsset(DigitalAsset asset) {
+        return new LibraryAssetDTO(
+                asset.getId().toString(),
+                asset.getFilename(),
+                asset.getStorageKey(),
+                asset.getVersion(),
+                asset.getSizeBytes(),
+                asset.getCreatedAt()
+        );
     }
 
-    private ProductS3Index loadProductS3Index(String productId) {
+    // ------------------------------------------------------------------
+    // Compatibilidade com compras anteriores a pinagem.
+    //
+    // Tudo abaixo existe apenas para que uma compra sem arquivos pinados continue
+    // aparecendo na biblioteca. E o unico trecho deste servico que ainda monta chave por
+    // convencao e que ainda conhece o nome de uma colecao especifica. Sai junto com a
+    // flag, assim que o backfill reportar que nao ha mais compras nessa situacao.
+    // ------------------------------------------------------------------
+
+    private List<LibraryAssetDTO> legacyAssets(Map<String, ProductS3Index> cache,
+                                               String productId,
+                                               String planTypeCode) {
+        if (!legacyFallbackEnabled) {
+            return List.of();
+        }
+
+        ProductS3Index index = cache.computeIfAbsent(productId, this::loadLegacyProductIndex);
+
+        LinkedHashMap<String, StoredObject> files = new LinkedHashMap<>();
+
+        index.byFolder().getOrDefault(planTypeCode, List.of())
+                .forEach(file -> files.put(file.key(), file));
+        index.byFolder().getOrDefault("APOIO", List.of())
+                .forEach(file -> files.put(file.key(), file));
+
+        return files.values().stream().map(this::toLegacyLibraryAsset).toList();
+    }
+
+    private ProductS3Index loadLegacyProductIndex(String productId) {
         String productPrefix = "products/" + productId + "/";
 
-        List<S3DownloadService.S3AssetInfo> allFiles =
-                s3DownloadService.listAssetsByPrefix(productPrefix);
+        Map<String, List<StoredObject>> byFolder = new HashMap<>();
 
-        Map<String, List<S3DownloadService.S3AssetInfo>> byFolder = new HashMap<>();
-
-        for (S3DownloadService.S3AssetInfo file : allFiles) {
-            String folder = extractFolderAfterProduct(productId, file.key());
+        for (StoredObject file : storage.list(productPrefix)) {
+            String folder = extractLegacyFolder(productId, file.key());
 
             if (folder == null || folder.isBlank()) {
                 continue;
             }
 
-            byFolder.computeIfAbsent(folder.toUpperCase(), key -> new ArrayList<>())
-                    .add(file);
+            byFolder.computeIfAbsent(folder.toUpperCase(), key -> new ArrayList<>()).add(file);
         }
 
         return new ProductS3Index(byFolder);
     }
 
-    private String extractFolderAfterProduct(String productId, String key) {
+    private String extractLegacyFolder(String productId, String key) {
         String prefix = "products/" + productId + "/";
 
         if (!key.startsWith(prefix)) {
@@ -130,45 +162,21 @@ public class LibraryService {
         }
 
         String remaining = key.substring(prefix.length());
-
         int slash = remaining.indexOf('/');
 
-        if (slash < 0) {
-            return null;
-        }
-
-        return remaining.substring(0, slash);
+        return slash < 0 ? null : remaining.substring(0, slash);
     }
 
-    private List<LibraryAssetDTO> resolveAssetsFromIndex(ProductS3Index index, String planTypeCode) {
-        LinkedHashMap<String, S3DownloadService.S3AssetInfo> files = new LinkedHashMap<>();
-
-        index.byFolder()
-                .getOrDefault(planTypeCode.toUpperCase(), List.of())
-                .forEach(file -> files.put(file.key(), file));
-
-        index.byFolder()
-                .getOrDefault("APOIO", List.of())
-                .forEach(file -> files.put(file.key(), file));
-
-        return files.values().stream()
-                .map(this::toLibraryAsset)
-                .toList();
-    }
-
-    private LibraryAssetDTO toLibraryAsset(S3DownloadService.S3AssetInfo file) {
+    private LibraryAssetDTO toLegacyLibraryAsset(StoredObject file) {
         return new LibraryAssetDTO(
-                stableId(file.key()),
+                // Sem linha no banco, o identificador e derivado da chave.
+                UUID.nameUUIDFromBytes(file.key().getBytes(StandardCharsets.UTF_8)).toString(),
                 extractFilename(file.key()),
                 file.key(),
                 1,
                 file.sizeBytes(),
                 file.lastModified()
         );
-    }
-
-    private String stableId(String value) {
-        return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8)).toString();
     }
 
     private String extractFilename(String key) {
@@ -204,20 +212,11 @@ public class LibraryService {
 
         LibraryProductDTO toDto() {
             return new LibraryProductDTO(
-                    productId,
-                    category,
-                    slug,
-                    name,
-                    heroImageUrl,
-                    areaM2,
-                    purchasedAt,
-                    new ArrayList<>(planTypes.values())
+                    productId, category, slug, name, heroImageUrl, areaM2,
+                    purchasedAt, new ArrayList<>(planTypes.values())
             );
         }
     }
 
-    private record ProductS3Index(
-            Map<String, List<S3DownloadService.S3AssetInfo>> byFolder
-    ) {}
-
+    private record ProductS3Index(Map<String, List<StoredObject>> byFolder) {}
 }
