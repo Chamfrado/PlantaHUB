@@ -2,6 +2,21 @@ import { dispatchSessionExpiredEvent } from './auth-events';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+// Sem VITE_API_URL toda requisicao vira "undefined/v1/...", que falha com um erro de rede
+// generico e manda o desenvolvedor cacar o problema no lugar errado. Falha ruidosamente
+// em dev (onde da para corrigir na hora) e registra em producao (onde derrubar a pagina
+// inteira seria pior do que um erro por request).
+if (!API_BASE_URL) {
+  const message =
+    'VITE_API_URL nao esta definida. Copie .env.example para .env.local e preencha a URL da API.';
+
+  if (import.meta.env.DEV) {
+    throw new Error(message);
+  }
+
+  console.error(message);
+}
+
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 type HttpOptions = {
