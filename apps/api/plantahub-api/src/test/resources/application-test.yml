@@ -1,0 +1,58 @@
+# Perfil de teste. A datasource NAO fica aqui: vem do container Postgres via
+# @DynamicPropertySource em AbstractPostgresTest.
+spring:
+  jpa:
+    hibernate:
+      # Valida as entidades contra o schema que o Flyway acabou de aplicar.
+      # E isto que pega drift entre @Entity e migration, automaticamente.
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+security:
+  jwt:
+    issuer: plantahub-test
+    secret: test-secret-suficientemente-longo-para-hmac-sha-com-folga-0123456789
+    access-token-minutes: 60
+
+app:
+  web-base-url: http://localhost:5173
+  cors:
+    allowed-origins: http://localhost:5173
+  auth:
+    cookie-secure: false
+  admin:
+    bootstrap-emails: ""
+  s3:
+    bucket: test-bucket
+    region: us-east-2
+    access-key: ""
+    secret-key: ""
+  downloads:
+    legacy-fallback: true
+  uploads:
+    max-size-bytes: 10485760
+    multipart-threshold-bytes: 1048576
+    part-size-bytes: 524288
+    presign-ttl-seconds: 900
+    multipart-presign-ttl-seconds: 3600
+    allowed-extensions: pdf,dwg,zip,png,jpg
+    media-allowed-extensions: png,jpg,webp
+    media-max-size-bytes: 1048576
+    janitor:
+      enabled: false
+
+orders:
+  pending-expiration-hours: 48
+  pending-expiration-scan-ms: 3600000
+
+infinitepay:
+  handle: test-handle
+  redirect-url: http://localhost:5173/pagamento/sucesso
+  webhook-url: http://localhost:8080/v1/webhooks/infinitepay
+  api-base-url: http://localhost:9999
+
+logging:
+  level:
+    org.hibernate.SQL: warn

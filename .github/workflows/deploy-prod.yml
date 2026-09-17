@@ -47,13 +47,16 @@ jobs:
 
           echo "Building backend from: $BACKEND_DIR"
 
+          # Os testes rodam aqui de proposito: um deploy nunca deve publicar um jar
+          # que a suite reprova. O runner ubuntu-latest tem Docker, entao os testes
+          # com Testcontainers executam normalmente.
           if [ -f "$BACKEND_DIR/mvnw" ]; then
             chmod +x "$BACKEND_DIR/mvnw"
             cd "$BACKEND_DIR"
-            ./mvnw -B clean package -DskipTests
+            ./mvnw -B clean package
           else
             cd "$BACKEND_DIR"
-            mvn -B clean package -DskipTests
+            mvn -B clean package
           fi
 
       - name: Prepare backend artifact
