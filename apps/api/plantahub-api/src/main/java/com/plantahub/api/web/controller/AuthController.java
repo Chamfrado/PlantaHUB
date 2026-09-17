@@ -38,7 +38,11 @@ public class AuthController {
     ) {
         AuthResponse auth = authService.login(req);
         authCookieService.addAccessTokenCookie(response, auth.accessToken());
-        return ResponseEntity.ok(new AuthResponse(null, auth.tokenType(), auth.fullName(), auth.email()));
+        // O token sai do corpo de proposito: ele viaja no cookie HttpOnly. O role vai
+        // junto para que um admin recem-logado ja saiba disso sem precisar de refresh.
+        return ResponseEntity.ok(
+                new AuthResponse(null, auth.tokenType(), auth.fullName(), auth.email(), auth.role())
+        );
     }
 
     @GetMapping("/me")

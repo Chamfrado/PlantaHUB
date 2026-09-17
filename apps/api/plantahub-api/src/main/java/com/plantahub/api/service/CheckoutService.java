@@ -7,6 +7,7 @@ import com.plantahub.api.domain.cart.CartItemSelection;
 import com.plantahub.api.domain.cart.enums.CartStatus;
 import com.plantahub.api.domain.orders.*;
 import com.plantahub.api.domain.downloads.DownloadEntitlement;
+import com.plantahub.api.domain.catalog.enums.ProductStatus;
 import com.plantahub.api.domain.orders.enums.OrderStatus;
 import com.plantahub.api.repository.*;
 import com.plantahub.api.web.dto.orders.*;
@@ -35,6 +36,7 @@ public class CheckoutService {
     private final CartRepository cartRepository;
     private final CartItemSelectionRepository cartItemSelectionRepository;
     private final InfinitePayPaymentService infinitePayPaymentService;
+    private final EntitlementGrantService entitlementGrantService;
 
     public CheckoutService(
             AppUserRepository userRepo,
@@ -46,6 +48,7 @@ public class CheckoutService {
             CartRepository cartRepository,
             CartItemSelectionRepository cartItemSelectionRepository,
             InfinitePayPaymentService infinitePayPaymentService,
+            EntitlementGrantService entitlementGrantService,
             @Value("${orders.pending-expiration-hours:48}") long pendingExpirationHours
     ) {
         this.userRepo = userRepo;
@@ -57,6 +60,7 @@ public class CheckoutService {
         this.cartRepository = cartRepository;
         this.cartItemSelectionRepository = cartItemSelectionRepository;
         this.infinitePayPaymentService = infinitePayPaymentService;
+        this.entitlementGrantService = entitlementGrantService;
         this.pendingOrderTtl = Duration.ofHours(pendingExpirationHours);
     }
 
@@ -79,10 +83,23 @@ public class CheckoutService {
             var product = productRepo.findById(itemReq.productId())
                     .orElseThrow(() -> new IllegalArgumentException("product_not_found: " + itemReq.productId()));
 
+            // Este endpoint e alcancavel diretamente, sem passar pelo carrinho, entao a
+            // checagem de status precisa estar aqui tambem e nao so em CartService.
+            if (product.getStatus() != ProductStatus.PUBLISHED) {
+                throw new IllegalArgumentException("product_not_available: " + product.getId());
+            }
+
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(product);
             item.setQuantity(itemReq.quantity());
+
+            // Congela o produto como ele e agora. Sem isto, renomear um produto no painel
+            // reescreveria o historico de todos os pedidos que o contem.
+            item.setProductNameSnapshot(product.getName());
+            item.setProductSlugSnapshot(product.getSlug());
+            item.setProductCategorySnapshot(product.getCategory());
+            item.setProductImageSnapshot(product.getHeroImageUrl());
 
             int selectionsTotal = 0;
 
@@ -92,6 +109,15 @@ public class CheckoutService {
                 var ppt = pptRepo.findByProduct_IdAndPlanType_Code(product.getId(), code)
                         .orElseThrow(() -> new IllegalArgumentException("plan_not_available: " + code));
 
+                if (!Boolean.TRUE.equals(ppt.getAvailable())) {
+                    throw new IllegalArgumentException("plan_not_available: " + code);
+                }
+
+                // Uma colecao que so acompanha outras ofertas nunca pode ser comprada avulsa.
+                if (!Boolean.TRUE.equals(ppt.getPlanType().getPurchasable())) {
+                    throw new IllegalArgumentException("plan_not_purchasable: " + code);
+                }
+
                 int price = ppt.getPriceCents();
                 selectionsTotal += price;
 
@@ -99,6 +125,8 @@ public class CheckoutService {
                 sel.setOrderItem(item);
                 sel.setPlanType(ppt.getPlanType());
                 sel.setPriceCents(price);
+                sel.setPlanTypeCodeSnapshot(ppt.getPlanType().getCode());
+                sel.setPlanTypeNameSnapshot(ppt.getPlanType().getName());
                 item.getSelections().add(sel);
             }
 
@@ -132,36 +160,9 @@ public class CheckoutService {
         order.setStatus(OrderStatus.PAID);
         order.setPaidAt(Instant.now());
 
-        // 🔥 Gera entitlements baseado nas seleções (A)
-        grantEntitlementsFromOrder(order);
+        entitlementGrantService.grantForPaidOrder(order);
 
         return OrderMapper.toDto(order);
-    }
-
-    private void grantEntitlementsFromOrder(Order order) {
-        UUID userId = order.getUser().getId();
-
-        for (OrderItem item : order.getItems()) {
-            String productId = item.getProduct().getId();
-
-            for (OrderItemSelection sel : item.getSelections()) {
-                UUID planTypeId = sel.getPlanType().getId();
-
-                // idempotente
-                if (entitlementRepo.existsByUserIdAndProductIdAndPlanTypeId(userId, productId, planTypeId)) {
-                    continue;
-                }
-
-                DownloadEntitlement ent = new DownloadEntitlement();
-                ent.setUser(order.getUser());
-                ent.setOrder(order);
-                ent.setProduct(item.getProduct());
-                ent.setPlanType(sel.getPlanType());
-                ent.setGrantedAt(Instant.now());
-
-                entitlementRepo.save(ent);
-            }
-        }
     }
 
     @Transactional

@@ -1,6 +1,27 @@
 server:
   port: 8080
 
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/plantahub}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+# Valores de desenvolvimento. Produção sobrescreve tudo em application-prod.yml.
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:plantahub}
+    secret: ${JWT_SECRET:dev-only-secret-nao-use-em-producao-troque-por-favor-64-chars}
+    access-token-minutes: ${JWT_ACCESS_TOKEN_MINUTES:240}
+
 app:
   web-base-url: ${APP_WEB_BASE_URL:http://localhost:5173}
   cors:
@@ -8,6 +29,56 @@ app:
   auth:
     cookie-secure: ${AUTH_COOKIE_SECURE:false}
 
+  # E-mails promovidos a ADMIN no boot (separados por vírgula). Só promove, nunca rebaixa.
+  admin:
+    bootstrap-emails: ${APP_ADMIN_BOOTSTRAP_EMAILS:}
+
+    # Conta de administrador criada automaticamente no boot, para desenvolvimento local.
+    # Vazio => nada acontece. O componente que a cria está fora do perfil prod, então
+    # preencher isto em produção não tem efeito nenhum — ver DevAdminAccountRunner.
+    dev-account:
+      email: ${APP_ADMIN_DEV_ACCOUNT_EMAIL:}
+      password: ${APP_ADMIN_DEV_ACCOUNT_PASSWORD:}
+      full-name: ${APP_ADMIN_DEV_ACCOUNT_NAME:Super Admin}
+
+  s3:
+    bucket: ${APP_S3_BUCKET:plantahub-assets}
+    region: ${APP_S3_REGION:us-east-2}
+    # Vazias => DefaultCredentialsProvider (env, perfil, instance role).
+    access-key: ${APP_S3_ACCESS_KEY:}
+    secret-key: ${APP_S3_SECRET_KEY:}
+    # Base das imagens de vitrine (capa e galeria), que sao lidas sem autenticacao.
+    # Vazia => derivada de bucket e regiao. Aponte para o CloudFront quando existir; so o
+    # prefixo `public/` precisa ser legivel publicamente.
+    public-base-url: ${APP_S3_PUBLIC_BASE_URL:}
+
+  uploads:
+    # Limite por arquivo. Projetos BIM passam facilmente de centenas de MB.
+    max-size-bytes: ${APP_UPLOADS_MAX_SIZE_BYTES:2147483648}
+    # Acima disto, multipart. Um PUT unico e irretomavel: numa conexao instavel,
+    # perder 90% de um arquivo grande significa recomecar do zero.
+    multipart-threshold-bytes: 104857600
+    part-size-bytes: 16777216
+    presign-ttl-seconds: 900
+    multipart-presign-ttl-seconds: 3600
+    allowed-extensions: pdf,dwg,dxf,rvt,ifc,skp,zip,rar,7z,xlsx,docx,png,jpg,jpeg,webp
+    media-allowed-extensions: png,jpg,jpeg,webp,avif
+    media-max-size-bytes: 10485760
+    janitor:
+      enabled: ${APP_UPLOADS_JANITOR_ENABLED:true}
+      interval-ms: 3600000
+
+  downloads:
+    # Enquanto ligada, um entitlement sem assets pinados cai na listagem por prefixo
+    # antiga. Só desligue depois que o backfill reportar entitlementsWithNoAssets vazio.
+    legacy-fallback: ${APP_DOWNLOADS_LEGACY_FALLBACK:true}
+
 orders:
   pending-expiration-hours: ${ORDERS_PENDING_EXPIRATION_HOURS:48}
   pending-expiration-scan-ms: ${ORDERS_PENDING_EXPIRATION_SCAN_MS:3600000}
+
+infinitepay:
+  handle: ${INFINITEPAY_HANDLE:dev-handle}
+  redirect-url: ${INFINITEPAY_REDIRECT_URL:http://localhost:5173/pagamento/sucesso}
+  webhook-url: ${INFINITEPAY_WEBHOOK_URL:http://localhost:8080/v1/webhooks/infinitepay}
+  api-base-url: ${INFINITEPAY_API_BASE_URL:https://api.checkout.infinitepay.io}

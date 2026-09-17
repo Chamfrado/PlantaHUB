@@ -28,9 +28,37 @@ app:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:https://plantahub.com.br,https://www.plantahub.com.br}
   auth:
     cookie-secure: ${AUTH_COOKIE_SECURE:true}
+
+  admin:
+    bootstrap-emails: ${APP_ADMIN_BOOTSTRAP_EMAILS:}
+
   s3:
     bucket: ${APP_S3_BUCKET}
     region: ${APP_S3_REGION}
+    # Declaradas explicitamente: antes eram lidas por relaxed binding direto do ambiente,
+    # sem aparecer em nenhum yml. Deixe vazias para usar a role da instancia.
+    access-key: ${APP_S3_ACCESS_KEY:}
+    secret-key: ${APP_S3_SECRET_KEY:}
+    public-base-url: ${APP_S3_PUBLIC_BASE_URL:}
+
+  uploads:
+    # Limite por arquivo. Projetos BIM passam facilmente de centenas de MB.
+    max-size-bytes: ${APP_UPLOADS_MAX_SIZE_BYTES:2147483648}
+    # Acima disto, multipart. Um PUT unico e irretomavel: numa conexao instavel,
+    # perder 90% de um arquivo grande significa recomecar do zero.
+    multipart-threshold-bytes: 104857600
+    part-size-bytes: 16777216
+    presign-ttl-seconds: 900
+    multipart-presign-ttl-seconds: 3600
+    allowed-extensions: pdf,dwg,dxf,rvt,ifc,skp,zip,rar,7z,xlsx,docx,png,jpg,jpeg,webp
+    media-allowed-extensions: png,jpg,jpeg,webp,avif
+    media-max-size-bytes: 10485760
+    janitor:
+      enabled: ${APP_UPLOADS_JANITOR_ENABLED:true}
+      interval-ms: 3600000
+
+  downloads:
+    legacy-fallback: ${APP_DOWNLOADS_LEGACY_FALLBACK:true}
 
 logging:
   level:

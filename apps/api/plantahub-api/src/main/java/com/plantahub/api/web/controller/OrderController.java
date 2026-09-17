@@ -28,14 +28,6 @@ public class OrderController {
         return checkoutService.createOrder(user.getUsername(), req);
     }
 
-    @PostMapping("/me/orders/{orderId}/pay-mock")
-    public OrderResponseDTO payMock(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable UUID orderId
-    ) {
-        return checkoutService.payMock(user.getUsername(), orderId);
-    }
-
     @GetMapping("/me/orders")
     public List<OrderResponseDTO> myOrders(@AuthenticationPrincipal UserDetails user) {
         return checkoutService.myOrders(user.getUsername());
@@ -47,14 +39,6 @@ public class OrderController {
             @PathVariable UUID orderId
     ) {
         return checkoutService.cancelOrder(user.getUsername(), orderId);
-    }
-
-    @PostMapping("/me/orders/{orderId}/refund-mock")
-    public OrderActionResponseDTO refundMock(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable UUID orderId
-    ) {
-        return checkoutService.refundMock(user.getUsername(), orderId);
     }
 
     @PostMapping("/me/orders/{orderId}/payment-link")
