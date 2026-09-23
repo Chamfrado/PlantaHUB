@@ -1,9 +1,18 @@
 # ARQUIVOS ALTERADOS
 
-## caminho/do/arquivo.vue
-- Primeira / última alteração:
-- Telas relacionadas:
-- Motivo:
-- O que mudou:
+## apps/web/plantahub-web/src/components/layout/Header.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-001)
+- Telas relacionadas: todas as rotas de `MainLayout` (RESP-TELA-001, 003-019)
+- Motivo: mini-carrinho abria com a borda esquerda fora da viewport abaixo de `sm`
+- O que mudou: linha 92 — wrapper do carrinho `relative` → `static sm:relative`; abaixo de
+  `sm` o dropdown ancora no grupo de ações (mesma borda direita do menu do usuário)
 - Lógica, API ou regra de negócio alterada: NÃO
-- Revalidação necessária:
+- Revalidação necessária: nenhuma tela pública processada ainda (todas NÃO INICIADA)
+
+## apps/web/plantahub-web/src/components/cart/MiniCartDropdown.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-001)
+- Telas relacionadas: usado só em `Header.tsx` (mesmas telas acima)
+- Motivo: largura fixa `w-80` (320 px) maior que o espaço útil em 320 px
+- O que mudou: linhas 18, 26, 75 — `max-w-[calc(100vw-3rem)]` junto do `w-80`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: idem

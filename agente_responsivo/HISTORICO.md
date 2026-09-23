@@ -72,3 +72,22 @@ confirmou papel ADMIN. Arquivo fora do Git (`.gitignore` local do agente).
 As capturas contam outra história: em 360 px o menu do painel corta em "Armazen…" e as
 colunas PREÇO BASE e AÇÕES ficam fora da tela. Registrado como D-005 em ESTADO.md:
 o script não substitui a leitura das capturas.
+
+## 2026-09-23 — CONTEXTO_RECUPERADO
+Sessão nova. Git: 7b78012, worktree limpa, branch do agente correta. Nenhuma tela
+EM ANDAMENTO; 32 NÃO INICIADAS. Sem divergência. Padrões reimportados: nenhum aprovado
+em `main` nem em outra `agent/responsive-*`. Próxima ação: subir API 8085 + front 5180
+e iniciar RESP-TELA-001.
+
+## 2026-09-23 08:14 — AMBIENTE_REINICIADO
+João pediu para derrubar e subir de novo. Os processos antigos (java 46648 em 8085, vite 20520
+em 5180) ainda estavam vivos e foram encerrados pelo agente. O primeiro `serve.sh` pulou para
+8086 (encerrado); o `dev.sh` tinha resolvido a API para 8080 pelo `.env.local`. Resubidos:
+API 8085 (`--strict-port`, banco `plantahub_resp`), front 5180 com `--api http://localhost:8085`.
+Registrado como D-006.
+
+## 2026-09-23 08:25 — TELA_CONCLUIDA — RESP-TELA-001
+Mini-carrinho vazava à esquerda abaixo de `sm` (x=−110 em 360, −150 em 320). Corrigido em
+`Header.tsx:92` e `MiniCartDropdown.tsx:18,26,75`. Overflow exit 0 antes e depois (14 larguras);
+dropdowns medidos abertos (D-007). Pendente de padrão: navegação mobile (links do cabeçalho
+somem abaixo de md sem menu equivalente). Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL.

@@ -87,7 +87,7 @@ export default function Header() {
 
         <div className="absolute right-6 flex items-center gap-2 sm:static sm:gap-4">
           {isAuthenticated && (
-            <div className="relative" ref={cartRef}>
+            <div className="static sm:relative" ref={cartRef}>
               <button
                 type="button"
                 onClick={() => setOpenCart(prev => !prev)}

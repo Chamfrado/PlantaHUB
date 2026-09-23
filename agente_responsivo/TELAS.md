@@ -15,15 +15,15 @@
 - Tipo: outro (shell)
 - Perfil que abre: anônimo (e logado, para o mini-carrinho)
 - Compartilhados usados: `components/layout/Header.tsx`, `components/layout/Footer.tsx`, `components/cart/MiniCartDropdown.tsx`, `components/common/ScrollTop.tsx`, `components/ui/ToastProvider.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-001/
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Pendente de padrão: **navegação mobile** — abaixo de 768 px os links Home/Produtos/Sobre/Contato somem (`Header.tsx:73` `hidden md:flex`) sem menu equivalente; hoje só logo, CTA do hero e rodapé levam a essas páginas. Abaixo de 640 px o botão "Criar conta" some (`Header.tsx:127`); a tela de login é o caminho. Criar menu hambúrguer = decisão de design, aguarda padrão/aprovação do João.
+- Início / fim: 2026-09-23 08:15 / 2026-09-23 08:25
+- Evidência: agente_responsivo/evidencias/RESP-TELA-001/{antes,depois}-{anonimo,logado}/ — checar-overflow exit 0 em 14 larguras (antes e depois); `carrinho-*.png` / `menu-*.png` com dropdown aberto (360/768/1366)
 - Onde ver: http://localhost:5180/
 - Como testar: 360/768/1366 — abrir menu, abrir mini-carrinho (logado e deslogado), rolar até o rodapé
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: é o componente mais compartilhado do sistema; qualquer alteração aqui marca TODAS as telas públicas como REVALIDAÇÃO NECESSÁRIA
+- Como confirmar que estava quebrado: logado, clicar no carrinho em 360 px — `antes-logado/carrinho-360.png` mostra o painel começando em x=−110 (em 320 px, x=−150), texto "Seu carrinho está vazio" cortado. O script não acusa porque o dropdown só existe após o clique. Depois: x=24…336 (360) e 24…296 (320); 768/1366 idênticos ao antes.
+- arquivo:linha: `components/layout/Header.tsx:92` · `components/cart/MiniCartDropdown.tsx:18,26,75`
+- Cuidados: é o componente mais compartilhado do sistema; qualquer alteração aqui marca TODAS as telas públicas como REVALIDAÇÃO NECESSÁRIA. Menu do usuário já cabia (sem alteração). Rodapé: grid de 1 coluna abaixo de lg, sem vazamento. Carrinho com itens não foi visto (conta sem itens; o agente não adiciona) — conferir visualmente com itens.
 
 ---
 ## RESP-TELA-002

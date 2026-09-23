@@ -15,7 +15,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
 
   if (loadingCart) {
     return (
-      <div className="animate-dropdown-in w-80 rounded-2xl border bg-white p-4 shadow-xl">
+      <div className="animate-dropdown-in w-80 max-w-[calc(100vw-3rem)] rounded-2xl border bg-white p-4 shadow-xl">
         <p className="text-sm text-neutral-500">Carregando carrinho...</p>
       </div>
     );
@@ -23,7 +23,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="animate-dropdown-in w-80 rounded-2xl border bg-white p-6 shadow-xl text-center">
+      <div className="animate-dropdown-in w-80 max-w-[calc(100vw-3rem)] rounded-2xl border bg-white p-6 shadow-xl text-center">
         <p className="font-semibold text-neutral-800">Seu carrinho está vazio</p>
         <Link
           to="/"
@@ -72,7 +72,7 @@ export default function MiniCartDropdown({ onClose }: Props) {
     }
   }
   return (
-    <div className="animate-dropdown-in w-80 rounded-2xl border bg-white shadow-xl">
+    <div className="animate-dropdown-in w-80 max-w-[calc(100vw-3rem)] rounded-2xl border bg-white shadow-xl">
       {/* HEADER */}
       <div className="flex items-center justify-between border-b px-4 py-3">
         <span className="font-bold text-neutral-800">Seu carrinho</span>

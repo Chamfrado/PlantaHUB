@@ -5,7 +5,7 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 08:10
+- Última atualização: 2026-09-23 08:25
 - Status geral: EXECUTANDO
 
 ## Escopo desta execução
@@ -38,7 +38,7 @@
 - Worktree original no início: CLEAN
 - Worktree agente: C:/Users/Work/Documents/projetos/PlantaHub-responsive-sistema-inteiro-20260923-073717
 - Branch agente: agent/responsive-sistema-inteiro-20260923-073717
-- Último commit do agente: fab138c — docs(responsive-agent): inicia execução
+- Último commit do agente: ver git log (RESP-TELA-001)
 - Porta do servidor do agente: 5180 (original usa 5173; 5180 está dentro da faixa
   5173-5182 liberada no CORS da API, ver `apps/web/plantahub-web/dev.sh`)
 - storageState por perfil (caminhos): **GERADO** em 2026-09-23 08:05
@@ -77,26 +77,20 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 0 · Sem alteração: 0 · Bloqueadas: 0 ·
-  Revalidação: 0 · Pendentes: 32
+- Total: 32 · Aguardando validação visual: 1 · Sem alteração: 0 · Bloqueadas: 0 ·
+  Revalidação: 0 · Pendentes: 31
 
 ## Tela atual
-- ID / nome / rota: nenhuma ainda
-- Iniciada em: —
-- Feito até agora: worktree criada, `npm ci`, Playwright em `~/.resp-tools`, inventário
-  de 32 telas, padrões importados (nenhum existia), banco `plantahub_resp` criado,
-  API no ar em 8085, front no ar em 5180, storageState de ADMIN gerado e **provado**
-  (captura de `/admin/produtos` mostra o painel real, não a tela de login).
-  Medição "antes" de RESP-TELA-020 já guardada.
-- Falta: começar a corrigir. Ambiente 100% destravado — as 32 telas estão acessíveis.
-- **Próxima ação exata:** iniciar RESP-TELA-001 (shell público). Medir com
-  `node agente_responsivo/checar-overflow.cjs --url http://localhost:5180/ --out agente_responsivo/evidencias/RESP-TELA-001/antes`
-  e **olhar as três capturas** antes de concluir qualquer coisa — ver D-005.
+- ID / nome / rota: nenhuma — RESP-TELA-001 concluída
+- **Próxima ação exata:** iniciar RESP-TELA-002 (shell do painel, `/admin/produtos`,
+  com `--storage agente_responsivo/storage-admin.json`). A medição `antes` de
+  RESP-TELA-020 já mostra o menu do painel cortado em 360 px. Olhar as capturas (D-005).
+- Ambiente: API `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085 --strict-port`;
+  front `apps/web/plantahub-web/dev.sh --api http://localhost:8085 --port 5180 --strict-port`
+  — ver D-006.
 
 ## Trabalho em curso não commitado
-- Arquivos: nenhum código do app alterado. Apenas `agente_responsivo/` (novo).
-- O que já mudou: nada em `apps/` nem `docs/`.
-- Build passa: NÃO TESTADO (nada do app foi tocado)
+- Nenhum. Lint dos arquivos alterados: OK.
 
 ## Decisões (valem para as próximas telas)
 - **D-001 (2026-09-23):** usar exclusivamente os breakpoints padrão do Tailwind 4 já
@@ -113,6 +107,13 @@
   fora da tela. O overflow está DENTRO de contêineres com scroll local, então a página
   não rola e o script não acusa. **Toda tela exige leitura das capturas de 360, 768 e
   1366 antes de mudar de status.**
+- **D-006 (2026-09-23):** sempre subir o front com `--api http://localhost:8085`. O
+  `.env.local` do worktree aponta para 8080, onde roda a API do João (banco `plantahub`);
+  sem o `--api`, o `dev.sh` prefere o arquivo e as telas mostrariam o banco errado. API com
+  `--strict-port`: sem ele o `serve.sh` pula para 8086 se a 8085 estiver ocupada.
+- **D-007 (2026-09-23):** dropdowns só aparecem depois de um clique, então o
+  `checar-overflow.cjs` não os mede. Para eles, abrir com Playwright (script de scratch,
+  só clica em botões de abrir) e medir o `getBoundingClientRect`.
 - **D-004 (2026-09-23):** não existe `PADROES.md` aprovado em nenhuma branch. Esta é a
   primeira execução, então cada tipo de tela recebe **uma** candidata a padrão.
 
