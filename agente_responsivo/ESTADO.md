@@ -38,7 +38,7 @@
 - Worktree original no início: CLEAN
 - Worktree agente: C:/Users/Work/Documents/projetos/PlantaHub-responsive-sistema-inteiro-20260923-073717
 - Branch agente: agent/responsive-sistema-inteiro-20260923-073717
-- Último commit do agente: (a preencher no commit de início)
+- Último commit do agente: fab138c — docs(responsive-agent): inicia execução
 - Porta do servidor do agente: 5180 (original usa 5173; 5180 está dentro da faixa
   5173-5182 liberada no CORS da API, ver `apps/web/plantahub-web/dev.sh`)
 - storageState por perfil (caminhos): **AUSENTES** — necessários para as telas privadas.
