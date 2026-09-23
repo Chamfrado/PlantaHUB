@@ -53,14 +53,14 @@
 - Tipo: painel (landing)
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/home/{Hero,CategoryShowcase,HowItWorks,WhyChoose,FinalCTA}.tsx`, `components/products/ProductCarouselSection.tsx`, `components/products/ProductCard.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo painel/landing**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-003/
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO (sem alteração de código)
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo painel/landing.** Proposta = o layout atual, que já não quebra em nenhuma largura. Pergunta de design para o João: em 640–1023 px os cards de produto ficam em 1 coluna de largura total (`ProductCarouselSection.tsx:52` `grid gap-6 lg:grid-cols-3`), com imagens muito altas em 768; `md:grid-cols-2` seria a alternativa. Não aplicado — é decisão de design.
+- Início / fim: 2026-09-23 08:35 / 2026-09-23 08:45
+- Evidência: agente_responsivo/evidencias/RESP-TELA-003/antes/ — checar-overflow exit 0 (14 larguras); `fatia-{360,768,1366}-N.png` cobrem a página inteira (rolando o `#root`, D-008); nenhum elemento vaza da viewport em 360/768/1366
 - Onde ver: http://localhost:5180/
 - Como testar: 360/768/1366 — carrossel de produtos, seções, CTA
-- Como confirmar que estava quebrado:
-- arquivo:linha:
+- Como confirmar que estava quebrado: não estava. Hero, benefícios, carrosséis Casas/Chalés (preço e "Ver detalhes" visíveis), Como funciona, números, CTA e rodapé íntegros nas três larguras.
+- arquivo:linha: nenhum alterado
 - Cuidados: carrossel é candidato clássico a overflow horizontal da página
 
 ---

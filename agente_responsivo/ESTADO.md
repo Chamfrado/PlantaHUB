@@ -5,7 +5,7 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 08:33
+- Última atualização: 2026-09-23 08:45
 - Status geral: EXECUTANDO
 
 ## Escopo desta execução
@@ -38,7 +38,7 @@
 - Worktree original no início: CLEAN
 - Worktree agente: C:/Users/Work/Documents/projetos/PlantaHub-responsive-sistema-inteiro-20260923-073717
 - Branch agente: agent/responsive-sistema-inteiro-20260923-073717
-- Último commit do agente: ver git log (RESP-TELA-001)
+- Último commit do agente: ver `git log -1` (o commit de cada tela contém o estado)
 - Porta do servidor do agente: 5180 (original usa 5173; 5180 está dentro da faixa
   5173-5182 liberada no CORS da API, ver `apps/web/plantahub-web/dev.sh`)
 - storageState por perfil (caminhos): **GERADO** em 2026-09-23 08:05
@@ -77,14 +77,13 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 2 · Sem alteração: 0 · Bloqueadas: 0 ·
-  Revalidação: 0 · Pendentes: 30
+- Total: 32 · Aguardando validação visual: 2 · Candidatas: 1 · Sem alteração: 0 · Bloqueadas: 0 ·
+  Revalidação: 0 · Pendentes: 29
 
 ## Tela atual
-- ID / nome / rota: nenhuma — RESP-TELA-001 concluída
-- **Próxima ação exata:** iniciar RESP-TELA-002 (shell do painel, `/admin/produtos`,
-  com `--storage agente_responsivo/storage-admin.json`). A medição `antes` de
-  RESP-TELA-020 já mostra o menu do painel cortado em 360 px. Olhar as capturas (D-005).
+- ID / nome / rota: nenhuma — RESP-TELA-003 concluída (candidata, sem código)
+- **Próxima ação exata:** iniciar RESP-TELA-004 (`/produtos`, CANDIDATA listagem vitrine).
+  Medir com checar-overflow + `fatias.cjs` (D-008) e olhar as fatias.
 - Ambiente: API `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085 --strict-port`;
   front `apps/web/plantahub-web/dev.sh --api http://localhost:8085 --port 5180 --strict-port`
   — ver D-006.
@@ -114,6 +113,13 @@
 - **D-007 (2026-09-23):** dropdowns só aparecem depois de um clique, então o
   `checar-overflow.cjs` não os mede. Para eles, abrir com Playwright (script de scratch,
   só clica em botões de abrir) e medir o `getBoundingClientRect`.
+- **D-008 (2026-09-23):** o scroller real do app é o `#root` (`index.css:89-98`:
+  `height:100%; overflow-x:hidden`). O documento nunca passa de 100vh, então
+  `checar-overflow.cjs` sempre dá exit 0 e `fullPage` captura só a primeira dobra; o que
+  vaza é CORTADO pelo #root, sem barra. Medição válida: script de scratch `fatias.cjs`
+  (fatias rolando o #root + lista de elementos fora da viewport não cortados por contêiner
+  próprio). Cópia do script em `agente_responsivo/fatias.cjs`. Uso:
+  `node agente_responsivo/fatias.cjs <url> <pasta> [storage|-] [larguras] [altura]`.
 - **D-004 (2026-09-23):** não existe `PADROES.md` aprovado em nenhuma branch. Esta é a
   primeira execução, então cada tipo de tela recebe **uma** candidata a padrão.
 

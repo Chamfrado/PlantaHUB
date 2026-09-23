@@ -96,3 +96,8 @@ somem abaixo de md sem menu equivalente). Status: CORRIGIDA — AGUARDANDO VALID
 Cabeçalho do painel com 527 px em 320/360: Sair e Ver site inalcançáveis. Faixa de links passou a
 rolar localmente (`AdminLayout.tsx:57`), ações fixas (`:71`). Overflow exit 0 antes e depois;
 navegação pela faixa testada. Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL.
+
+## 2026-09-23 08:45 — TELA_CONCLUIDA — RESP-TELA-003
+Home sem defeito objetivo em 360/768/1366 (fatias da página inteira). Descoberto que o #root é o
+scroller (D-008): checar-overflow não mede página nesse app; criado `fatias.cjs`. Status:
+CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO, sem alteração de código.

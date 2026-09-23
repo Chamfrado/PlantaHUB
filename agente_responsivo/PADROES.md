@@ -31,7 +31,7 @@
 ## Candidatas aguardando aprovação
 
 <!-- preenchido quando cada candidata for corrigida e medida -->
-- painel/landing — RESP-TELA-003 — `/` — agent/responsive-sistema-inteiro-20260923-073717 — (a iniciar)
+- painel/landing — RESP-TELA-003 — `/` — agent/responsive-sistema-inteiro-20260923-073717 — desde 2026-09-23 08:45 — proposta: layout atual sem alteração; dúvida md:grid-cols-2 nos cards (ver TELAS.md)
 - listagem (vitrine) — RESP-TELA-004 — `/produtos` — idem — (a iniciar)
 - detalhe — RESP-TELA-005 — `/:category/:slug` — idem — (a iniciar)
 - formulário — RESP-TELA-012 — `/login` — idem — (a iniciar)
