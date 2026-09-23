@@ -38,3 +38,21 @@ resolvido localmente `-1508217695`. O arquivo `V20__catalog_foundation.sql` tem 
 commit (`8c6a09f`), então o banco local aplicou um rascunho anterior dele.
 Sem API não há sessão, e sem sessão as 18 telas privadas ficam sem evidência.
 Resolver isso é decisão do João: mexe em banco e backend, fora do escopo do agente.
+
+## 2026-09-23 08:02 — DIVERGENCIA (banco local × repositório) — REPAIR NÃO EXECUTADO
+O João autorizou `flyway repair`. A inspeção anterior ao comando mostrou que o
+diagnóstico que embasou a autorização estava ERRADO, e o repair quebraria o banco.
+Não foi executado. Fatos:
+- A V20 aplicada no banco é `add google auth to users` (22/06/2026). Essa migration
+  NÃO EXISTE no repositório. O banco tem `app_user.auth_provider` e `app_user.google_sub`.
+- A V20 do repositório é `catalog_foundation`. NADA dela foi aplicado: nenhuma das 16
+  colunas existe, nenhum dos 3 índices existe, e as 3 constraints que ela deveria
+  derrubar continuam de pé (`uk_asset_ppt_kind_version`, `uk_ent_user_product_plan`,
+  `uq_entitlement_user_product_plan`).
+- O banco para na 20; o repositório vai até a V30. Faltam 11 migrations.
+- `V21__apoio_collection.sql` insere em `plan_type` usando `purchasable`,
+  `bundled_with_every_offer` e `sort_order` — colunas criadas pela V20. Com o repair,
+  o Flyway daria a V20 por feita e a V21 falharia em "column does not exist".
+Conclusão: não é rascunho editado, é COLISÃO DE NÚMERO entre duas linhas de
+desenvolvimento. O banco local pertence a uma linha (Google auth) que não está neste
+repositório. Resolver isso é decisão do João sobre os dados dele.

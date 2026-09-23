@@ -5,7 +5,7 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 07:55
+- Última atualização: 2026-09-23 08:02
 - Status geral: BLOQUEADO (ambiente — ver A-004)
 
 ## Escopo desta execução
@@ -136,4 +136,14 @@
   validação humana em vez de o agente cadastrar alguém.
 - **A-007 — 9 telas não dependem de API nem de sessão** e podem ser feitas já:
   RESP-TELA-001 (shell público), 006, 007, 008, 009, 010, 011, 012, 013.
+- **A-008 — CORREÇÃO do A-004: não é rascunho editado, é colisão de número.** A V20 do
+  banco é `add google auth to users`, que não existe neste repositório; a V20 do
+  repositório é `catalog_foundation`, e nada dela foi aplicado. O banco para na 20, o
+  repositório vai até a V30. `flyway repair` foi autorizado pelo João e **não foi
+  executado**: ele daria a V20 por feita e a V21 falharia em "column does not exist".
+  O banco local pertence a outra linha de desenvolvimento.
+- **A-009 — banco novo NÃO nasce vazio** (corrige o que foi dito ao João antes): as
+  próprias migrations semeiam. `V2__seed.sql` insere `plan_type`, `product` e
+  `product_plan_type`; `V6__seed_test_asset.sql` e `V28__seed_product_content.sql`
+  completam. Um banco criado do zero sobe com os 6 produtos do catálogo.
 
