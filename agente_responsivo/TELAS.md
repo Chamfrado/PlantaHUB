@@ -15,7 +15,7 @@
 - Tipo: outro (shell)
 - Perfil que abre: anônimo (e logado, para o mini-carrinho)
 - Compartilhados usados: `components/layout/Header.tsx`, `components/layout/Footer.tsx`, `components/cart/MiniCartDropdown.tsx`, `components/common/ScrollTop.tsx`, `components/ui/ToastProvider.tsx`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão: **navegação mobile** — abaixo de 768 px os links Home/Produtos/Sobre/Contato somem (`Header.tsx:73` `hidden md:flex`) sem menu equivalente; hoje só logo, CTA do hero e rodapé levam a essas páginas. Abaixo de 640 px o botão "Criar conta" some (`Header.tsx:127`); a tela de login é o caminho. Criar menu hambúrguer = decisão de design, aguarda padrão/aprovação do João.
 - Início / fim: 2026-09-23 08:15 / 2026-09-23 08:25
 - Evidência: agente_responsivo/evidencias/RESP-TELA-001/{antes,depois}-{anonimo,logado}/ — checar-overflow exit 0 em 14 larguras (antes e depois); `carrinho-*.png` / `menu-*.png` com dropdown aberto (360/768/1366)
@@ -34,7 +34,7 @@
 - Tipo: outro (shell)
 - Perfil que abre: admin
 - Compartilhados usados: `app/routers/AdminRoute.tsx`, `components/common/RouteFallback.tsx`, `components/ui/ToastProvider.tsx`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 08:27 / 2026-09-23 08:33
 - Evidência: agente_responsivo/evidencias/RESP-TELA-002/{antes,depois}/ — checar-overflow exit 0 em 14 larguras antes e depois (a página não rola; o vazamento era do cabeçalho, ver D-005); `depois/360-armazenamento.png` após navegar pela faixa
@@ -53,7 +53,7 @@
 - Tipo: painel (landing)
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/home/{Hero,CategoryShowcase,HowItWorks,WhyChoose,FinalCTA}.tsx`, `components/products/ProductCarouselSection.tsx`, `components/products/ProductCard.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO (sem alteração de código)
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo painel/landing.** Proposta = o layout atual, que já não quebra em nenhuma largura. Pergunta de design para o João: em 640–1023 px os cards de produto ficam em 1 coluna de largura total (`ProductCarouselSection.tsx:52` `grid gap-6 lg:grid-cols-3`), com imagens muito altas em 768; `md:grid-cols-2` seria a alternativa. Não aplicado — é decisão de design.
 - Início / fim: 2026-09-23 08:35 / 2026-09-23 08:45
 - Evidência: agente_responsivo/evidencias/RESP-TELA-003/antes/ — checar-overflow exit 0 (14 larguras); `fatia-{360,768,1366}-N.png` cobrem a página inteira (rolando o `#root`, D-008); nenhum elemento vaza da viewport em 360/768/1366
@@ -72,7 +72,7 @@
 - Tipo: listagem
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/products/ProductCard.tsx`, `components/products/ProductAccordion.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem (vitrine).** Proposta: abaixo de sm, cada linha do acordeão quebra em duas — miniatura + nome/área/subtítulo em cima, "A partir de"/preço + seta embaixo, alinhados à direita. sm+ inalterado. Pergunta de design: em 360 px o painel aberto tem três paddings aninhados (card `px-6` + card interno + caixa de arquivos) e o texto fica estreito; reduzir padding no mobile não foi feito.
 - Início / fim: 2026-09-23 08:46 / 2026-09-23 08:55
 - Evidência: agente_responsivo/evidencias/RESP-TELA-004/{antes,depois}/ — `fatias.cjs` sem vazamento em 320/360/768/1366; `depois/aberto-{360,1366}.png` com o primeiro item expandido
@@ -91,7 +91,7 @@
 - Tipo: detalhe
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/products/{ProductDetailsView,ProductHero,ProductDetailCard,ProductPlanSelector,ProductAccordion,ProductAccordionItem}.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo detalhe.** Proposta = layout atual (galeria → info → preço/CTAs → seletor de plantas → resumo, empilhados abaixo de lg) + correção objetiva da trilha do grid. Nenhuma decisão de design nova.
 - Início / fim: 2026-09-23 08:57 / 2026-09-23 09:03
 - Evidência: agente_responsivo/evidencias/RESP-TELA-005/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
@@ -129,7 +129,7 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:14 / 2026-09-23 09:20
 - Evidência: agente_responsivo/evidencias/RESP-TELA-007/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
@@ -167,7 +167,7 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:06 / 2026-09-23 09:12
 - Evidência: agente_responsivo/evidencias/RESP-TELA-009/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
@@ -224,7 +224,7 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/auth/LoginForm.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO (sem alteração de código)
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo formulário.** Proposta = layout atual (cartão de formulário com rótulo acima do campo, largura total no mobile, botão largo). Perguntas de design: (1) no mobile o formulário vem DEPOIS do título e dos 2 cards de marketing (começa em y≈680 em 360×800, quase fora da primeira dobra); (2) em 768 os cards ficam alinhados à esquerda e o formulário centralizado.
 - Início / fim: 2026-09-23 09:05 / 2026-09-23 09:08
 - Evidência: agente_responsivo/evidencias/RESP-TELA-012/antes/ — `fatias.cjs` sem vazamento 320/360/768/1366
@@ -262,7 +262,7 @@
 - Tipo: formulário (com abas)
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `components/preferences/AccountTab.tsx`, `components/preferences/TransactionTab.tsx`, `app/routers/ProtectedRoute.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO (sem alteração de código)
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo formulário com abas.** Proposta = layout atual: abaixo de lg as abas viram lista vertical de cartões acima do conteúdo; campos em 1 coluna no mobile e 2 a partir de md. Sem decisão nova.
 - Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
 - Evidência: agente_responsivo/evidencias/RESP-TELA-014/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010); `transacoes-{320,360,768,1366}.png` com a aba Transações aberta
@@ -376,7 +376,7 @@
 - Tipo: listagem
 - Perfil que abre: admin
 - Compartilhados usados: `app/layouts/AdminLayout.tsx`, `components/admin/ui/primitives.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem administrativa (tabela).** Proposta: manter a tabela com scroll horizontal LOCALIZADO no contêiner (`overflow-x-auto`, já usado em todas as tabelas do painel: produtos, coleções, categorias, arquivos); filtros de status rolam na própria faixa. Pergunta de design: em 360 só PRODUTO/CATEGORIA/STATUS aparecem sem rolar — Despublicar/Arquivar exigem rolar a tabela. Virar cartões no mobile NÃO foi feito (decisão de design).
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-020/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -418,7 +418,7 @@
 - Tipo: formulário (com abas)
 - Perfil que abre: admin
 - Compartilhados usados: `ProductEditorPage.tsx` (barra de abas), `components/admin/ui/primitives.tsx`, `MoneyInput.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo editor com abas.** Proposta: barra de abas sublinhada com rolagem horizontal abaixo de md; campos em 1 coluna no mobile e 2 a partir de md (já era assim). Pergunta: a aba ativa pode ficar fora da vista ao abrir direto uma aba do fim (ex.: /arquivos).
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-022/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -437,7 +437,7 @@
 - Tipo: formulário
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/forms/RepeatableList.tsx`, `primitives.tsx`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-023/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -456,7 +456,7 @@
 - Tipo: outro (galeria + upload)
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/upload/UploadDropzone.tsx`, `UploadQueue.tsx`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-024/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -475,7 +475,7 @@
 - Tipo: grade de lançamento (preços por plano)
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/ui/MoneyInput.tsx`, `primitives.tsx`
-- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Status: VALIDADA — PADRÃO APROVADO (João, 2026-09-23 10:10)
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo grade de lançamento.** Proposta = layout atual: abaixo de md cada plano vira um cartão (nome/código, preço, "À venda", Salvar); a partir de md vira linha única. Não é tabela, então não há primeira coluna fixa — nenhum dado some. Sem decisão nova além da barra de abas (022).
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-025/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -494,7 +494,7 @@
 - Tipo: listagem
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/upload/UploadDropzone.tsx`, `UploadQueue.tsx`, `FolderMappingTable.tsx`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-026/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -513,7 +513,7 @@
 - Tipo: detalhe
 - Perfil que abre: admin
 - Compartilhados usados: componentes de `components/products/`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-027/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
@@ -589,7 +589,7 @@
 - Tipo: painel
 - Perfil que abre: admin
 - Compartilhados usados: `AdminLayout.tsx`, `primitives.tsx`
-- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
+- Status: VALIDADA (João, 2026-09-23 10:10)
 - Pendente de padrão:
 - Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
 - Evidência: agente_responsivo/evidencias/RESP-TELA-031/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)

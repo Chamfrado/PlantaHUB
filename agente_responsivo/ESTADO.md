@@ -5,8 +5,8 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 10:00
-- Status geral: VARREDURA CONCLUÍDA — AGUARDANDO JOÃO (validação visual + aprovação de candidatas + dados de teste)
+- Última atualização: 2026-09-23 10:10
+- Status geral: PRONTO PARA MERGE — merge autorizado pelo João (fast-forward em main)
 
 ## Escopo desta execução
 - Pedido original (texto do João): `/agente-responsivo` sem escopo. Perguntado; respondeu
@@ -77,16 +77,14 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 9 · Candidatas: 8 · Sem alteração: 11 · Bloqueadas: 4 ·
+- Total: 32 · Validadas: 17 (8 como padrão aprovado) · Sem alteração: 11 · Bloqueadas: 4 ·
   Revalidação: 0 · Pendentes: 0
 
 ## Tela atual
 - ID / nome / rota: nenhuma — as 32 telas têm status final possível para o agente.
-- **Próxima ação exata:** nenhuma tela pendente. O que falta depende do João:
-  (1) validar visualmente as CORRIGIDAS; (2) aprovar/reprovar as 8 candidatas (PADROES.md);
-  (3) destravar A-010 (compra de teste) para 015-018 e sessão de cliente comum para 032.
-  Depois disso: se houver reprovação, corrigir a candidata; se não, seguir `references/04-merge.md`
-  (sincronizar com main, relatório, PRONTO PARA MERGE). O agente NÃO iniciou o merge.
+- **Próxima ação exata:** nenhuma. João aprovou tudo ("tá ok", 2026-09-23 10:10) e autorizou o merge.
+  Decisão dele: `agente_responsivo/` é REMOVIDA num commit final da branch e NÃO vai para main.
+  Relatório: `RELATORIO_RESP-sistema-inteiro-2026-09-23-07-37-17.md` (fica no histórico da branch).
 - Ambiente: API `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085 --strict-port`;
   front `apps/web/plantahub-web/dev.sh --api http://localhost:8085 --port 5180 --strict-port`
   — ver D-006.
