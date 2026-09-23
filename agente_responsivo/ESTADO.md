@@ -5,7 +5,7 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 09:12
+- Última atualização: 2026-09-23 09:30
 - Status geral: EXECUTANDO
 
 ## Escopo desta execução
@@ -77,15 +77,14 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 3 · Candidatas: 4 · Sem alteração: 1 · Bloqueadas: 0 ·
-  Revalidação: 0 · Pendentes: 24
+- Total: 32 · Aguardando validação visual: 4 · Candidatas: 5 · Sem alteração: 6 · Bloqueadas: 4 ·
+  Revalidação: 0 · Pendentes: 13 (020-032)
 
 ## Tela atual
-- ID / nome / rota: nenhuma — 009, 012, 013 concluídas
-- **Próxima ação exata:** triagem já medida (`evidencias/RESP-TELA-{006,007,008,010,011,014,015,017,019}/antes`,
-  sem vazamento de viewport). Falta OLHAR as fatias 360/768/1366 de cada uma e registrar.
-  Depois: 020, 022, 025 (candidatas admin) e o resto do painel. Lembrete: vazamento DENTRO
-  de caixa (ex.: e-mail da 009) o script não acusa — ler as capturas.
+- ID / nome / rota: nenhuma — vitrine e conta do cliente processadas (001-019)
+- **Próxima ação exata:** RESP-TELA-020 (`/admin/produtos`, CANDIDATA listagem admin) — a medição
+  `antes` antiga mostra colunas PREÇO BASE e AÇÕES fora da tela em 360; remedir com `fatias.cjs`
+  + storage. Depois 022, 025 (candidatas) e 021, 023-024, 026-032.
 - Ambiente: API `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085 --strict-port`;
   front `apps/web/plantahub-web/dev.sh --api http://localhost:8085 --port 5180 --strict-port`
   — ver D-006.
@@ -122,6 +121,12 @@
   (fatias rolando o #root + lista de elementos fora da viewport não cortados por contêiner
   próprio). Cópia do script em `agente_responsivo/fatias.cjs`. Uso:
   `node agente_responsivo/fatias.cjs <url> <pasta> [storage|-] [larguras] [altura]`.
+- **D-009 (2026-09-23):** `fatias.cjs` também lista "transbordando-a-propria-caixa"
+  (`scrollWidth > clientWidth` com overflow visível). Pegou o botão social da 007, que nenhum
+  outro teste pegava. Falso positivo conhecido: os quadrados decorativos `div.relative` dos heros
+  (Home, Sobre, Contato), que passam 16 px de propósito em todas as larguras.
+- **D-010 (2026-09-23):** 768/1366 lidos em prancha (fatias lado a lado num PNG só, script de
+  scratch `prancha.cjs`); 360 lido fatia a fatia. Resolução suficiente para quebra de layout.
 - **D-004 (2026-09-23):** não existe `PADROES.md` aprovado em nenhuma branch. Esta é a
   primeira execução, então cada tipo de tela recebe **uma** candidata a padrão.
 
@@ -131,6 +136,7 @@
 - `app/layouts/AdminLayout.tsx` (RESP-TELA-002) — afeta todo `/admin/*` (020-032, todas NÃO INICIADA)
 - `components/products/ProductAccordionItem.tsx` (RESP-TELA-004) — só `/produtos`
 - `pages/public/Carrer/Carrer.tsx` (RESP-TELA-009) — só `/trabalhe-conosco`
+- `pages/public/Contact/ContactPage.tsx` (RESP-TELA-007) — só `/contato`
 - `components/products/ProductPlanSelector.tsx` (RESP-TELA-005) — detalhe público e preview admin (027)
 
 ## Alertas
@@ -170,6 +176,9 @@
   repositório vai até a V30. `flyway repair` foi autorizado pelo João e **não foi
   executado**: ele daria a V20 por feita e a V21 falharia em "column does not exist".
   O banco local pertence a outra linha de desenvolvimento.
+- **A-010 — SEM DADO:** a conta admin não tem compras, pedidos nem itens no carrinho. 015/017
+  só tiveram o estado vazio verificado; 016/018 não abrem. Para destravar: o João faz uma compra
+  de teste (ou autoriza o agente a adicionar ao carrinho, o que grava no banco `plantahub_resp`).
 - **A-009 — banco novo NÃO nasce vazio** (corrige o que foi dito ao João antes): as
   próprias migrations semeiam. `V2__seed.sql` insere `plan_type`, `product` e
   `product_plan_type`; `V6__seed_test_asset.sql` e `V28__seed_product_content.sql`

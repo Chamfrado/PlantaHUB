@@ -48,3 +48,11 @@
 - O que mudou: linha 150 — `grid-cols-1`; linha 188 — `break-words`
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: nenhuma
+
+## apps/web/plantahub-web/src/pages/public/Contact/ContactPage.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-007)
+- Telas relacionadas: RESP-TELA-007 — único uso (`SocialLink` é local do arquivo)
+- Motivo: rótulos "Instagram"/"WhatsApp" passavam da borda do botão em 320
+- O que mudou: linha 417 — `gap-2 px-3 sm:gap-3 sm:px-4`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma

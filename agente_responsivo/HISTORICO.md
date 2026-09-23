@@ -113,3 +113,8 @@ abaixo de sm. Sem vazamento em 320/360/768/1366; expandir testado. CANDIDATA A P
 ## 2026-09-23 09:12 — TELAS_CONCLUIDAS — RESP-TELA-009, 012, 013
 009: grid-cols-1 + break-words no e-mail (Carrer.tsx:150,188). 012: candidata formulário sem código.
 013: sem alteração. Triagem de 006-008, 010-011, 014-015, 017, 019 medida, ainda sem leitura das capturas.
+
+## 2026-09-23 09:30 — LOTE_CONCLUIDO — RESP-TELA-006/007/008/010/011/014/015/016/017/018/019
+007 corrigida (ContactPage.tsx:417). 006/008/010/011/019 sem alteração. 014 candidata formulário com abas
+(sem código). 015/017 BLOQUEADA — SEM DADO (só estado vazio, íntegro); 016/018 BLOQUEADA — SEM DADO.
+PROB-001 e PROB-002 em FORA_ESCOPO. Detector de transbordo de caixa adicionado (D-009).

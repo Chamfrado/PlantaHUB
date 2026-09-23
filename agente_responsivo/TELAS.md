@@ -110,15 +110,15 @@
 - Tipo: outro (institucional)
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-006/
+- Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
+- Evidência: agente_responsivo/evidencias/RESP-TELA-006/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/sobre
 - Como testar: 360/768/1366 — blocos de texto e imagem
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados:
+- Como confirmar que estava quebrado: não estava. Hero, manifesto, pilares, conformidade, equipe e CTA íntegros. Quadrados laranja do hero passam 16 px da caixa da imagem em TODAS as larguras (decoração intencional, igual à Home) e ficam dentro da viewport.
+- arquivo:linha: nenhum alterado
+- Cuidados: 
 
 ---
 ## RESP-TELA-007
@@ -129,15 +129,15 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-007/
+- Início / fim: 2026-09-23 09:14 / 2026-09-23 09:20
+- Evidência: agente_responsivo/evidencias/RESP-TELA-007/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
 - Onde ver: http://localhost:5180/contato
 - Como testar: 360/768/1366 — campos, labels, botão de envio (NÃO submeter)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: nunca submeter o formulário
+- Como confirmar que estava quebrado: em 320 px, botões sociais em 2 colunas com conteúdo de 107 px em 103 px — "Instagram" e "WhatsApp" encostam/passam da borda do botão (`antes/fatia-320-0.png`). Depois: sem transbordo em nenhuma largura.
+- arquivo:linha: `pages/public/Contact/ContactPage.tsx:417` (`SocialLink`: `gap-2 px-3 sm:gap-3 sm:px-4`)
+- Cuidados: nunca submeter o formulário Formulário NÃO submetido. Quadrados decorativos do hero passam 16 px da caixa (intencional). Telefone "(xx) xxxxx-xxxx" é conteúdo provisório → FORA_ESCOPO PROB-001.
 
 ---
 ## RESP-TELA-008
@@ -148,15 +148,15 @@
 - Tipo: outro (institucional)
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-008/
+- Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
+- Evidência: agente_responsivo/evidencias/RESP-TELA-008/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/faq
 - Como testar: 360/768/1366 — abrir e fechar itens do acordeão
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados:
+- Como confirmar que estava quebrado: não estava. Busca e acordeão íntegros; primeiro item aberto por padrão lido nas 3 larguras.
+- arquivo:linha: nenhum alterado
+- Cuidados: 
 
 ---
 ## RESP-TELA-009
@@ -186,15 +186,15 @@
 - Tipo: outro (texto longo)
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-010/
+- Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
+- Evidência: agente_responsivo/evidencias/RESP-TELA-010/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/legal/termos
 - Como testar: 360/768/1366 — largura de leitura, listas, tabelas se houver
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados:
+- Como confirmar que estava quebrado: não estava. Sumário "Nesta página" empilha acima do texto abaixo de lg; texto longo sem transbordo.
+- arquivo:linha: nenhum alterado
+- Cuidados: 
 
 ---
 ## RESP-TELA-011
@@ -205,15 +205,15 @@
 - Tipo: outro (texto longo)
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-011/
+- Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
+- Evidência: agente_responsivo/evidencias/RESP-TELA-011/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/legal/privacidade
 - Como testar: 360/768/1366 — largura de leitura, listas
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados:
+- Como confirmar que estava quebrado: não estava. Mesmo modelo de RESP-TELA-010; íntegro.
+- arquivo:linha: nenhum alterado
+- Cuidados: 
 
 ---
 ## RESP-TELA-012
@@ -262,15 +262,15 @@
 - Tipo: formulário (com abas)
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `components/preferences/AccountTab.tsx`, `components/preferences/TransactionTab.tsx`, `app/routers/ProtectedRoute.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo formulário com abas**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-014/
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO (sem alteração de código)
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo formulário com abas.** Proposta = layout atual: abaixo de lg as abas viram lista vertical de cartões acima do conteúdo; campos em 1 coluna no mobile e 2 a partir de md. Sem decisão nova.
+- Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
+- Evidência: agente_responsivo/evidencias/RESP-TELA-014/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010); `transacoes-{320,360,768,1366}.png` com a aba Transações aberta
 - Onde ver: http://localhost:5180/configs
 - Como testar: 360/768/1366 — trocar de aba, listar transações (NÃO salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: exige storageState de cliente; a aba de transações provavelmente tem tabela
+- Como confirmar que estava quebrado: não estava. Abas Conta e Transações, campos, Salvar, Segurança e Zona de perigo íntegros. Em 768 o botão "Excluir conta" quebra em 2 linhas (legível).
+- arquivo:linha: nenhum alterado
+- Cuidados: exige storageState de cliente; a aba de transações provavelmente tem tabela Nada salvo/excluído. Transações: conta sem histórico — só o estado vazio foi visto. Texto técnico interno na seção Segurança → FORA_ESCOPO PROB-002.
 
 ---
 ## RESP-TELA-015
@@ -281,13 +281,13 @@
 - Tipo: listagem
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `components/library/LibraryProductCard.tsx`, `app/routers/ProtectedRoute.tsx`
-- Status: NÃO INICIADA
+- Status: BLOQUEADA — SEM DADO
 - Pendente de padrão:
-- Início / fim:
+- Início / fim: 2026-09-23 09:10 / —
 - Evidência: agente_responsivo/evidencias/RESP-TELA-015/
 - Onde ver: http://localhost:5180/biblioteca
 - Como testar: 360/768/1366 — grade de cartões, ação de download
-- Como confirmar que estava quebrado:
+- Como confirmar que estava quebrado: conta `adm@plantahub.com` sem compras: só o estado vazio existe, e está íntegro nas 4 larguras (`evidencias/RESP-TELA-015/antes`). A grade de `LibraryProductCard` não pôde ser vista; o agente não cria compra.
 - arquivo:linha:
 - Cuidados: exige storageState de cliente com compra feita
 
@@ -300,13 +300,13 @@
 - Tipo: detalhe
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `app/routers/ProtectedRoute.tsx`
-- Status: NÃO INICIADA
+- Status: BLOQUEADA — SEM DADO
 - Pendente de padrão:
-- Início / fim:
+- Início / fim: 2026-09-23 09:10 / —
 - Evidência: agente_responsivo/evidencias/RESP-TELA-016/
 - Onde ver: http://localhost:5180/biblioteca/PRODUCT-ID/PLAN-CODE
 - Como testar: 360/768/1366 — lista de arquivos, botões de download
-- Como confirmar que estava quebrado:
+- Como confirmar que estava quebrado: sem item na biblioteca, não há productId/planTypeCode real para abrir a rota.
 - arquivo:linha:
 - Cuidados: exige sessão + item real; ids saem de `/biblioteca`
 
@@ -319,13 +319,13 @@
 - Tipo: listagem (com totais)
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `app/providers/CartProvider.tsx`, `components/cart/MiniCartDropdown.tsx`
-- Status: NÃO INICIADA
+- Status: BLOQUEADA — SEM DADO
 - Pendente de padrão:
-- Início / fim:
+- Início / fim: 2026-09-23 09:10 / —
 - Evidência: agente_responsivo/evidencias/RESP-TELA-017/
 - Onde ver: http://localhost:5180/carrinho
 - Como testar: 360/768/1366 — itens, quantidades, total, botão de finalizar (NÃO finalizar)
-- Como confirmar que estava quebrado:
+- Como confirmar que estava quebrado: carrinho vazio: estado vazio íntegro nas 4 larguras (`evidencias/RESP-TELA-017/antes`). Itens/totais não vistos; o agente não adiciona ao carrinho (gravaria).
 - arquivo:linha:
 - Cuidados: nunca concluir a compra; o total não pode ficar truncado em nenhuma largura
 
@@ -338,13 +338,13 @@
 - Tipo: detalhe
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `app/routers/ProtectedRoute.tsx`
-- Status: NÃO INICIADA
+- Status: BLOQUEADA — SEM DADO
 - Pendente de padrão:
-- Início / fim:
+- Início / fim: 2026-09-23 09:10 / —
 - Evidência: agente_responsivo/evidencias/RESP-TELA-018/
 - Onde ver: http://localhost:5180/pedidos/ORDER-ID
 - Como testar: 360/768/1366 — itens do pedido, status, valores
-- Como confirmar que estava quebrado:
+- Como confirmar que estava quebrado: sem pedido na conta (aba Transações vazia), não há orderId real.
 - arquivo:linha:
 - Cuidados: exige sessão + pedido real (ids na aba de transações de `/configs`)
 
@@ -357,15 +357,15 @@
 - Tipo: outro (confirmação)
 - Perfil que abre: cliente autenticado
 - Compartilhados usados: `app/routers/ProtectedRoute.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-019/
+- Início / fim: 2026-09-23 09:10 / 2026-09-23 09:30
+- Evidência: agente_responsivo/evidencias/RESP-TELA-019/antes/ — `fatias.cjs` (viewport + transbordo de caixa, D-008/D-009) 320/360/768/1366; fatias 360 lidas uma a uma, 768/1366 lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/pagamento/sucesso
 - Como testar: 360/768/1366 — mensagem e ações seguintes
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: exige sessão; pode depender de query string do provedor de pagamento
+- Como confirmar que estava quebrado: não estava. Cartão de confirmação e dois botões íntegros.
+- arquivo:linha: nenhum alterado
+- Cuidados: exige sessão; pode depender de query string do provedor de pagamento Aberto sem query string do provedor; com parâmetros reais o conteúdo pode variar — conferir.
 
 ---
 ## RESP-TELA-020
