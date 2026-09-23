@@ -33,7 +33,7 @@
 <!-- preenchido quando cada candidata for corrigida e medida -->
 - painel/landing — RESP-TELA-003 — `/` — agent/responsive-sistema-inteiro-20260923-073717 — desde 2026-09-23 08:45 — proposta: layout atual sem alteração; dúvida md:grid-cols-2 nos cards (ver TELAS.md)
 - listagem (vitrine) — RESP-TELA-004 — `/produtos` — idem — desde 2026-09-23 08:55 — linha do acordeão quebra em 2 abaixo de sm (ver TELAS.md)
-- detalhe — RESP-TELA-005 — `/:category/:slug` — idem — (a iniciar)
+- detalhe — RESP-TELA-005 — `/casas/confort` — idem — desde 2026-09-23 09:03 — layout atual + grid-cols-1
 - formulário — RESP-TELA-012 — `/login` — idem — (a iniciar)
 - formulário com abas — RESP-TELA-014 — `/configs` — idem — (a iniciar)
 - listagem administrativa — RESP-TELA-020 — `/admin/produtos` — idem — (a iniciar)

@@ -91,15 +91,15 @@
 - Tipo: detalhe
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/products/{ProductDetailsView,ProductHero,ProductDetailCard,ProductPlanSelector,ProductAccordion,ProductAccordionItem}.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo detalhe**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-005/
-- Onde ver: http://localhost:5180/casas/SLUG-REAL
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo detalhe.** Proposta = layout atual (galeria → info → preço/CTAs → seletor de plantas → resumo, empilhados abaixo de lg) + correção objetiva da trilha do grid. Nenhuma decisão de design nova.
+- Início / fim: 2026-09-23 08:57 / 2026-09-23 09:03
+- Evidência: agente_responsivo/evidencias/RESP-TELA-005/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
+- Onde ver: http://localhost:5180/casas/confort (URL obtida clicando "Ver detalhes" na Home)
 - Como testar: 360/768/1366 — seletor de planos, acordeão, galeria, botão de compra
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: rota com parâmetro — pegar `category/slug` real pela listagem `/produtos`; sem produto no banco, `BLOQUEADA — SEM DADO`
+- Como confirmar que estava quebrado: em 320 px, `antes`: `aside` de compra e card "Resumo" com 297 px ([24,321]) — encostam/passam da borda direita, margem direita some. Grid sem colunas abaixo de lg → trilha `auto` cresce até o min-content do conteúdo. Depois: [24,296], nada vaza.
+- arquivo:linha: `components/products/ProductPlanSelector.tsx:44` (`grid-cols-1`)
+- Cuidados: rota com parâmetro — pegar `category/slug` real pela listagem `/produtos`; sem produto no banco, `BLOQUEADA — SEM DADO`. `ProductPlanSelector` também é usado por `ProductDetailsView` → preview do admin (RESP-TELA-027, NÃO INICIADA). Botões Comprar/Adicionar não foram clicados (gravariam carrinho/pedido).
 
 ---
 ## RESP-TELA-006

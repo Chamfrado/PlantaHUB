@@ -105,3 +105,7 @@ CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO, sem alteração de código.
 ## 2026-09-23 08:55 — TELA_CONCLUIDA — RESP-TELA-004
 `/produtos`: nome do produto invisível e área sobre o preço em 360. Linha do acordeão passa a quebrar
 abaixo de sm. Sem vazamento em 320/360/768/1366; expandir testado. CANDIDATA A PADRÃO listagem vitrine.
+
+## 2026-09-23 09:03 — TELA_CONCLUIDA — RESP-TELA-005
+`/casas/confort`: aside de compra 25 px mais largo que a coluna em 320. `grid-cols-1` em
+`ProductPlanSelector.tsx:44`. Sem vazamento 320-1366. CANDIDATA A PADRÃO detalhe.

@@ -32,3 +32,11 @@
 - O que mudou: linha 21 — botão `flex-wrap gap-x-6 gap-y-3 sm:flex-nowrap`; linha 46 — `ml-auto` no bloco do preço
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: nenhuma
+
+## apps/web/plantahub-web/src/components/products/ProductPlanSelector.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-005)
+- Telas relacionadas: RESP-TELA-005 (detalhe público), RESP-TELA-027 (preview admin)
+- Motivo: grid sem colunas abaixo de lg; trilha auto crescia até 297 px em 320
+- O que mudou: linha 44 — `grid-cols-1`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: RESP-TELA-027 ainda NÃO INICIADA (medir normalmente)

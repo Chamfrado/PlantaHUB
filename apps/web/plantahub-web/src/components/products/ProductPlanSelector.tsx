@@ -41,7 +41,7 @@ export default function ProductPlanSelector({
   return (
     <section id="purchase-options" className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-14">
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_380px]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_380px]">
           <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
