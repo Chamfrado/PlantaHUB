@@ -5,7 +5,7 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 09:03
+- Última atualização: 2026-09-23 09:12
 - Status geral: EXECUTANDO
 
 ## Escopo desta execução
@@ -77,13 +77,15 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 2 · Candidatas: 3 · Sem alteração: 0 · Bloqueadas: 0 ·
-  Revalidação: 0 · Pendentes: 27
+- Total: 32 · Aguardando validação visual: 3 · Candidatas: 4 · Sem alteração: 1 · Bloqueadas: 0 ·
+  Revalidação: 0 · Pendentes: 24
 
 ## Tela atual
-- ID / nome / rota: nenhuma — RESP-TELA-005 concluída
-- **Próxima ação exata:** RESP-TELA-012 (`/login`, CANDIDATA formulário), depois 014, 020,
-  022, 025 (candidatas) e então 006-011, 013, 015-019, 021, 023-024, 026-032.
+- ID / nome / rota: nenhuma — 009, 012, 013 concluídas
+- **Próxima ação exata:** triagem já medida (`evidencias/RESP-TELA-{006,007,008,010,011,014,015,017,019}/antes`,
+  sem vazamento de viewport). Falta OLHAR as fatias 360/768/1366 de cada uma e registrar.
+  Depois: 020, 022, 025 (candidatas admin) e o resto do painel. Lembrete: vazamento DENTRO
+  de caixa (ex.: e-mail da 009) o script não acusa — ler as capturas.
 - Ambiente: API `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085 --strict-port`;
   front `apps/web/plantahub-web/dev.sh --api http://localhost:8085 --port 5180 --strict-port`
   — ver D-006.
@@ -128,6 +130,7 @@
   afetam todas as telas de `MainLayout`
 - `app/layouts/AdminLayout.tsx` (RESP-TELA-002) — afeta todo `/admin/*` (020-032, todas NÃO INICIADA)
 - `components/products/ProductAccordionItem.tsx` (RESP-TELA-004) — só `/produtos`
+- `pages/public/Carrer/Carrer.tsx` (RESP-TELA-009) — só `/trabalhe-conosco`
 - `components/products/ProductPlanSelector.tsx` (RESP-TELA-005) — detalhe público e preview admin (027)
 
 ## Alertas

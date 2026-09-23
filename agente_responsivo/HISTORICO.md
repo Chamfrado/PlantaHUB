@@ -109,3 +109,7 @@ abaixo de sm. Sem vazamento em 320/360/768/1366; expandir testado. CANDIDATA A P
 ## 2026-09-23 09:03 — TELA_CONCLUIDA — RESP-TELA-005
 `/casas/confort`: aside de compra 25 px mais largo que a coluna em 320. `grid-cols-1` em
 `ProductPlanSelector.tsx:44`. Sem vazamento 320-1366. CANDIDATA A PADRÃO detalhe.
+
+## 2026-09-23 09:12 — TELAS_CONCLUIDAS — RESP-TELA-009, 012, 013
+009: grid-cols-1 + break-words no e-mail (Carrer.tsx:150,188). 012: candidata formulário sem código.
+013: sem alteração. Triagem de 006-008, 010-011, 014-015, 017, 019 medida, ainda sem leitura das capturas.

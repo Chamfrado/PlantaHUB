@@ -167,15 +167,15 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: shell (RESP-TELA-001)
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-009/
+- Início / fim: 2026-09-23 09:06 / 2026-09-23 09:12
+- Evidência: agente_responsivo/evidencias/RESP-TELA-009/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
 - Onde ver: http://localhost:5180/trabalhe-conosco
 - Como testar: 360/768/1366 — campos e upload, se houver (NÃO submeter)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: nunca submeter
+- Como confirmar que estava quebrado: em 320 px os cards "O que esperamos receber" e "Canal de contato" tinham 326 px ([24,350]), passando 30 px da borda — o e-mail `parcerias@plantahub.com.br` ficava cortado pelo #root. Com só o `grid-cols-1`, o e-mail passou a estourar a própria caixa; com `break-words` ele quebra dentro dela (78–242 em caixa 57–263).
+- arquivo:linha: `pages/public/Carrer/Carrer.tsx:150` (`grid-cols-1`) · `:188` (`break-words` no e-mail)
+- Cuidados: nunca submeter Página não tem formulário (só links mailto) — nenhum envio possível.
 
 ---
 ## RESP-TELA-010
@@ -224,15 +224,15 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/auth/LoginForm.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo formulário**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-012/
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO (sem alteração de código)
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo formulário.** Proposta = layout atual (cartão de formulário com rótulo acima do campo, largura total no mobile, botão largo). Perguntas de design: (1) no mobile o formulário vem DEPOIS do título e dos 2 cards de marketing (começa em y≈680 em 360×800, quase fora da primeira dobra); (2) em 768 os cards ficam alinhados à esquerda e o formulário centralizado.
+- Início / fim: 2026-09-23 09:05 / 2026-09-23 09:08
+- Evidência: agente_responsivo/evidencias/RESP-TELA-012/antes/ — `fatias.cjs` sem vazamento 320/360/768/1366
 - Onde ver: http://localhost:5180/login
 - Como testar: 360/768/1366 — campos, erro de validação, teclado mobile cobrindo o botão
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: NÃO autenticar com credenciais; só inspecionar o layout
+- Como confirmar que estava quebrado: não estava. Campos, "Esqueci minha senha", botão e link de cadastro visíveis e alinhados nas três larguras.
+- arquivo:linha: nenhum alterado
+- Cuidados: NÃO autenticar com credenciais; só inspecionar o layout. Estado de erro de validação NÃO foi visto (exigiria submeter) — pendente de validação humana.
 
 ---
 ## RESP-TELA-013
@@ -243,15 +243,15 @@
 - Tipo: formulário
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/auth/RegisterForm.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-013/
+- Início / fim: 2026-09-23 09:05 / 2026-09-23 09:08
+- Evidência: agente_responsivo/evidencias/RESP-TELA-013/antes/ — `fatias.cjs` sem vazamento 320/360/768/1366
 - Onde ver: http://localhost:5180/register
 - Como testar: 360/768/1366 — campos, validação, botão
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: NUNCA submeter (criaria usuário no banco)
+- Como confirmar que estava quebrado: não estava. Mesmo layout do login (RESP-TELA-012), 4 campos e botão íntegros.
+- arquivo:linha: nenhum alterado
+- Cuidados: NUNCA submeter (criaria usuário no banco). Segue a candidata de formulário RESP-TELA-012: se o João mudar a ordem formulário/marketing lá, esta volta para a fila. Validação não vista (não submetido).
 
 ---
 ## RESP-TELA-014

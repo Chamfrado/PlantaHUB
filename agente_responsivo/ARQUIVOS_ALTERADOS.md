@@ -40,3 +40,11 @@
 - O que mudou: linha 44 — `grid-cols-1`
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: RESP-TELA-027 ainda NÃO INICIADA (medir normalmente)
+
+## apps/web/plantahub-web/src/pages/public/Carrer/Carrer.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-009)
+- Telas relacionadas: RESP-TELA-009 — único uso
+- Motivo: cards com 326 px em 320 (grid sem colunas abaixo de lg); e-mail sem quebra
+- O que mudou: linha 150 — `grid-cols-1`; linha 188 — `break-words`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma
