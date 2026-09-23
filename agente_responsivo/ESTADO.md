@@ -5,8 +5,8 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 07:37
-- Status geral: MAPEANDO
+- Última atualização: 2026-09-23 07:55
+- Status geral: BLOQUEADO (ambiente — ver A-004)
 
 ## Escopo desta execução
 - Pedido original (texto do João): `/agente-responsivo` sem escopo. Perguntado; respondeu
@@ -118,3 +118,22 @@
   registro para testar.
 - **A-003:** a API (Spring Boot) precisa estar no ar para as telas com dado. Subir com
   `apps/api/plantahub-api/serve.sh` — somente leitura, nenhuma escrita no banco.
+- **A-004 — BLOQUEIO DE AMBIENTE (o que trava tudo hoje):** a API não sobe. O Postgres
+  local está no ar e o Java 21 está instalado, mas o Flyway reprova o banco `plantahub`:
+  `Migration checksum mismatch for migration version 20` (banco `-1271994643` ×
+  arquivo `-1508217695`). O banco local aplicou um rascunho de
+  `V20__catalog_foundation.sql` anterior ao commit `8c6a09f`. Sem API não há sessão, e
+  sem sessão não há evidência para as 18 telas privadas. **Resolver isso mexe em banco e
+  backend — fora do escopo do agente.** Aguardando decisão do João.
+- **A-005 — as credenciais NÃO precisam ser criadas:** `apps/api/plantahub-api/serve.sh`
+  (linhas 167-169) já exporta `APP_ADMIN_DEV_ACCOUNT_EMAIL=adm@plantahub.com` e
+  `APP_ADMIN_DEV_ACCOUNT_PASSWORD=123456`, e o `DevAdminAccountRunner` (`@Profile("!prod")`)
+  cria a conta ADMIN no boot. Assim que a API subir, o storageState sai com
+  `agente_responsivo/gerar-sessao.cjs` (criado nesta sessão).
+- **A-006 — uma conta cobre quase tudo:** `ProtectedRoute` só exige autenticação, não
+  papel. A conta admin abre também `/configs`, `/carrinho`, `/biblioteca` e `/pedidos/:id`.
+  Só RESP-TELA-032 (acesso negado) precisa de um usuário comum — fica pendente de
+  validação humana em vez de o agente cadastrar alguém.
+- **A-007 — 9 telas não dependem de API nem de sessão** e podem ser feitas já:
+  RESP-TELA-001 (shell público), 006, 007, 008, 009, 010, 011, 012, 013.
+

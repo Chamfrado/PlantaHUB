@@ -29,3 +29,12 @@ nenhuma branch `agent/responsive-*`. Esta é a primeira execução do agente no 
 32 telas inventariadas em `TELAS.md` a partir de `src/app/routers/AppRoutes.tsx` e
 `src/pages/admin/AdminApp.tsx`. 8 marcadas como candidatas a padrão (uma por tipo).
 18 telas dependem de sessão e 4 de registro real — ver ESTADO.md → Alertas.
+
+## 2026-09-23 07:51 — TELA_BLOQUEADA (ambiente, não tela)
+Tentativa de subir a API na worktree do agente (`./serve.sh --port 8085`) falhou no boot:
+Flyway reprovou a validação do banco local `plantahub`.
+`Migration checksum mismatch for migration version 20` — aplicado no banco `-1271994643`,
+resolvido localmente `-1508217695`. O arquivo `V20__catalog_foundation.sql` tem um único
+commit (`8c6a09f`), então o banco local aplicou um rascunho anterior dele.
+Sem API não há sessão, e sem sessão as 18 telas privadas ficam sem evidência.
+Resolver isso é decisão do João: mexe em banco e backend, fora do escopo do agente.
