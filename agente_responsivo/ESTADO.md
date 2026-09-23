@@ -5,7 +5,7 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 08:25
+- Última atualização: 2026-09-23 08:33
 - Status geral: EXECUTANDO
 
 ## Escopo desta execução
@@ -77,8 +77,8 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 1 · Sem alteração: 0 · Bloqueadas: 0 ·
-  Revalidação: 0 · Pendentes: 31
+- Total: 32 · Aguardando validação visual: 2 · Sem alteração: 0 · Bloqueadas: 0 ·
+  Revalidação: 0 · Pendentes: 30
 
 ## Tela atual
 - ID / nome / rota: nenhuma — RESP-TELA-001 concluída
@@ -118,7 +118,9 @@
   primeira execução, então cada tipo de tela recebe **uma** candidata a padrão.
 
 ## Componentes compartilhados alterados
-- (nenhum)
+- `components/layout/Header.tsx`, `components/cart/MiniCartDropdown.tsx` (RESP-TELA-001) —
+  afetam todas as telas de `MainLayout`
+- `app/layouts/AdminLayout.tsx` (RESP-TELA-002) — afeta todo `/admin/*` (020-032, todas NÃO INICIADA)
 
 ## Alertas
 - **A-001 — BLOQUEIO PARCIAL PREVISTO:** 18 das 32 telas exigem sessão

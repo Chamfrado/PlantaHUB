@@ -91,3 +91,8 @@ Mini-carrinho vazava à esquerda abaixo de `sm` (x=−110 em 360, −150 em 320)
 `Header.tsx:92` e `MiniCartDropdown.tsx:18,26,75`. Overflow exit 0 antes e depois (14 larguras);
 dropdowns medidos abertos (D-007). Pendente de padrão: navegação mobile (links do cabeçalho
 somem abaixo de md sem menu equivalente). Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL.
+
+## 2026-09-23 08:33 — TELA_CONCLUIDA — RESP-TELA-002
+Cabeçalho do painel com 527 px em 320/360: Sair e Ver site inalcançáveis. Faixa de links passou a
+rolar localmente (`AdminLayout.tsx:57`), ações fixas (`:71`). Overflow exit 0 antes e depois;
+navegação pela faixa testada. Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL.

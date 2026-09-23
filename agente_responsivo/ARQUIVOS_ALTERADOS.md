@@ -16,3 +16,11 @@
 - O que mudou: linhas 18, 26, 75 — `max-w-[calc(100vw-3rem)]` junto do `w-80`
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: idem
+
+## apps/web/plantahub-web/src/app/layouts/AdminLayout.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-002)
+- Telas relacionadas: todo `/admin/*` (RESP-TELA-002, 020-032)
+- Motivo: abaixo de lg, "Ver site" e "Sair" ficavam fora da tela (cabeçalho com 527 px em 360)
+- O que mudou: linha 57 — faixa de links `min-w-0 overflow-x-auto`; linha 71 — ações `shrink-0`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma tela do painel processada ainda

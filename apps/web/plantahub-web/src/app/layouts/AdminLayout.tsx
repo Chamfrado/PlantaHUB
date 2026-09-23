@@ -54,7 +54,7 @@ export default function AdminLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-16 items-center justify-between gap-4 border-b border-neutral-200 bg-white px-6">
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex min-w-0 items-center gap-3 overflow-x-auto lg:hidden">
             {navItems.map(item => (
               <NavLink
                 key={item.to}
@@ -68,7 +68,7 @@ export default function AdminLayout() {
             ))}
           </div>
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex shrink-0 items-center gap-4">
             <Link
               to="/"
               target="_blank"

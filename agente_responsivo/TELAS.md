@@ -34,15 +34,15 @@
 - Tipo: outro (shell)
 - Perfil que abre: admin
 - Compartilhados usados: `app/routers/AdminRoute.tsx`, `components/common/RouteFallback.tsx`, `components/ui/ToastProvider.tsx`
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-002/
+- Início / fim: 2026-09-23 08:27 / 2026-09-23 08:33
+- Evidência: agente_responsivo/evidencias/RESP-TELA-002/{antes,depois}/ — checar-overflow exit 0 em 14 larguras antes e depois (a página não rola; o vazamento era do cabeçalho, ver D-005); `depois/360-armazenamento.png` após navegar pela faixa
 - Onde ver: http://localhost:5180/admin/produtos
 - Como testar: 360/768/1366 — navegação lateral/superior do painel, troca de seção
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: altera todas as telas `/admin/*` (RESP-TELA-020 a 032)
+- Como confirmar que estava quebrado: `antes/360.png` — menu cortado em "Armazen…"; conteúdo do cabeçalho com 527 px em 320/360, "Ver site" em x=422–463 e **Sair em x=479–527, fora da tela e inalcançável**. Depois: cabeçalho 360/360, Sair em 288–336; links rolam dentro da faixa; clique em Armazenamento navega (320/360/768). 1024/1366 idênticos.
+- arquivo:linha: `app/layouts/AdminLayout.tsx:57` (faixa de links: `min-w-0 overflow-x-auto`) · `:71` (ações: `shrink-0`)
+- Cuidados: altera todas as telas `/admin/*` (RESP-TELA-020 a 032). Ponto visual para o João: ao abrir uma seção do fim da lista direto pela URL (ex.: `/admin/armazenamento`), o item ativo fica fora da faixa até rolar — corrigir exigiria JS (scrollIntoView), não feito. E-mail do usuário continua oculto abaixo de sm (já era assim; não é dado de negócio).
 
 ---
 ## RESP-TELA-003
