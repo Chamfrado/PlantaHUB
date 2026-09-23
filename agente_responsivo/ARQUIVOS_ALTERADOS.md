@@ -24,3 +24,11 @@
 - O que mudou: linha 57 — faixa de links `min-w-0 overflow-x-auto`; linha 71 — ações `shrink-0`
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: nenhuma tela do painel processada ainda
+
+## apps/web/plantahub-web/src/components/products/ProductAccordionItem.tsx
+- Primeira / última alteração: 2026-09-23 (RESP-TELA-004)
+- Telas relacionadas: RESP-TELA-004 (`/produtos`) — único uso
+- Motivo: abaixo de sm o nome do produto ficava com 0 px e a área se sobrepunha ao preço
+- O que mudou: linha 21 — botão `flex-wrap gap-x-6 gap-y-3 sm:flex-nowrap`; linha 46 — `ml-auto` no bloco do preço
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma

@@ -17,7 +17,7 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
     <div className="rounded-2xl border border-neutral-200 bg-white px-6 py-5 transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-6 text-left"
+        className="w-full flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-left sm:flex-nowrap"
         aria-expanded={isOpen}
         aria-controls={`product-panel-${product.id}`}
       >
@@ -42,7 +42,7 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
         </div>
 
         {/* Right: Price + Chevron */}
-        <div className="flex items-center gap-6 shrink-0">
+        <div className="ml-auto flex items-center gap-6 shrink-0">
           {product.basePriceCents !== null ? (
             <div className="text-right">
               <div className="text-xs text-brand-muted">A partir de</div>

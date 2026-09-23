@@ -101,3 +101,7 @@ navegação pela faixa testada. Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VIS
 Home sem defeito objetivo em 360/768/1366 (fatias da página inteira). Descoberto que o #root é o
 scroller (D-008): checar-overflow não mede página nesse app; criado `fatias.cjs`. Status:
 CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO, sem alteração de código.
+
+## 2026-09-23 08:55 — TELA_CONCLUIDA — RESP-TELA-004
+`/produtos`: nome do produto invisível e área sobre o preço em 360. Linha do acordeão passa a quebrar
+abaixo de sm. Sem vazamento em 320/360/768/1366; expandir testado. CANDIDATA A PADRÃO listagem vitrine.

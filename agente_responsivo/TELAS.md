@@ -72,15 +72,15 @@
 - Tipo: listagem
 - Perfil que abre: anônimo
 - Compartilhados usados: `components/products/ProductCard.tsx`, `components/products/ProductAccordion.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem (vitrine)**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-004/
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem (vitrine).** Proposta: abaixo de sm, cada linha do acordeão quebra em duas — miniatura + nome/área/subtítulo em cima, "A partir de"/preço + seta embaixo, alinhados à direita. sm+ inalterado. Pergunta de design: em 360 px o painel aberto tem três paddings aninhados (card `px-6` + card interno + caixa de arquivos) e o texto fica estreito; reduzir padding no mobile não foi feito.
+- Início / fim: 2026-09-23 08:46 / 2026-09-23 08:55
+- Evidência: agente_responsivo/evidencias/RESP-TELA-004/{antes,depois}/ — `fatias.cjs` sem vazamento em 320/360/768/1366; `depois/aberto-{360,1366}.png` com o primeiro item expandido
 - Onde ver: http://localhost:5180/produtos
 - Como testar: 360/768/1366 — filtros, grade de cartões, preço e botão de cada cartão
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: o commit `14d2648` já ajustou preço/alinhamento dos cartões — não desfazer
+- Como confirmar que estava quebrado: `antes/fatia-360-0.png` — nas três linhas o NOME do produto some (coluna com 0 px: 264 px úteis − miniatura 96 − preço ~110 − seta e gaps), e "80 m²" quebra por cima do preço. Não é vazamento, então nenhum script acusou. Depois: nome, área, subtítulo e preço legíveis.
+- arquivo:linha: `components/products/ProductAccordionItem.tsx:21` (botão: `flex-wrap gap-x-6 gap-y-3 sm:flex-nowrap`) · `:46` (bloco do preço: `ml-auto`)
+- Cuidados: o commit `14d2648` já ajustou preço/alinhamento dos cartões — não desfazer. Componente usado só por `ProductAccordion` → `Products.tsx`. Subtítulo longo segue truncado com "…" (já era assim no desktop). Expandir/recolher testado em 360 e 1366.
 
 ---
 ## RESP-TELA-005
