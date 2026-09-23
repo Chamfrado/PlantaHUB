@@ -56,3 +56,19 @@ Não foi executado. Fatos:
 Conclusão: não é rascunho editado, é COLISÃO DE NÚMERO entre duas linhas de
 desenvolvimento. O banco local pertence a uma linha (Google auth) que não está neste
 repositório. Resolver isso é decisão do João sobre os dados dele.
+
+## 2026-09-23 07:57 — AMBIENTE_DESTRAVADO
+Banco `plantahub_resp` criado do zero (`./serve.sh --db plantahub_resp --create-db --port 8085`).
+Flyway aplicou 29 migrations, schema em v30. O banco `plantahub` do João não foi tocado.
+`DevAdminAccountRunner` criou `adm@plantahub.com` (ADMIN) no boot, como previsto.
+API em http://localhost:8085 · front do agente em http://localhost:5180.
+
+## 2026-09-23 08:05 — SESSAO_GERADA
+`agente_responsivo/storage-admin.json` gravado por `gerar-sessao.cjs`; `/v1/auth/me`
+confirmou papel ADMIN. Arquivo fora do Git (`.gitignore` local do agente).
+
+## 2026-09-23 08:08 — MEDICAO — RESP-TELA-020 (antes)
+`/admin/produtos` com sessão: exit 0, nenhuma das 14 larguras rola a página.
+As capturas contam outra história: em 360 px o menu do painel corta em "Armazen…" e as
+colunas PREÇO BASE e AÇÕES ficam fora da tela. Registrado como D-005 em ESTADO.md:
+o script não substitui a leitura das capturas.

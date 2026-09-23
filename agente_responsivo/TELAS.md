@@ -379,10 +379,14 @@
 - Status: NÃO INICIADA
 - Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem administrativa (tabela)**
 - Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-020/
+- Evidência: agente_responsivo/evidencias/RESP-TELA-020/antes/ (medição de 2026-09-23 08:08)
 - Onde ver: http://localhost:5180/admin/produtos
 - Como testar: 360/768/1366 — busca, filtro, paginação, cada ação da linha
-- Como confirmar que estava quebrado:
+- Como confirmar que estava quebrado: o script devolve exit 0 nas 14 larguras (a PÁGINA
+  não rola), mas `antes/360.png` mostra o menu do painel cortado em "Armazen…" e as
+  colunas PREÇO BASE e AÇÕES fora da tela — as ações Despublicar e Arquivar ficam
+  inalcançáveis sem scroll dentro do contêiner. `antes/1366.png` mostra a tela íntegra,
+  com os 6 produtos e o rótulo adm@plantahub.com, o que prova que a sessão vale.
 - arquivo:linha:
 - Cuidados: tabela larga — scroll horizontal no contêiner, nunca na página; nenhuma coluna ou ação pode sumir no mobile sem equivalente visível
 

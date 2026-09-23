@@ -5,8 +5,8 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 08:02
-- Status geral: BLOQUEADO (ambiente — ver A-004)
+- Última atualização: 2026-09-23 08:10
+- Status geral: EXECUTANDO
 
 ## Escopo desta execução
 - Pedido original (texto do João): `/agente-responsivo` sem escopo. Perguntado; respondeu
@@ -41,9 +41,17 @@
 - Último commit do agente: fab138c — docs(responsive-agent): inicia execução
 - Porta do servidor do agente: 5180 (original usa 5173; 5180 está dentro da faixa
   5173-5182 liberada no CORS da API, ver `apps/web/plantahub-web/dev.sh`)
-- storageState por perfil (caminhos): **AUSENTES** — necessários para as telas privadas.
-  - cliente: agente_responsivo/storage-cliente.json (a ser gerado pelo João)
-  - admin:   agente_responsivo/storage-admin.json   (a ser gerado pelo João)
+- storageState por perfil (caminhos): **GERADO** em 2026-09-23 08:05
+  - admin: `agente_responsivo/storage-admin.json` — conta `adm@plantahub.com`, papel ADMIN.
+    Cobre também as telas de cliente, porque `ProtectedRoute` só exige autenticação.
+    Regerar com:
+    `node agente_responsivo/gerar-sessao.cjs --api http://localhost:8085 --email adm@plantahub.com --senha 123456 --out agente_responsivo/storage-admin.json`
+  - cliente comum: **não existe**. Só RESP-TELA-032 (acesso negado) precisa; o agente não
+    cadastra usuário. Fica pendente de validação humana.
+- Banco: `plantahub_resp` (criado do zero em 2026-09-23 07:57, Flyway v30, 29 migrations).
+  O banco `plantahub` do João **não foi tocado** — ver A-008.
+- API do agente: `http://localhost:8085` — subir com
+  `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085`
 
 ## Stack front (descoberto, não presumido)
 - Framework: React 19.2 + TypeScript 5.9, Vite 7, React Router DOM 7.12
@@ -75,15 +83,15 @@
 ## Tela atual
 - ID / nome / rota: nenhuma ainda
 - Iniciada em: —
-- Feito até agora: worktree criada, dependências instaladas (`npm ci`), Playwright
-  instalado fora do repositório (`~/.resp-tools`), inventário de 32 telas escrito em
-  `TELAS.md`, padrões importados (nenhum existia).
-- Falta: subir o servidor na porta 5180, obter storageState dos perfis, iniciar por
-  RESP-TELA-001.
-- **Próxima ação exata:** na worktree do agente, rodar
-  `cd apps/web/plantahub-web && ./dev.sh --port 5180 --strict-port`; medir
-  RESP-TELA-001 (shell público, via `/`) com
-  `node agente_responsivo/checar-overflow.cjs --url http://localhost:5180/ --out agente_responsivo/evidencias/RESP-TELA-001/antes`.
+- Feito até agora: worktree criada, `npm ci`, Playwright em `~/.resp-tools`, inventário
+  de 32 telas, padrões importados (nenhum existia), banco `plantahub_resp` criado,
+  API no ar em 8085, front no ar em 5180, storageState de ADMIN gerado e **provado**
+  (captura de `/admin/produtos` mostra o painel real, não a tela de login).
+  Medição "antes" de RESP-TELA-020 já guardada.
+- Falta: começar a corrigir. Ambiente 100% destravado — as 32 telas estão acessíveis.
+- **Próxima ação exata:** iniciar RESP-TELA-001 (shell público). Medir com
+  `node agente_responsivo/checar-overflow.cjs --url http://localhost:5180/ --out agente_responsivo/evidencias/RESP-TELA-001/antes`
+  e **olhar as três capturas** antes de concluir qualquer coisa — ver D-005.
 
 ## Trabalho em curso não commitado
 - Arquivos: nenhum código do app alterado. Apenas `agente_responsivo/` (novo).
@@ -99,6 +107,12 @@
 - **D-003 (2026-09-23):** porta do agente fixada em 5180 para ficar dentro da faixa de
   CORS da API (5173-5182); fora dela o painel não carrega dado nenhum e as capturas
   sairiam vazias — o que seria evidência falsa.
+- **D-005 (2026-09-23):** o `checar-overflow.cjs` sozinho não basta. Em
+  `/admin/produtos` ele devolveu exit 0 ("sem overflow") nas 14 larguras, e a captura de
+  360 px mostra o menu do painel cortado em "Armazen…" e as colunas Preço base e Ações
+  fora da tela. O overflow está DENTRO de contêineres com scroll local, então a página
+  não rola e o script não acusa. **Toda tela exige leitura das capturas de 360, 768 e
+  1366 antes de mudar de status.**
 - **D-004 (2026-09-23):** não existe `PADROES.md` aprovado em nenhuma branch. Esta é a
   primeira execução, então cada tipo de tela recebe **uma** candidata a padrão.
 
