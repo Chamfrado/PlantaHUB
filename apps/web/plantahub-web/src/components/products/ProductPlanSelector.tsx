@@ -76,7 +76,7 @@ export default function ProductPlanSelector({
                 Este produto ainda não está disponível para compra.
               </div>
             ) : (
-              <div className="mt-6 grid gap-4">
+              <div className="mt-6 grid grid-cols-1 gap-4">
                 {planTypes.map(planType => {
                   const normalizedCode = planType.code.toUpperCase();
                   const selected = selectedCodes.includes(normalizedCode);
@@ -97,7 +97,7 @@ export default function ProductPlanSelector({
                             : 'border-neutral-200 bg-white hover:border-neutral-300 hover:bg-brand-light',
                       ].join(' ')}
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-lg font-extrabold text-brand-black">
                             {planType.name}
@@ -116,7 +116,7 @@ export default function ProductPlanSelector({
                           ) : null}
                         </div>
 
-                        <div className="flex shrink-0 flex-col items-end gap-3">
+                        <div className="ml-auto flex shrink-0 flex-col items-end gap-3">
                           <div className="text-right">
                             {owned ? (
                               <div className="text-sm font-bold text-green-700">Já disponível</div>

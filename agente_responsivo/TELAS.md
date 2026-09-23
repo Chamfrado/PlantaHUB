@@ -97,8 +97,8 @@
 - Evidência: agente_responsivo/evidencias/RESP-TELA-005/{antes,depois}/ — `fatias.cjs` 320/360/768/1366
 - Onde ver: http://localhost:5180/casas/confort (URL obtida clicando "Ver detalhes" na Home)
 - Como testar: 360/768/1366 — seletor de planos, acordeão, galeria, botão de compra
-- Como confirmar que estava quebrado: em 320 px, `antes`: `aside` de compra e card "Resumo" com 297 px ([24,321]) — encostam/passam da borda direita, margem direita some. Grid sem colunas abaixo de lg → trilha `auto` cresce até o min-content do conteúdo. Depois: [24,296], nada vaza.
-- arquivo:linha: `components/products/ProductPlanSelector.tsx:44` (`grid-cols-1`)
+- Como confirmar que estava quebrado: em 320 px, `antes`: `aside` de compra e card "Resumo" com 297 px ([24,321]) — encostam/passam da borda direita, margem direita some. Grid sem colunas abaixo de lg → trilha `auto` cresce até o min-content do conteúdo. Depois: [24,296], nada vaza. **Revalidação 2026-09-23 09:50:** o detector de transbordo de caixa (D-009) pegou um segundo defeito em 320 — itens do seletor com 247 px em caixa de 222; corrigido em `ProductPlanSelector.tsx:79,100,119` (ver RESP-TELA-027). Evidência: `depois2/`.
+- arquivo:linha: `components/products/ProductPlanSelector.tsx:44` (`grid-cols-1`) · `:79` (`grid-cols-1`) · `:100` (`flex-wrap`) · `:119` (`ml-auto`)
 - Cuidados: rota com parâmetro — pegar `category/slug` real pela listagem `/produtos`; sem produto no banco, `BLOQUEADA — SEM DADO`. `ProductPlanSelector` também é usado por `ProductDetailsView` → preview do admin (RESP-TELA-027, NÃO INICIADA). Botões Comprar/Adicionar não foram clicados (gravariam carrinho/pedido).
 
 ---
@@ -376,19 +376,19 @@
 - Tipo: listagem
 - Perfil que abre: admin
 - Compartilhados usados: `app/layouts/AdminLayout.tsx`, `components/admin/ui/primitives.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem administrativa (tabela)**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-020/antes/ (medição de 2026-09-23 08:08)
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo listagem administrativa (tabela).** Proposta: manter a tabela com scroll horizontal LOCALIZADO no contêiner (`overflow-x-auto`, já usado em todas as tabelas do painel: produtos, coleções, categorias, arquivos); filtros de status rolam na própria faixa. Pergunta de design: em 360 só PRODUTO/CATEGORIA/STATUS aparecem sem rolar — Despublicar/Arquivar exigem rolar a tabela. Virar cartões no mobile NÃO foi feito (decisão de design).
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-020/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/produtos
 - Como testar: 360/768/1366 — busca, filtro, paginação, cada ação da linha
-- Como confirmar que estava quebrado: o script devolve exit 0 nas 14 larguras (a PÁGINA
+- Como confirmar que estava quebrado: `antes/fatia-360-0.png` — grupo de filtros Todos/Rascunhos/Publicados/Arquivados com 342 px em 312 disponíveis: "Arquivados" cortado e o botão passava da borda ([271,361]), inalcançável. A tabela já rolava localmente (720 px em 310, ações alcançáveis por rolagem). Depois: filtros rolam na faixa, nada vaza.
   não rola), mas `antes/360.png` mostra o menu do painel cortado em "Armazen…" e as
   colunas PREÇO BASE e AÇÕES fora da tela — as ações Despublicar e Arquivar ficam
   inalcançáveis sem scroll dentro do contêiner. `antes/1366.png` mostra a tela íntegra,
   com os 6 produtos e o rótulo adm@plantahub.com, o que prova que a sessão vale.
-- arquivo:linha:
-- Cuidados: tabela larga — scroll horizontal no contêiner, nunca na página; nenhuma coluna ou ação pode sumir no mobile sem equivalente visível
+- arquivo:linha: `pages/admin/products/ProductListPage.tsx:71` (`max-w-full overflow-x-auto` no grupo de filtros)
+- Cuidados: tabela larga — scroll horizontal no contêiner, nunca na página; nenhuma coluna ou ação pode sumir no mobile sem equivalente visível Busca/filtro não gravam; Despublicar/Arquivar NÃO clicados.
 
 ---
 ## RESP-TELA-021
@@ -399,15 +399,15 @@
 - Tipo: formulário
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/ui/primitives.tsx`, `components/admin/ui/MoneyInput.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-021/
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-021/antes/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/produtos/novo
 - Como testar: 360/768/1366 — campos, MoneyInput, botão salvar (NÃO salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: NUNCA salvar
+- Como confirmar que estava quebrado: não estava. Nome, Categoria, Cancelar e Criar rascunho íntegros.
+- arquivo:linha: nenhum alterado
+- Cuidados: NUNCA salvar Criar rascunho NÃO clicado.
 
 ---
 ## RESP-TELA-022
@@ -418,15 +418,15 @@
 - Tipo: formulário (com abas)
 - Perfil que abre: admin
 - Compartilhados usados: `ProductEditorPage.tsx` (barra de abas), `components/admin/ui/primitives.tsx`, `MoneyInput.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo editor com abas (barra de 5 abas no mobile)**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-022/
-- Onde ver: http://localhost:5180/admin/produtos/PRODUCT-ID/geral
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo editor com abas.** Proposta: barra de abas sublinhada com rolagem horizontal abaixo de md; campos em 1 coluna no mobile e 2 a partir de md (já era assim). Pergunta: a aba ativa pode ficar fora da vista ao abrir direto uma aba do fim (ex.: /arquivos).
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-022/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
+- Onde ver: http://localhost:5180/admin/produtos/casa-confort-80m2/geral
 - Como testar: 360/768/1366 — barra de abas com 5 itens, campos, botão salvar (NÃO salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: a barra de abas é compartilhada pelas telas 022-026; corrigi-la marca as quatro seguintes como REVALIDAÇÃO NECESSÁRIA
+- Como confirmar que estava quebrado: em 320/360 a barra de 5 abas do editor tinha 407 px: "Ofertas" cortada e "Arquivos" fora da tela, sem rolagem (`antes/fatia-360-0.png`). Depois: a faixa rola localmente, as 5 abas alcançáveis.
+- arquivo:linha: `pages/admin/products/ProductEditorPage.tsx:169` (`overflow-x-auto` na faixa de abas — compartilhada 022-026)
+- Cuidados: a barra de abas é compartilhada pelas telas 022-026; corrigi-la marca as quatro seguintes como REVALIDAÇÃO NECESSÁRIA Salvar NÃO clicado. Telas 023-026 herdam a correção da barra.
 
 ---
 ## RESP-TELA-023
@@ -437,15 +437,15 @@
 - Tipo: formulário
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/forms/RepeatableList.tsx`, `primitives.tsx`
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-023/
-- Onde ver: http://localhost:5180/admin/produtos/PRODUCT-ID/conteudo
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-023/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
+- Onde ver: http://localhost:5180/admin/produtos/casa-confort-80m2/conteudo
 - Como testar: 360/768/1366 — adicionar/remover item da lista repetível (sem salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: `RepeatableList` é compartilhado dentro do painel
+- Como confirmar que estava quebrado: em 320/360 a barra de 5 abas do editor tinha 407 px: "Ofertas" cortada e "Arquivos" fora da tela, sem rolagem (`antes/fatia-360-0.png`). Depois: a faixa rola localmente, as 5 abas alcançáveis. Além disso, em 320 os títulos dos itens da lista repetível (maiúsculas com tracking) passavam 7–10 px da linha e empurravam os botões mover/remover. Depois: título quebra, botões no lugar.
+- arquivo:linha: `pages/admin/products/ProductEditorPage.tsx:169` (`overflow-x-auto` na faixa de abas — compartilhada 022-026) · `components/admin/forms/RepeatableList.tsx:68` (`min-w-0 break-words` no título do item)
+- Cuidados: `RepeatableList` é compartilhado dentro do painel Nenhum item adicionado/removido; Salvar NÃO clicado. `RepeatableList.test.tsx` passa (67/67 da suíte).
 
 ---
 ## RESP-TELA-024
@@ -456,15 +456,15 @@
 - Tipo: outro (galeria + upload)
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/upload/UploadDropzone.tsx`, `UploadQueue.tsx`
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-024/
-- Onde ver: http://localhost:5180/admin/produtos/PRODUCT-ID/imagens
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-024/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
+- Onde ver: http://localhost:5180/admin/produtos/casa-confort-80m2/imagens
 - Como testar: 360/768/1366 — grade de imagens, área de upload (NÃO enviar arquivo)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: nunca enviar arquivo (grava no storage)
+- Como confirmar que estava quebrado: em 320/360 a barra de 5 abas do editor tinha 407 px: "Ofertas" cortada e "Arquivos" fora da tela, sem rolagem (`antes/fatia-360-0.png`). Depois: a faixa rola localmente, as 5 abas alcançáveis.
+- arquivo:linha: `pages/admin/products/ProductEditorPage.tsx:169` (`overflow-x-auto` na faixa de abas — compartilhada 022-026)
+- Cuidados: nunca enviar arquivo (grava no storage) Nenhuma imagem enviada nem removida.
 
 ---
 ## RESP-TELA-025
@@ -475,15 +475,15 @@
 - Tipo: grade de lançamento (preços por plano)
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/ui/MoneyInput.tsx`, `primitives.tsx`
-- Status: NÃO INICIADA
-- Pendente de padrão: **CANDIDATA A PADRÃO — tipo grade de lançamento**
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-025/
-- Onde ver: http://localhost:5180/admin/produtos/PRODUCT-ID/ofertas
+- Status: CANDIDATA A PADRÃO — AGUARDANDO APROVAÇÃO
+- Pendente de padrão: **CANDIDATA A PADRÃO — tipo grade de lançamento.** Proposta = layout atual: abaixo de md cada plano vira um cartão (nome/código, preço, "À venda", Salvar); a partir de md vira linha única. Não é tabela, então não há primeira coluna fixa — nenhum dado some. Sem decisão nova além da barra de abas (022).
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-025/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
+- Onde ver: http://localhost:5180/admin/produtos/casa-confort-80m2/ofertas
 - Como testar: 360/768/1366 — leitura em linha dos preços por plano (NÃO salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: grade de lançamento NÃO vira cartão — scroll horizontal localizado com primeira coluna fixa
+- Como confirmar que estava quebrado: em 320/360 a barra de 5 abas do editor tinha 407 px: "Ofertas" cortada e "Arquivos" fora da tela, sem rolagem (`antes/fatia-360-0.png`). Depois: a faixa rola localmente, as 5 abas alcançáveis.
+- arquivo:linha: `pages/admin/products/ProductEditorPage.tsx:169` (`overflow-x-auto` na faixa de abas — compartilhada 022-026)
+- Cuidados: grade de lançamento NÃO vira cartão — scroll horizontal localizado com primeira coluna fixa Nenhum preço salvo.
 
 ---
 ## RESP-TELA-026
@@ -494,15 +494,15 @@
 - Tipo: listagem
 - Perfil que abre: admin
 - Compartilhados usados: `components/admin/upload/UploadDropzone.tsx`, `UploadQueue.tsx`, `FolderMappingTable.tsx`
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-026/
-- Onde ver: http://localhost:5180/admin/produtos/PRODUCT-ID/arquivos
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-026/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
+- Onde ver: http://localhost:5180/admin/produtos/casa-confort-80m2/arquivos
 - Como testar: 360/768/1366 — tabela de mapeamento de pastas, fila de upload (NÃO enviar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: `FolderMappingTable` é tabela larga; nunca enviar arquivo
+- Como confirmar que estava quebrado: em 320/360 a barra de 5 abas do editor tinha 407 px: "Ofertas" cortada e "Arquivos" fora da tela, sem rolagem (`antes/fatia-360-0.png`). Depois: a faixa rola localmente, as 5 abas alcançáveis. A tabela de arquivos (820 px) já rolava localmente.
+- arquivo:linha: `pages/admin/products/ProductEditorPage.tsx:169` (`overflow-x-auto` na faixa de abas — compartilhada 022-026)
+- Cuidados: `FolderMappingTable` é tabela larga; nunca enviar arquivo Nenhum arquivo enviado/removido.
 
 ---
 ## RESP-TELA-027
@@ -513,15 +513,15 @@
 - Tipo: detalhe
 - Perfil que abre: admin
 - Compartilhados usados: componentes de `components/products/`
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-027/
-- Onde ver: http://localhost:5180/admin/produtos/PRODUCT-ID/preview
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-027/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
+- Onde ver: http://localhost:5180/admin/produtos/casa-confort-80m2/preview
 - Como testar: 360/768/1366 — comparar com RESP-TELA-005
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: reaproveita componentes públicos — alterações aqui afetam a vitrine
+- Como confirmar que estava quebrado: em 320/360 os itens do seletor de plantas tinham min-content de 247 px em caixa de 172/212 (preço grudado/fora do item). Mesmo defeito existia na vitrine (RESP-TELA-005) em 320. Depois: preço desce para a 2ª linha, alinhado à direita.
+- arquivo:linha: `components/products/ProductPlanSelector.tsx:79` (`grid-cols-1`) · `:100` (`flex-wrap`) · `:119` (`ml-auto`)
+- Cuidados: reaproveita componentes públicos — alterações aqui afetam a vitrine Mesmo componente da vitrine — RESP-TELA-005 revalidada junto.
 
 ---
 ## RESP-TELA-028
@@ -532,15 +532,15 @@
 - Tipo: listagem
 - Perfil que abre: admin
 - Compartilhados usados: `AdminLayout.tsx`, `primitives.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-028/
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-028/antes/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/colecoes
 - Como testar: 360/768/1366 — tabela, ações, modal de criação (NÃO salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados:
+- Como confirmar que estava quebrado: não estava. Tabela (680 px) rola localmente; Nova coleção visível.
+- arquivo:linha: nenhum alterado
+- Cuidados: Modal de criação não aberto/salvo.
 
 ---
 ## RESP-TELA-029
@@ -551,15 +551,15 @@
 - Tipo: listagem
 - Perfil que abre: admin
 - Compartilhados usados: `AdminLayout.tsx`, `primitives.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-029/
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-029/antes/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/categorias
 - Como testar: 360/768/1366 — tabela, ações, modal (NÃO salvar)
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados:
+- Como confirmar que estava quebrado: não estava. Tabela (560 px) rola localmente; Nova categoria visível.
+- arquivo:linha: nenhum alterado
+- Cuidados: Modal não salvo.
 
 ---
 ## RESP-TELA-030
@@ -570,15 +570,15 @@
 - Tipo: painel (relatório)
 - Perfil que abre: admin
 - Compartilhados usados: `AdminLayout.tsx`, `primitives.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-030/
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-030/antes/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/reconciliacao
 - Como testar: 360/768/1366 — filtros de período, indicadores, tabela de divergências
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: números não podem truncar em nenhuma largura
+- Como confirmar que estava quebrado: não estava. Ensaiar/Executar, aviso e estado vazio íntegros.
+- arquivo:linha: nenhum alterado
+- Cuidados: números não podem truncar em nenhuma largura Ensaiar/Executar NÃO clicados. Tabela de divergências não vista (nenhuma varredura executada — sem dado).
 
 ---
 ## RESP-TELA-031
@@ -589,15 +589,15 @@
 - Tipo: painel
 - Perfil que abre: admin
 - Compartilhados usados: `AdminLayout.tsx`, `primitives.tsx`
-- Status: NÃO INICIADA
+- Status: CORRIGIDA — AGUARDANDO VALIDAÇÃO VISUAL
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-031/
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-031/{antes,depois}/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/armazenamento
 - Como testar: 360/768/1366 — indicadores de uso, listagem de arquivos
-- Como confirmar que estava quebrado:
-- arquivo:linha:
-- Cuidados: tela recém-criada (commit `c76c78e`) — não desfazer o que foi feito lá
+- Como confirmar que estava quebrado: no ambiente do agente o diagnóstico do bucket falha por falta de credencial AWS e a mensagem traz um token longo sem espaço ("AwsCredentialsProviderChain(credentialsProviders=[..."): 294 px em caixa de 230 (320) / 270 (360), cortado. Depois: quebra dentro do card. Blocos JSON (`<pre>`) já rolam localmente.
+- arquivo:linha: `pages/admin/storage/StoragePage.tsx:337` (`break-words` no detalhe da verificação)
+- Cuidados: tela recém-criada (commit `c76c78e`) — não desfazer o que foi feito lá Verificar agora / Informar credenciais / Copiar NÃO acionados para gravar. Com bucket configurado as mensagens são curtas — o defeito aparece só em erro.
 
 ---
 ## RESP-TELA-032
@@ -608,12 +608,12 @@
 - Tipo: outro
 - Perfil que abre: admin (404) · não-admin (acesso negado)
 - Compartilhados usados: `app/routers/AdminRoute.tsx`
-- Status: NÃO INICIADA
+- Status: SEM ALTERAÇÃO NECESSÁRIA
 - Pendente de padrão:
-- Início / fim:
-- Evidência: agente_responsivo/evidencias/RESP-TELA-032/
+- Início / fim: 2026-09-23 09:35 / 2026-09-23 10:00
+- Evidência: agente_responsivo/evidencias/RESP-TELA-032/antes/ — `fatias.cjs` com storage admin, 320/360/768/1366; lidas em prancha (D-010)
 - Onde ver: http://localhost:5180/admin/rota-que-nao-existe
 - Como testar: 360/768/1366 — mensagem e botão de volta
-- Como confirmar que estava quebrado:
-- arquivo:linha:
+- Como confirmar que estava quebrado: não estava. 404 do painel íntegro. Acesso negado (não-admin) NÃO visto — sem sessão de cliente comum; pendente de validação humana.
+- arquivo:linha: nenhum alterado
 - Cuidados: o acesso negado exige sessão de cliente comum (não admin)

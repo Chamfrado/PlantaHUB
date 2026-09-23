@@ -65,7 +65,7 @@ export default function RepeatableList<T>({
           {value.map((item, index) => (
             <div key={item._uid} className="rounded-xl border border-neutral-200 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
-                <span className="text-xs font-bold uppercase tracking-wide text-neutral-400">
+                <span className="min-w-0 break-words text-xs font-bold uppercase tracking-wide text-neutral-400">
                   {index + 1}. {itemTitle(item, index) || 'Sem título'}
                 </span>
 

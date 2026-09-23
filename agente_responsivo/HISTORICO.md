@@ -118,3 +118,9 @@ abaixo de sm. Sem vazamento em 320/360/768/1366; expandir testado. CANDIDATA A P
 007 corrigida (ContactPage.tsx:417). 006/008/010/011/019 sem alteração. 014 candidata formulário com abas
 (sem código). 015/017 BLOQUEADA — SEM DADO (só estado vazio, íntegro); 016/018 BLOQUEADA — SEM DADO.
 PROB-001 e PROB-002 em FORA_ESCOPO. Detector de transbordo de caixa adicionado (D-009).
+
+## 2026-09-23 10:00 — LOTE_CONCLUIDO — PAINEL ADMIN (RESP-TELA-020 a 032) + REVALIDAÇÃO 005
+020 filtros rolam (ProductListPage:71). 022-026 barra de abas rola (ProductEditorPage:169). 023 título da
+lista repetível quebra (RepeatableList:68). 027 + 005 itens do seletor quebram (ProductPlanSelector:79,100,119).
+031 diagnóstico quebra (StoragePage:337). 021, 028, 029, 030, 032 sem alteração. Candidatas: 020, 022, 025.
+vitest 67/67, build ok, lint ok. Nenhuma tela pendente; status geral VARREDURA CONCLUÍDA — AGUARDANDO JOÃO.

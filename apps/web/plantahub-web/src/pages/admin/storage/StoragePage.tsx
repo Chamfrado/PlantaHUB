@@ -334,7 +334,7 @@ function CheckRow({ check }: { check: CheckResult }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-bold text-neutral-900">{check.title}</h3>
-          <p className="mt-1 text-sm text-neutral-600">{check.detail}</p>
+          <p className="mt-1 break-words text-sm text-neutral-600">{check.detail}</p>
         </div>
 
         <span

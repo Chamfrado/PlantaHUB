@@ -166,7 +166,7 @@ function EditProduct() {
         }
       />
 
-      <div className="flex gap-1 border-b border-neutral-200">
+      <div className="flex gap-1 overflow-x-auto border-b border-neutral-200">
         {TABS.map(tab => (
           <NavLink
             key={tab.path}

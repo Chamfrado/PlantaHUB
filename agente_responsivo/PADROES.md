@@ -36,6 +36,6 @@
 - detalhe — RESP-TELA-005 — `/casas/confort` — idem — desde 2026-09-23 09:03 — layout atual + grid-cols-1
 - formulário — RESP-TELA-012 — `/login` — idem — desde 2026-09-23 09:12 — layout atual sem alteração; 2 perguntas de ordem/alinhamento (ver TELAS.md)
 - formulário com abas — RESP-TELA-014 — `/configs` — idem — desde 2026-09-23 09:30 — layout atual sem alteração
-- listagem administrativa — RESP-TELA-020 — `/admin/produtos` — idem — (a iniciar)
-- editor com abas — RESP-TELA-022 — `/admin/produtos/:id/geral` — idem — (a iniciar)
-- grade de lançamento — RESP-TELA-025 — `/admin/produtos/:id/ofertas` — idem — (a iniciar)
+- listagem administrativa — RESP-TELA-020 — `/admin/produtos` — idem — desde 2026-09-23 10:00 — tabela com scroll localizado (sem cartões)
+- editor com abas — RESP-TELA-022 — `/admin/produtos/casa-confort-80m2/geral` — idem — desde 2026-09-23 10:00 — barra de abas com rolagem horizontal
+- grade de lançamento — RESP-TELA-025 — `/admin/produtos/casa-confort-80m2/ofertas` — idem — desde 2026-09-23 10:00 — layout atual (cartão por plano no mobile)

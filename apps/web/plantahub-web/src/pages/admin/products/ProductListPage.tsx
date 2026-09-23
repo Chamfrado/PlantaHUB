@@ -68,7 +68,7 @@ export default function ProductListPage() {
       />
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 rounded-xl border border-neutral-200 bg-white p-1">
+        <div className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-neutral-200 bg-white p-1">
           {STATUS_TABS.map(tab => (
             <button
               key={tab.value}

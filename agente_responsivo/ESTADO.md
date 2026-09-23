@@ -5,8 +5,8 @@
 ## Identificação
 - Execution ID: RESP-sistema-inteiro-2026-09-23-07-37-17
 - Início original: 2026-09-23 07:37 (nunca alterar em retomadas)
-- Última atualização: 2026-09-23 09:30
-- Status geral: EXECUTANDO
+- Última atualização: 2026-09-23 10:00
+- Status geral: VARREDURA CONCLUÍDA — AGUARDANDO JOÃO (validação visual + aprovação de candidatas + dados de teste)
 
 ## Escopo desta execução
 - Pedido original (texto do João): `/agente-responsivo` sem escopo. Perguntado; respondeu
@@ -77,20 +77,22 @@
   em PRONTO PARA MERGE.
 
 ## Progresso
-- Total: 32 · Aguardando validação visual: 4 · Candidatas: 5 · Sem alteração: 6 · Bloqueadas: 4 ·
-  Revalidação: 0 · Pendentes: 13 (020-032)
+- Total: 32 · Aguardando validação visual: 9 · Candidatas: 8 · Sem alteração: 11 · Bloqueadas: 4 ·
+  Revalidação: 0 · Pendentes: 0
 
 ## Tela atual
-- ID / nome / rota: nenhuma — vitrine e conta do cliente processadas (001-019)
-- **Próxima ação exata:** RESP-TELA-020 (`/admin/produtos`, CANDIDATA listagem admin) — a medição
-  `antes` antiga mostra colunas PREÇO BASE e AÇÕES fora da tela em 360; remedir com `fatias.cjs`
-  + storage. Depois 022, 025 (candidatas) e 021, 023-024, 026-032.
+- ID / nome / rota: nenhuma — as 32 telas têm status final possível para o agente.
+- **Próxima ação exata:** nenhuma tela pendente. O que falta depende do João:
+  (1) validar visualmente as CORRIGIDAS; (2) aprovar/reprovar as 8 candidatas (PADROES.md);
+  (3) destravar A-010 (compra de teste) para 015-018 e sessão de cliente comum para 032.
+  Depois disso: se houver reprovação, corrigir a candidata; se não, seguir `references/04-merge.md`
+  (sincronizar com main, relatório, PRONTO PARA MERGE). O agente NÃO iniciou o merge.
 - Ambiente: API `apps/api/plantahub-api/serve.sh --db plantahub_resp --port 8085 --strict-port`;
   front `apps/web/plantahub-web/dev.sh --api http://localhost:8085 --port 5180 --strict-port`
   — ver D-006.
 
 ## Trabalho em curso não commitado
-- Nenhum. Lint dos arquivos alterados: OK.
+- Nenhum. Verificação final 2026-09-23 09:58: `vitest run` 67/67 ok · `npm run build` ok · eslint nos arquivos alterados ok.
 
 ## Decisões (valem para as próximas telas)
 - **D-001 (2026-09-23):** usar exclusivamente os breakpoints padrão do Tailwind 4 já
@@ -137,7 +139,9 @@
 - `components/products/ProductAccordionItem.tsx` (RESP-TELA-004) — só `/produtos`
 - `pages/public/Carrer/Carrer.tsx` (RESP-TELA-009) — só `/trabalhe-conosco`
 - `pages/public/Contact/ContactPage.tsx` (RESP-TELA-007) — só `/contato`
-- `components/products/ProductPlanSelector.tsx` (RESP-TELA-005) — detalhe público e preview admin (027)
+- `components/products/ProductPlanSelector.tsx` (RESP-TELA-005, 027) — detalhe público e preview admin
+- `pages/admin/products/ProductEditorPage.tsx` (RESP-TELA-022) — barra de abas de 022-026
+- `pages/admin/products/ProductListPage.tsx` (RESP-TELA-020) · `components/admin/forms/RepeatableList.tsx` (023) · `pages/admin/storage/StoragePage.tsx` (031)
 
 ## Alertas
 - **A-001 — BLOQUEIO PARCIAL PREVISTO:** 18 das 32 telas exigem sessão

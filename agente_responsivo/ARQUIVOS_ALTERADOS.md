@@ -37,7 +37,7 @@
 - Primeira / última alteração: 2026-09-23 (RESP-TELA-005)
 - Telas relacionadas: RESP-TELA-005 (detalhe público), RESP-TELA-027 (preview admin)
 - Motivo: grid sem colunas abaixo de lg; trilha auto crescia até 297 px em 320
-- O que mudou: linha 44 — `grid-cols-1`
+- O que mudou: linha 44 — `grid-cols-1`; linha 79 — `grid-cols-1`; linha 100 — `flex-wrap`; linha 119 — `ml-auto` (revalidação 005 + 027)
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: RESP-TELA-027 ainda NÃO INICIADA (medir normalmente)
 
@@ -56,3 +56,35 @@
 - O que mudou: linha 417 — `gap-2 px-3 sm:gap-3 sm:px-4`
 - Lógica, API ou regra de negócio alterada: NÃO
 - Revalidação necessária: nenhuma
+
+## apps/web/plantahub-web/src/pages/admin/products/ProductEditorPage.tsx
+- Primeira / última alteração: 2026-09-23
+- Telas relacionadas: RESP-TELA-022 a 026 (barra de abas compartilhada)
+- Motivo: barra de 5 abas com 407 px em 312; últimas abas inalcançáveis
+- O que mudou: linha 169 — `overflow-x-auto`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma pendente (medido após a alteração)
+
+## apps/web/plantahub-web/src/pages/admin/products/ProductListPage.tsx
+- Primeira / última alteração: 2026-09-23
+- Telas relacionadas: RESP-TELA-020
+- Motivo: filtros de status com 342 px em 312; "Arquivados" inalcançável
+- O que mudou: linha 71 — `max-w-full overflow-x-auto`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma pendente (medido após a alteração)
+
+## apps/web/plantahub-web/src/components/admin/forms/RepeatableList.tsx
+- Primeira / última alteração: 2026-09-23
+- Telas relacionadas: RESP-TELA-023 (único uso: ContentTab)
+- Motivo: título do item empurrava os botões em 320
+- O que mudou: linha 68 — `min-w-0 break-words`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma pendente (medido após a alteração)
+
+## apps/web/plantahub-web/src/pages/admin/storage/StoragePage.tsx
+- Primeira / última alteração: 2026-09-23
+- Telas relacionadas: RESP-TELA-031
+- Motivo: mensagem de diagnóstico sem espaço cortada
+- O que mudou: linha 337 — `break-words`
+- Lógica, API ou regra de negócio alterada: NÃO
+- Revalidação necessária: nenhuma pendente (medido após a alteração)
