@@ -2,7 +2,10 @@ package com.plantahub.api.web.dto.admin;
 
 import com.plantahub.api.domain.catalog.Category;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.util.List;
 
 public final class AdminCategoryDTOs {
 
@@ -15,7 +18,8 @@ public final class AdminCategoryDTOs {
             String description,
             Integer sortOrder,
             Boolean featuredOnHome,
-            Integer homeOrder
+            Integer homeOrder,
+            Boolean comingSoon
     ) {}
 
     public record UpdateCategoryRequest(
@@ -24,8 +28,14 @@ public final class AdminCategoryDTOs {
             Integer sortOrder,
             Boolean featuredOnHome,
             Integer homeOrder,
+            Boolean comingSoon,
             Boolean active
     ) {}
+
+    /** Ordem completa: a posicao na lista vira o {@code sort_order}. */
+    public record ReorderRequest(@NotNull List<String> ids) {}
+
+    public record CategoryProductDTO(String id, String name, String status) {}
 
     public record CategoryDTO(
             String slug,
@@ -34,6 +44,7 @@ public final class AdminCategoryDTOs {
             int sortOrder,
             boolean featuredOnHome,
             int homeOrder,
+            boolean comingSoon,
             boolean active,
             long productCount
     ) {
@@ -43,6 +54,7 @@ public final class AdminCategoryDTOs {
                     c.getSortOrder() == null ? 0 : c.getSortOrder(),
                     Boolean.TRUE.equals(c.getFeaturedOnHome()),
                     c.getHomeOrder() == null ? 0 : c.getHomeOrder(),
+                    Boolean.TRUE.equals(c.getComingSoon()),
                     Boolean.TRUE.equals(c.getActive()),
                     productCount
             );

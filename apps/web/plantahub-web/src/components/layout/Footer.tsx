@@ -14,7 +14,7 @@ export default function Footer() {
   // Memoizado no servico pelo mesmo motivo das categorias: o rodape esta em toda pagina.
   const settings = useSiteSettings();
 
-  const products: LinkItem[] = (categories ?? []).map(c => ({
+  const products: LinkItem[] = (categories ?? []).filter(c => !c.comingSoon).map(c => ({
     label: c.name,
     href: `/produtos?category=${encodeURIComponent(c.slug)}`,
   }));

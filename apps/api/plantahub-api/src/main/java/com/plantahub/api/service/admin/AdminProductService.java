@@ -115,6 +115,8 @@ public class AdminProductService {
         product.setBasePriceCents(request.basePriceCents() == null ? 0 : request.basePriceCents());
         product.setDelivery(request.delivery());
         product.setCustomizable(request.customizable() != null && request.customizable());
+        // Produto novo entra no fim da vitrine, sem empurrar os que o admin ja ordenou.
+        product.setSortOrder(productRepo.maxSortOrder(category) + 1);
         product.setContent(ProductContent.empty());
         product.setCreatedAt(now);
         product.setUpdatedAt(now);
@@ -132,6 +134,7 @@ public class AdminProductService {
             categoryRepo.findById(request.category())
                     .orElseThrow(() -> new NotFoundException("category_not_found: " + request.category()));
             product.setCategory(request.category());
+            product.setSortOrder(productRepo.maxSortOrder(request.category()) + 1);
         }
 
         if (request.slug() != null && !request.slug().isBlank()) {

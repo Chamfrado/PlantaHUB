@@ -65,6 +65,33 @@ describe('ProductsPage', () => {
     ).toBeInTheDocument();
   });
 
+  it('categoria em breve fica desativada e so avisa ao clicar', async () => {
+    const user = userEvent.setup();
+
+    server.use(
+      http.get('http://localhost:8080/v1/categories', () =>
+        HttpResponse.json([
+          { slug: 'sobrados', name: 'Sobrados', order: 1, featuredOnHome: false, homeOrder: 0, comingSoon: true },
+          { slug: 'casas', name: 'Casas', order: 2, featuredOnHome: true, homeOrder: 1, comingSoon: false },
+        ])
+      )
+    );
+
+    // Nem pela URL a categoria em breve abre: cai na primeira categoria aberta.
+    renderAt('/produtos?category=sobrados');
+
+    expect(await screen.findByText('Confort')).toBeInTheDocument();
+
+    const sobrados = screen.getByRole('button', { name: 'Sobrados' });
+    expect(sobrados).toHaveAttribute('aria-disabled', 'true');
+    expect(sobrados).toHaveAttribute('title', 'Em breve');
+
+    await user.click(sobrados);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Em breve');
+    expect(screen.getByText('Confort')).toBeInTheDocument();
+  });
+
   it('oferece nova tentativa quando a API falha', async () => {
     server.use(
       http.get('http://localhost:8080/v1/products', () =>

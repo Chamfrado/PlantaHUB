@@ -30,7 +30,10 @@ EnvironmentFile=/opt/plantahub/backend/.env
 ExecStart=/usr/bin/java $JAVA_OPTS -jar /opt/plantahub/backend/app.jar
 # A JVM sai com 143 ao receber SIGTERM; isso é parada normal.
 SuccessExitStatus=143
-Restart=on-failure
+# always: volta sozinho de qualquer saída (erro, OOM, exit 0). Só `systemctl stop`
+# mantém parado. Travamentos e o estado "failed" (StartLimitBurst estourado) ficam
+# com o plantahub-watchdog.timer, que testa /health a cada minuto.
+Restart=always
 RestartSec=10
 TimeoutStopSec=30
 

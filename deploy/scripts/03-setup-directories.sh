@@ -85,6 +85,26 @@ systemctl daemon-reload
 systemctl enable "$SERVICE_NAME" >/dev/null
 ok "unit instalada e habilitada no boot (o start acontece no primeiro deploy)"
 
+# ------------------------------------------------------------------ watchdog
+
+step "Watchdog do backend"
+install -o root -g root -m 0755 "$DEPLOY_DIR/scripts/plantahub-watchdog.sh" /usr/local/sbin/plantahub-watchdog
+install -o root -g root -m 0644 "$DEPLOY_DIR/systemd/plantahub-watchdog.service" /etc/systemd/system/plantahub-watchdog.service
+install -o root -g root -m 0644 "$DEPLOY_DIR/systemd/plantahub-watchdog.timer" /etc/systemd/system/plantahub-watchdog.timer
+systemctl daemon-reload
+systemctl enable --now plantahub-watchdog.timer >/dev/null
+ok "plantahub-watchdog.timer ativo: testa /health a cada minuto e reinicia após ~3 min sem resposta"
+info "pausar: touch /etc/plantahub/watchdog.disabled · logs: journalctl -u plantahub-watchdog"
+
+# ------------------------------------------------------------------ logs
+
+# Leitura do journal para o usuário de deploy: permite diagnosticar uma queda (e o
+# CI mostrar o motivo de um rollback) sem precisar de root. Só leitura.
+if getent group systemd-journal >/dev/null && ! id -nG "$DEPLOY_USER" | grep -qw systemd-journal; then
+  usermod -aG systemd-journal "$DEPLOY_USER"
+  ok "$DEPLOY_USER pode ler os logs (grupo systemd-journal)"
+fi
+
 step "Diretórios prontos"
 info "Próximo: preencha $BACKEND_ENV_FILE  →  sudo nano $BACKEND_ENV_FILE"
 info "Depois:  sudo bash $DEPLOY_DIR/scripts/04-install-backend.sh /caminho/para/app.jar"

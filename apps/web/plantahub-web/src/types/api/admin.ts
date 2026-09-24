@@ -108,6 +108,14 @@ export type AdminCategory = {
   sortOrder: number;
   featuredOnHome: boolean;
   homeOrder: number;
+  comingSoon: boolean;
   active: boolean;
   productCount: number;
+};
+
+/** Produto como aparece na ordenação da vitrine de uma categoria. */
+export type AdminCategoryProduct = {
+  id: string;
+  name: string;
+  status: string;
 };

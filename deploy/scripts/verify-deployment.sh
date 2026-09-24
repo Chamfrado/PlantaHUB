@@ -106,6 +106,11 @@ if [ "$PUBLIC_ONLY" = false ]; then
   if systemctl is-active --quiet "$SERVICE"; then pass "$SERVICE ativo desde $(systemctl show -p ActiveEnterTimestamp --value "$SERVICE")"
   else fail "$SERVICE inativo ($(systemctl is-active "$SERVICE" 2>/dev/null))"; fi
   if systemctl is-enabled --quiet "$SERVICE"; then pass "$SERVICE habilitado no boot"; else warn "$SERVICE não habilitado no boot"; fi
+  if systemctl is-active --quiet plantahub-watchdog.timer; then pass "watchdog ativo (plantahub-watchdog.timer)"
+  else fail "watchdog inativo: rode 03-setup-directories.sh"; fi
+  if [ -e /etc/plantahub/watchdog.disabled ]; then warn "watchdog PAUSADO (/etc/plantahub/watchdog.disabled existe)"; fi
+  RESTART_POLICY="$(systemctl show -p Restart --value "$SERVICE")"
+  if [ "$RESTART_POLICY" = "always" ]; then pass "Restart=$RESTART_POLICY"; else warn "Restart=$RESTART_POLICY (esperado always)"; fi
 
   MAINPID="$(systemctl show -p MainPID --value "$SERVICE" 2>/dev/null || echo 0)"
   if [ "${MAINPID:-0}" != "0" ] && [ -r "/proc/$MAINPID/environ" ]; then

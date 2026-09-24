@@ -42,6 +42,14 @@ public class Category {
     @Builder.Default
     private Integer homeOrder = 0;
 
+    /**
+     * Aparece na pagina de produtos com um aviso de "em breve", para o visitante saber
+     * que vem mais coisa ali, mesmo sem nenhum produto publicado ainda.
+     */
+    @Column(name = "coming_soon", nullable = false)
+    @Builder.Default
+    private Boolean comingSoon = false;
+
     @Column(name = "active", nullable = false)
     @Builder.Default
     private Boolean active = true;

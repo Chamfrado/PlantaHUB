@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductAccordion from '../../../components/products/ProductAccordion';
 import { useAsync } from '../../../hooks/useAsync';
@@ -23,22 +23,29 @@ export default function ProductsPage() {
 
   const tabs = useMemo(() => {
     if (categories.data && categories.data.length > 0) {
-      return categories.data.map(c => ({ slug: c.slug, label: c.name }));
+      return categories.data.map(c => ({
+        slug: c.slug,
+        label: c.name,
+        comingSoon: Boolean(c.comingSoon),
+      }));
     }
 
     // Reserva: deriva das categorias que os produtos realmente têm.
     const seen = new Map<string, string>();
     items.forEach(p => seen.set(p.category, p.categoryName));
-    return Array.from(seen, ([slug, label]) => ({ slug, label }));
+    return Array.from(seen, ([slug, label]) => ({ slug, label, comingSoon: false }));
   }, [categories.data, items]);
 
   const categoryFromUrl = searchParams.get('category');
 
+  // Categoria "em breve" nunca fica ativa, nem vinda da URL: ela só existe como aviso.
+  const openTabs = tabs.filter(t => !t.comingSoon);
+
   // Sem categoria válida na URL, cai na primeira que existe — e não numa string fixa.
   const activeCategory =
-    categoryFromUrl && tabs.some(t => t.slug === categoryFromUrl)
+    categoryFromUrl && openTabs.some(t => t.slug === categoryFromUrl)
       ? categoryFromUrl
-      : (tabs[0]?.slug ?? '');
+      : (openTabs[0]?.slug ?? '');
 
   const visible = useMemo(
     () => items.filter(p => p.category === activeCategory),
@@ -62,6 +69,7 @@ export default function ProductsPage() {
                 <Tab
                   key={tab.slug}
                   label={tab.label}
+                  comingSoon={tab.comingSoon}
                   active={tab.slug === activeCategory}
                   onClick={() => setSearchParams({ category: tab.slug })}
                 />
@@ -86,7 +94,51 @@ export default function ProductsPage() {
   );
 }
 
-function Tab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function Tab({
+  label,
+  comingSoon,
+  active,
+  onClick,
+}: {
+  label: string;
+  comingSoon: boolean;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const [showNotice, setShowNotice] = useState(false);
+
+  useEffect(() => {
+    if (!showNotice) return;
+    const timer = window.setTimeout(() => setShowNotice(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [showNotice]);
+
+  if (comingSoon) {
+    // Desativada de propósito: o visitante vê que a categoria vem aí, mas não há o que abrir.
+    // O clique mostra o aviso porque o tooltip nativo não aparece no celular.
+    return (
+      <span className="relative">
+        <button
+          type="button"
+          aria-disabled="true"
+          title="Em breve"
+          onClick={() => setShowNotice(true)}
+          className="cursor-not-allowed py-4 border-b-2 border-transparent text-neutral-400"
+        >
+          {label}
+        </button>
+        {showNotice ? (
+          <span
+            role="status"
+            className="absolute left-1/2 top-full z-10 -translate-x-1/2 whitespace-nowrap rounded-lg bg-brand-black px-3 py-1.5 text-xs font-semibold text-white shadow-lg"
+          >
+            Em breve
+          </span>
+        ) : null}
+      </span>
+    );
+  }
+
   return (
     <button
       onClick={onClick}

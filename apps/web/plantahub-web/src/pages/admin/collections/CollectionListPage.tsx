@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import {
   AdminPageHeader,
@@ -13,9 +13,16 @@ import {
 import { getApiErrorMessage } from '../../../lib/api-error';
 import {
   createCollection,
+  deleteCollection,
   listCollections,
   setCollectionActive,
 } from '../../../services/admin/admin.service';
+import type { AdminCollection } from '../../../types/api/admin';
+
+const ERROR_MESSAGES: Record<string, string> = {
+  collection_in_use_deactivate_instead:
+    'Esta coleção está em uso por algum produto. Remova-a das ofertas dos produtos ou apenas desative-a.',
+};
 
 export default function CollectionListPage() {
   const queryClient = useQueryClient();
@@ -52,6 +59,19 @@ export default function CollectionListPage() {
     mutationFn: ({ id, active }: { id: string; active: boolean }) => setCollectionActive(id, active),
     onSuccess: refresh,
   });
+
+  const remove = useMutation({ mutationFn: deleteCollection, onSuccess: refresh });
+
+  function onDelete(collection: AdminCollection) {
+    if (window.confirm(`Excluir a coleção "${collection.name}"? Esta ação não pode ser desfeita.`)) {
+      remove.mutate(collection.id);
+    }
+  }
+
+  const actionError = toggleActive.error ?? remove.error;
+  const actionMessage = actionError
+    ? getApiErrorMessage(actionError, 'Não foi possível salvar a alteração.')
+    : null;
 
   return (
     <div className="space-y-6">
@@ -105,6 +125,10 @@ export default function CollectionListPage() {
         </section>
       ) : null}
 
+      {actionMessage ? (
+        <DataError message={ERROR_MESSAGES[actionMessage] ?? actionMessage} />
+      ) : null}
+
       {collections.isLoading ? (
         <div className="h-64 animate-pulse rounded-2xl bg-white" />
       ) : collections.isError ? (
@@ -114,7 +138,7 @@ export default function CollectionListPage() {
         />
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
-          <table className="w-full min-w-[680px] text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="border-b border-neutral-200 text-left text-xs uppercase tracking-wide text-neutral-500">
               <tr>
                 <th className="px-4 py-3">Código</th>
@@ -122,6 +146,7 @@ export default function CollectionListPage() {
                 <th className="px-4 py-3">Tipo</th>
                 <th className="px-4 py-3 text-right">Arquivos</th>
                 <th className="px-4 py-3 text-right">Ativa</th>
+                <th className="px-4 py-3 text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -150,6 +175,18 @@ export default function CollectionListPage() {
                           toggleActive.mutate({ id: collection.id, active: next })
                         }
                       />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => onDelete(collection)}
+                        disabled={remove.isPending}
+                        title="Excluir coleção"
+                        className="inline-flex items-center rounded-lg border border-red-200 px-2 py-1.5 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </td>
                 </tr>

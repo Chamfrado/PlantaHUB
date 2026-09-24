@@ -90,4 +90,6 @@ export type CategoryResponse = {
   order: number;
   featuredOnHome: boolean;
   homeOrder: number;
+  /** Mostra um aviso de "em breve" na página de produtos. */
+  comingSoon?: boolean;
 };

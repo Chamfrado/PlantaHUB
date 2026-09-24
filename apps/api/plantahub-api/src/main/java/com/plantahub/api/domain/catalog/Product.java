@@ -50,6 +50,11 @@ public class Product {
     @Column(nullable = false)
     private Boolean customizable;
 
+    /** Posicao na vitrine, dentro da categoria. Empates desempatam pelo nome. */
+    @Column(name = "sort_order", nullable = false)
+    @Builder.Default
+    private Integer sortOrder = 0;
+
     /**
      * @deprecated substituido por {@link #status}. Continua mapeado porque a coluna ainda
      * e NOT NULL no banco e producao roda com {@code ddl-auto=validate}; a coluna so cai

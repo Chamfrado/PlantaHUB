@@ -46,8 +46,8 @@ public class ProductCatalogService {
     @Transactional(readOnly = true)
     public List<ProductSummaryDTO> listProducts(String category, Integer limit) {
         List<Product> products = category != null && !category.isBlank()
-                ? productRepository.findByCategoryAndStatusOrderByNameAsc(category, ProductStatus.PUBLISHED)
-                : productRepository.findByStatusOrderByCategoryAscNameAsc(ProductStatus.PUBLISHED);
+                ? productRepository.findByCategoryAndStatusOrderBySortOrderAscNameAsc(category, ProductStatus.PUBLISHED)
+                : productRepository.findByStatusOrderByCategoryAscSortOrderAscNameAsc(ProductStatus.PUBLISHED);
 
         if (limit != null && limit > 0 && products.size() > limit) {
             products = products.subList(0, limit);
