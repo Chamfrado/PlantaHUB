@@ -9,6 +9,9 @@ import ProductEditorPage from './products/ProductEditorPage';
 import ProductListPage from './products/ProductListPage';
 import ProductPreviewPage from './products/ProductPreviewPage';
 import ReconciliationPage from './reports/ReconciliationPage';
+import SitePageEditorPage from './site/SitePageEditorPage';
+import SitePageListPage from './site/SitePageListPage';
+import SiteSettingsPage from './site/SiteSettingsPage';
 import StoragePage from './storage/StoragePage';
 
 /**
@@ -50,6 +53,9 @@ export default function AdminApp() {
           <Route path="colecoes" element={<CollectionListPage />} />
           <Route path="categorias" element={<CategoryListPage />} />
           <Route path="reconciliacao" element={<ReconciliationPage />} />
+          <Route path="paginas" element={<SitePageListPage />} />
+          <Route path="paginas/:slug" element={<SitePageEditorPage />} />
+          <Route path="contato" element={<SiteSettingsPage />} />
           <Route path="armazenamento" element={<StoragePage />} />
 
           <Route path="*" element={<AdminNotFound />} />

@@ -1,4 +1,14 @@
-import { ExternalLink, FolderTree, HardDrive, LayoutGrid, Layers, RefreshCcw, Tag } from 'lucide-react';
+import {
+  AtSign,
+  ExternalLink,
+  FileText,
+  FolderTree,
+  HardDrive,
+  LayoutGrid,
+  Layers,
+  RefreshCcw,
+  Tag,
+} from 'lucide-react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -6,6 +16,8 @@ const navItems = [
   { to: '/admin/produtos', label: 'Produtos', icon: LayoutGrid },
   { to: '/admin/colecoes', label: 'Coleções', icon: Layers },
   { to: '/admin/categorias', label: 'Categorias', icon: Tag },
+  { to: '/admin/paginas', label: 'Páginas do site', icon: FileText },
+  { to: '/admin/contato', label: 'Contato e redes', icon: AtSign },
   { to: '/admin/reconciliacao', label: 'Reconciliação', icon: RefreshCcw },
   { to: '/admin/armazenamento', label: 'Armazenamento', icon: HardDrive },
 ];
