@@ -1,37 +1,48 @@
 name: Deploy PlantaHUB Production
 
+# Build e testes acontecem AQUI; a VM só recebe artefatos prontos (app.jar e dist/).
+# Na VM, /usr/local/sbin/plantahub-release (deploy/scripts/plantahub-release.sh) faz
+# backup do banco, troca atômica de versão, health check e rollback automático.
+# Roteiro completo: deploy/README.md
+
 on:
   push:
     branches:
       - prod
 
   workflow_dispatch:
+    inputs:
+      skip_public_checks:
+        description: "Pular os testes pela Internet (use só antes de DNS/SSL existirem)"
+        type: boolean
+        default: false
+
+# Nunca dois deploys ao mesmo tempo, e um deploy em andamento nunca é cancelado no meio.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BACKEND_DIR: apps/api/plantahub-api
+  FRONTEND_DIR: apps/web/plantahub-web
+  # Não são segredos: vão embutidos no bundle público. Sobrescrevíveis por
+  # Settings → Secrets and variables → Actions → Variables.
+  VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.plantahub.com.br' }}
+  PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL || 'https://api.plantahub.com.br' }}
+  PUBLIC_WEB_URL: ${{ vars.PUBLIC_WEB_URL || 'https://www.plantahub.com.br' }}
 
 jobs:
-  deploy:
-    name: Build and Deploy to Production VM
+  # ===================================================================== backend
+  backend:
+    name: Backend — testes e jar
     runs-on: ubuntu-latest
 
-    env:
-      BACKEND_DIR: apps/api/plantahub-api
-      FRONTEND_DIR: apps/web/plantahub-web
-
-      VM_HOST: ${{ secrets.VM_HOST }}
-      VM_USER: ${{ secrets.VM_USER }}
-      VM_PORT: ${{ secrets.VM_PORT }}
-
-      BACKEND_REMOTE_PATH: /opt/plantahub/backend/app.jar
-      FRONTEND_REMOTE_PATH: /var/www/plantahub/frontend
-
-      VITE_API_URL: https://api.plantahub.com.br
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-
-      # =========================
-      # Backend - Java Spring Boot
-      # =========================
 
       - name: Set up Java 21
         uses: actions/setup-java@v4
@@ -40,161 +51,250 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Build backend
+      # Os testes rodam aqui de proposito: um deploy nunca deve publicar um jar que a
+      # suite reprova. O runner ubuntu-latest tem Docker, entao os testes com
+      # Testcontainers (Postgres real, FlywayMigrationTest) executam normalmente.
+      - name: Testar e empacotar
+        working-directory: ${{ env.BACKEND_DIR }}
+        run: |
+          chmod +x mvnw
+          ./mvnw -B clean package
+
+      - name: Preparar artefato
         shell: bash
         run: |
-          set -e
-
-          echo "Building backend from: $BACKEND_DIR"
-
-          # Os testes rodam aqui de proposito: um deploy nunca deve publicar um jar
-          # que a suite reprova. O runner ubuntu-latest tem Docker, entao os testes
-          # com Testcontainers executam normalmente.
-          if [ -f "$BACKEND_DIR/mvnw" ]; then
-            chmod +x "$BACKEND_DIR/mvnw"
-            cd "$BACKEND_DIR"
-            ./mvnw -B clean package
-          else
-            cd "$BACKEND_DIR"
-            mvn -B clean package
-          fi
-
-      - name: Prepare backend artifact
-        shell: bash
-        run: |
-          set -e
-
-          mkdir -p deploy/backend
-
-          JAR_FILE=$(find "$BACKEND_DIR/target" \
-            -maxdepth 1 \
-            -type f \
-            -name "*.jar" \
-            ! -name "*sources.jar" \
-            ! -name "*javadoc.jar" \
-            ! -name "original-*.jar" \
-            | head -n 1)
-
-          if [ -z "$JAR_FILE" ]; then
-            echo "No .jar file found in $BACKEND_DIR/target"
+          set -euo pipefail
+          shopt -s nullglob
+          # O spring-boot-maven-plugin gera plantahub-api-<versao>.jar (executavel) e
+          # plantahub-api-<versao>.jar.original (que nao casa com o padrao abaixo).
+          jars=("$BACKEND_DIR"/target/plantahub-api-*.jar)
+          if [ "${#jars[@]}" -ne 1 ]; then
+            echo "::error::esperado exatamente 1 jar em $BACKEND_DIR/target, encontrados: ${jars[*]:-nenhum}"
             exit 1
           fi
+          # Filtro do proprio unzip (sem `| grep -q`, que sob pipefail pode dar SIGPIPE).
+          unzip -l "${jars[0]}" 'BOOT-INF/classes/db/migration/V1__schema.sql' >/dev/null 2>&1 \
+            || { echo "::error::o jar nao contem as migrations Flyway"; exit 1; }
+          mkdir -p artifacts/backend
+          cp "${jars[0]}" artifacts/backend/app.jar
+          echo "Jar: ${jars[0]} ($(du -h artifacts/backend/app.jar | cut -f1))"
 
-          echo "Found jar: $JAR_FILE"
-          cp "$JAR_FILE" deploy/backend/app.jar
+      - name: Publicar artefato do backend
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: artifacts/backend/app.jar
+          retention-days: 14
+          if-no-files-found: error
 
-      # =========================
-      # Frontend - React + Vite
-      # =========================
+      - name: Relatórios de teste (se falhar)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-surefire-reports
+          path: ${{ env.BACKEND_DIR }}/target/surefire-reports/
+          if-no-files-found: ignore
 
+  # ===================================================================== frontend
+  frontend:
+    name: Frontend — lint, testes e build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/web/plantahub-web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Node 22: jsdom 30 e @testing-library/jest-dom (devDependencies) exigem >= 22.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: apps/web/plantahub-web/package-lock.json
 
-      - name: Build frontend
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Testes
+        run: npm test
+
+      # O Vite le VITE_API_URL do ambiente (nao precisa de .env.production).
+      - name: Build
+        run: npm run build
+
+      - name: Validar dist/
         shell: bash
         run: |
-          set -e
-
-          echo "Building frontend from: $FRONTEND_DIR"
-
-          cd "$FRONTEND_DIR"
-
-          echo "VITE_API_URL=$VITE_API_URL" > .env.production
-
-          npm ci
-          npm run build
-
-          if [ ! -d "dist" ]; then
-            echo "Frontend dist folder was not generated"
-            exit 1
+          set -euo pipefail
+          test -f dist/index.html || { echo "::error::dist/index.html nao foi gerado"; exit 1; }
+          js="$(grep -o 'src="/assets/[^"]*\.js"' dist/index.html | head -n 1 | cut -d'"' -f2)"
+          [ -n "$js" ] && [ -f "dist$js" ] || { echo "::error::index.html nao aponta para um /assets/*.js existente"; exit 1; }
+          grep -rqF "$VITE_API_URL" dist/assets/ || { echo "::error::VITE_API_URL ($VITE_API_URL) nao esta no bundle"; exit 1; }
+          if grep -rqF 'localhost:8080' dist/assets/; then
+            echo "::error::o bundle de producao referencia localhost:8080"; exit 1
           fi
+          echo "Entry: $js"
+          find dist -maxdepth 2 | sort
 
-      # =========================
-      # SSH setup
-      # =========================
+      - name: Publicar artefato do frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: apps/web/plantahub-web/dist/
+          retention-days: 14
+          if-no-files-found: error
 
-      - name: Configure SSH
+  # ===================================================================== deploy
+  deploy:
+    name: Deploy na VM
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    environment:
+      name: production
+      url: ${{ vars.PUBLIC_WEB_URL || 'https://www.plantahub.com.br' }}
+
+    env:
+      VM_HOST: ${{ secrets.VM_HOST }}
+      VM_USER: ${{ secrets.VM_USER }}
+      VM_PORT: ${{ secrets.VM_PORT || '22' }}
+
+    steps:
+      - name: Baixar artefato do backend
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: artifacts/backend
+
+      - name: Baixar artefato do frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: artifacts/frontend
+
+      - name: Configurar SSH
         shell: bash
+        env:
+          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+          VM_KNOWN_HOSTS: ${{ secrets.VM_KNOWN_HOSTS }}
         run: |
-          set -e
+          set -euo pipefail
+          for name in VM_HOST VM_USER VM_SSH_KEY; do
+            if [ -z "${!name}" ]; then echo "::error::secret $name nao configurado"; exit 1; fi
+          done
 
-          mkdir -p ~/.ssh
-
-          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/plantahub_deploy_key
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VM_SSH_KEY" > ~/.ssh/plantahub_deploy_key
           chmod 600 ~/.ssh/plantahub_deploy_key
 
-          ssh-keyscan -p "$VM_PORT" -H "$VM_HOST" >> ~/.ssh/known_hosts
+          if [ -n "$VM_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            echo "::warning::VM_KNOWN_HOSTS nao configurado: usando ssh-keyscan (confia na chave apresentada agora). Configure o secret para fixar a chave do servidor."
+            ssh-keyscan -p "$VM_PORT" -H "$VM_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          fi
+          chmod 600 ~/.ssh/known_hosts
 
-      # =========================
-      # Deploy backend
-      # =========================
+          cat > ~/.ssh/config <<EOF
+          Host plantahub-vm
+            HostName $VM_HOST
+            Port $VM_PORT
+            User $VM_USER
+            IdentityFile ~/.ssh/plantahub_deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            BatchMode yes
+            ConnectTimeout 20
+            ServerAliveInterval 15
+          EOF
+          chmod 600 ~/.ssh/config
 
-      - name: Upload backend jar
+          ssh plantahub-vm 'echo "SSH OK: $(whoami)@$(hostname)"'
+
+      - name: Enviar artefatos
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
+          RELEASE_ID="$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA::7}-r${GITHUB_RUN_ATTEMPT}"
+          echo "RELEASE_ID=$RELEASE_ID" >> "$GITHUB_ENV"
 
-          echo "Uploading backend app.jar to VM..."
+          cat > artifacts/RELEASE <<EOF
+          release=$RELEASE_ID
+          commit=$GITHUB_SHA
+          ref=$GITHUB_REF_NAME
+          run=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          actor=$GITHUB_ACTOR
+          built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          EOF
+          sed -i 's/^ *//' artifacts/RELEASE
 
-          rsync -avz \
-            -e "ssh -i ~/.ssh/plantahub_deploy_key -p $VM_PORT -o StrictHostKeyChecking=yes" \
-            deploy/backend/app.jar \
-            "$VM_USER@$VM_HOST:/tmp/plantahub-app.jar"
+          REMOTE="/opt/plantahub/incoming/$RELEASE_ID"
+          ssh plantahub-vm "mkdir -p '$REMOTE/frontend'"
 
-      - name: Install backend jar and restart service
+          rsync -az --chmod=D750,F640 \
+            artifacts/backend/app.jar artifacts/RELEASE \
+            "plantahub-vm:$REMOTE/"
+
+          rsync -az --delete --chmod=D750,F640 \
+            artifacts/frontend/ \
+            "plantahub-vm:$REMOTE/frontend/"
+
+          echo "Artefatos enviados para $REMOTE"
+
+      # Backup do banco → troca do backend → health check → troca do frontend →
+      # verificação via Nginx. Qualquer falha reverte a parte afetada e sai com erro.
+      - name: Ativar release (backup, restart, health check, rollback automático)
+        shell: bash
+        run: ssh plantahub-vm "sudo -n /usr/local/sbin/plantahub-release activate '$RELEASE_ID'"
+
+      - name: Verificar pela Internet
+        if: ${{ !inputs.skip_public_checks }}
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
-          echo "Installing backend jar and restarting service..."
+          ok=false
+          for i in 1 2 3 4 5; do
+            body="$(curl -fsS -m 15 "$PUBLIC_API_URL/health" || true)"
+            if printf '%s' "$body" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"'; then ok=true; break; fi
+            echo "tentativa $i: '$body'"; sleep 5
+          done
+          $ok || { echo "::error::$PUBLIC_API_URL/health nao respondeu {\"status\":\"ok\"}"; exit 1; }
+          echo "API: $body"
 
-          ssh -i ~/.ssh/plantahub_deploy_key \
-            -p "$VM_PORT" \
-            -o StrictHostKeyChecking=yes \
-            "$VM_USER@$VM_HOST" \
-            "set -e
-             mkdir -p /opt/plantahub/backend
-             mv /tmp/plantahub-app.jar $BACKEND_REMOTE_PATH
-             chmod 644 $BACKEND_REMOTE_PATH
-             systemctl restart plantahub-backend
-             systemctl status plantahub-backend --no-pager"
+          expected_js="$(grep -o 'src="/assets/[^"]*\.js"' artifacts/frontend/index.html | head -n 1 | cut -d'"' -f2)"
+          served_js="$(curl -fsS -m 15 "$PUBLIC_WEB_URL/" | grep -o 'src="/assets/[^"]*\.js"' | head -n 1 | cut -d'"' -f2)"
+          [ "$served_js" = "$expected_js" ] \
+            || { echo "::error::o site serve '$served_js', esperado '$expected_js'"; exit 1; }
 
-      # =========================
-      # Deploy frontend
-      # =========================
+          result="$(curl -sS -m 15 -o /dev/null -w '%{http_code} %{content_type}' "$PUBLIC_WEB_URL$served_js")"
+          [[ "$result" == "200 "*javascript* ]] \
+            || { echo "::error::$served_js respondeu '$result' (esperado 200 JavaScript)"; exit 1; }
+          echo "Asset: $served_js → $result"
 
-      - name: Upload frontend dist with rsync
+          code="$(curl -sS -m 15 -o /dev/null -w '%{http_code}' "$PUBLIC_WEB_URL/assets/verificacao-inexistente.js")"
+          [ "$code" = "404" ] || { echo "::error::asset inexistente respondeu $code (esperado 404)"; exit 1; }
+
+          echo "Deploy $RELEASE_ID verificado pela Internet."
+
+      - name: Resumo
+        if: always()
         shell: bash
         run: |
-          set -e
-
-          echo "Uploading frontend dist to VM..."
-
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/plantahub_deploy_key -p $VM_PORT -o StrictHostKeyChecking=yes" \
-            "$FRONTEND_DIR/dist/" \
-            "$VM_USER@$VM_HOST:$FRONTEND_REMOTE_PATH/"
-
-      - name: Fix frontend permissions and reload nginx
-        shell: bash
-        run: |
-          set -e
-
-          echo "Fixing permissions and reloading nginx..."
-
-          ssh -i ~/.ssh/plantahub_deploy_key \
-            -p "$VM_PORT" \
-            -o StrictHostKeyChecking=yes \
-            "$VM_USER@$VM_HOST" \
-            "set -e
-             chmod -R 755 $FRONTEND_REMOTE_PATH
-             find $FRONTEND_REMOTE_PATH -type f -exec chmod 644 {} \;
-             nginx -t
-             systemctl reload nginx"
-
-      - name: Deploy finished
-        run: echo "PlantaHUB production deploy finished successfully."
+          {
+            echo "### Deploy ${RELEASE_ID:-(não iniciado)} — ${{ job.status }}"
+            echo ""
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Site: $PUBLIC_WEB_URL · API: $PUBLIC_API_URL/health"
+            if [ "${{ job.status }}" != "success" ]; then
+              echo ""
+              echo "Se a falha foi na ativação, o plantahub-release já tentou voltar a versão anterior (veja o log)."
+              echo "Rollback manual na VM: \`sudo bash deploy/scripts/rollback.sh all\` ou \`sudo -n /usr/local/sbin/plantahub-release rollback all\` como $VM_USER."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

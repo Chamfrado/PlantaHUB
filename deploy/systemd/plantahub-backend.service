@@ -1,0 +1,55 @@
+# /etc/systemd/system/plantahub-backend.service
+#
+# Instalado por deploy/scripts/03-setup-directories.sh.
+# /opt/plantahub/backend/app.jar é um symlink para current/app.jar, trocado a cada
+# deploy por /usr/local/sbin/plantahub-release.
+
+[Unit]
+Description=PlantaHUB Backend (Spring Boot API)
+Wants=network-online.target postgresql.service
+After=network-online.target postgresql.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=plantahub
+Group=plantahub
+WorkingDirectory=/opt/plantahub/backend
+
+# Perfil fixado aqui e também no .env: sem ele o Spring sobe os componentes de DEV
+# (DevOrderController, DevAdminAccountRunner — ambos @Profile("!prod")).
+Environment=SPRING_PROFILES_ACTIVE=prod
+# Escuta só em loopback: a porta 8080 nunca fica acessível de fora, mesmo que o
+# firewall seja alterado por engano.
+Environment=SERVER_ADDRESS=127.0.0.1
+# Sobrescrevível pelo .env (EnvironmentFile tem precedência sobre Environment=).
+Environment="JAVA_OPTS=-XX:InitialRAMPercentage=10 -XX:MaxRAMPercentage=45 -XX:+ExitOnOutOfMemoryError"
+EnvironmentFile=/opt/plantahub/backend/.env
+
+ExecStart=/usr/bin/java $JAVA_OPTS -jar /opt/plantahub/backend/app.jar
+# A JVM sai com 143 ao receber SIGTERM; isso é parada normal.
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=plantahub-backend
+LimitNOFILE=65536
+
+# Endurecimento. O backend só escreve em /tmp (ZIPs temporários de download em
+# DownloadBundleService), que aqui é privado ao serviço.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

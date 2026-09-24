@@ -56,10 +56,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Node 22: jsdom 30 e @testing-library/jest-dom (devDependencies) exigem >= 22.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: apps/web/plantahub-web/package-lock.json
 

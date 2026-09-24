@@ -1,0 +1,7 @@
+# /etc/sudoers.d/plantahub-deploy   (root:root 0440, validado com visudo -cf)
+#
+# O usuário "deploy" (usado pelo GitHub Actions) só pode executar, como root, o script
+# de release. Tudo que exige privilégio — trocar symlinks, reiniciar o serviço,
+# recarregar o Nginx, pg_dump, rollback — acontece lá dentro, com argumentos validados.
+# Ele NÃO recebe shell root, systemctl genérico nem acesso ao .env.
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/plantahub-release activate *, /usr/local/sbin/plantahub-release rollback *, /usr/local/sbin/plantahub-release status

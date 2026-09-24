@@ -1,0 +1,41 @@
+# /etc/plantahub/deploy.conf — parâmetros da VM usados pelos scripts de deploy.
+#
+# NÃO contém segredo nenhum. É lido (source) como root por:
+#   deploy/scripts/*.sh  e  /usr/local/sbin/plantahub-release
+#
+# Formato: VAR=valor, sem espaços ao redor do "=". Linhas com # são comentários.
+
+# IP público da NOVA VM. Obrigatório antes de 07-setup-ssl.sh (validação de DNS).
+PUBLIC_IP=
+
+# Domínios (valores detectados no código: CORS de application-prod.yml e VITE_API_URL
+# do workflow).
+ROOT_DOMAIN=plantahub.com.br
+WEB_DOMAIN=www.plantahub.com.br
+API_DOMAIN=api.plantahub.com.br
+
+# E-mail para avisos de expiração do Let's Encrypt. Obrigatório antes de 07-setup-ssl.sh.
+LETSENCRYPT_EMAIL=
+
+# Porta SSH liberada no UFW. Mude só se o sshd escutar em outra porta.
+SSH_PORT=22
+
+# Usuários Linux.
+APP_USER=plantahub
+DEPLOY_USER=deploy
+
+# PostgreSQL local (o nome padrão do código é "plantahub": application.yml).
+DB_NAME=plantahub
+DB_USER=plantahub
+
+# Backend. server.port=8080 em application-prod.yml; /health em HealthController.java.
+BACKEND_PORT=8080
+HEALTH_PATH=/health
+HEALTH_TIMEOUT_SECONDS=180
+
+# Retenção.
+KEEP_RELEASES=5
+KEEP_DB_BACKUPS=10
+
+# pg_dump automático antes de cada troca de backend (recomendado: true).
+DB_BACKUP_BEFORE_DEPLOY=true
