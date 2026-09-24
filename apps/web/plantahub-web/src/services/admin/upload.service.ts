@@ -1,6 +1,7 @@
 import { http } from '../../lib/http';
+import { putWithProgress } from '../../lib/upload/xhrUpload';
 
-export type TargetKind = 'ASSET' | 'MEDIA';
+export type TargetKind = 'ASSET' | 'MEDIA' | 'CONTENT_IMAGE';
 
 export type PresignedPart = { partNumber: number; url: string };
 
@@ -73,8 +74,15 @@ export function completeMultipart(
   });
 }
 
+export type ConfirmUploadResponse = {
+  id: string;
+  storageKey: string | null;
+  /** Só para imagens públicas (MEDIA e CONTENT_IMAGE). */
+  publicUrl: string | null;
+};
+
 export function confirmUpload(uploadId: string, checksumSha256?: string) {
-  return http<{ id: string }>(`/v1/admin/uploads/${uploadId}/confirm`, {
+  return http<ConfirmUploadResponse>(`/v1/admin/uploads/${uploadId}/confirm`, {
     method: 'POST',
     body: { checksumSha256: checksumSha256 ?? null },
   });
@@ -82,4 +90,30 @@ export function confirmUpload(uploadId: string, checksumSha256?: string) {
 
 export function abortUpload(uploadId: string) {
   return http<void>(`/v1/admin/uploads/${uploadId}`, { method: 'DELETE' });
+}
+
+/**
+ * Sobe uma imagem avulsa do conteúdo da página (ex.: foto de um depoimento) e devolve a
+ * URL pública. Não passa pela fila: é um arquivo pequeno, um por vez, e não vira linha de
+ * galeria — quem guarda a URL é o próprio conteúdo.
+ */
+export async function uploadContentImage(productId: string, file: File): Promise<string> {
+  const presigned = await presignUpload({
+    targetKind: 'CONTENT_IMAGE',
+    productId,
+    filename: file.name,
+    contentType: file.type || undefined,
+    sizeBytes: file.size,
+  });
+
+  try {
+    await putWithProgress({ url: presigned.url!, body: file, contentType: presigned.contentType });
+  } catch (error) {
+    void abortUpload(presigned.uploadId).catch(() => undefined);
+    throw error;
+  }
+
+  const confirmed = await confirmUpload(presigned.uploadId);
+  if (!confirmed.publicUrl) throw new Error('missing_public_url');
+  return confirmed.publicUrl;
 }

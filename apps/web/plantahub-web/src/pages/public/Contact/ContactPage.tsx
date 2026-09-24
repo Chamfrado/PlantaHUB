@@ -17,6 +17,8 @@ import {
   Youtube,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useSitePage, useSiteSettings } from '../../../hooks/useSitePage';
+import { whatsappLink } from '../../../services/site.service';
 import { Link } from 'react-router-dom';
 
 type FormState = {
@@ -27,6 +29,10 @@ type FormState = {
 };
 
 export default function ContactPage() {
+  const { content } = useSitePage('contato');
+  const settings = useSiteSettings();
+  const whatsapp = whatsappLink(settings);
+
   const [form, setForm] = useState<FormState>({
     name: '',
     email: '',
@@ -62,7 +68,9 @@ export default function ContactPage() {
       ].join('\n')
     );
 
-    window.location.href = `mailto:contato@plantahub.com.br?subject=${subject}&body=${body}`;
+    // O destino tambem sai do cadastro: ter o e-mail em dois lugares e o mesmo erro que
+    // fez o Instagram do rodape discordar do da pagina.
+    window.location.href = `mailto:${settings?.email ?? ''}?subject=${subject}&body=${body}`;
     setForm({ name: '', email: '', subject: '', message: '' });
   }
 
@@ -77,14 +85,9 @@ export default function ContactPage() {
                 FALE COM A PLANTAHUB
               </span>
 
-              <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-brand-black leading-tight">
-                Vamos conversar sobre seu projeto
-              </h1>
+              <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-brand-black leading-tight">{content.headline}</h1>
 
-              <p className="mt-4 text-brand-muted leading-relaxed max-w-xl">
-                Seja para dúvidas sobre compras, suporte técnico, parcerias ou personalizações,
-                nossa equipe está pronta para ajudar com rapidez e clareza.
-              </p>
+              <p className="mt-4 text-brand-muted leading-relaxed max-w-xl">{content.intro}</p>
 
               {/* trust row */}
               <div className="mt-6 flex flex-wrap items-center gap-6 text-xs font-semibold text-brand-muted">
@@ -129,30 +132,44 @@ export default function ContactPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             {/* LEFT — contact cards */}
             <div className="space-y-6">
-              <InfoCard
-                icon={<Mail className="h-5 w-5 text-primary-600" />}
-                title="Email"
-                text="Envie sua mensagem e retornaremos o mais rápido possível."
-                line="contato@plantahub.com.br"
-              />
-              <InfoCard
-                icon={<Phone className="h-5 w-5 text-primary-600" />}
-                title="Telefone / WhatsApp"
-                text="Atendimento para suporte e informações gerais."
-                line="(xx) xxxxx-xxxx"
-              />
-              <InfoCard
-                icon={<MapPin className="h-5 w-5 text-primary-600" />}
-                title="Localização"
-                text="Atendimento remoto com suporte para todo o Brasil."
-                line="Santa Rita do Sapucaí — MG"
-              />
-              <InfoCard
-                icon={<Clock3 className="h-5 w-5 text-primary-600" />}
-                title="Horário"
-                text="Segunda a sexta"
-                line="09:00 — 18:00"
-              />
+              {/* Cada cartao so aparece com o dado cadastrado. O telefone estava aqui como
+                  "(xx) xxxxx-xxxx" — um exemplo, no ar: melhor nao mostrar do que mostrar
+                  um numero que nao atende. */}
+              {settings?.email ? (
+                <InfoCard
+                  icon={<Mail className="h-5 w-5 text-primary-600" />}
+                  title="Email"
+                  text="Envie sua mensagem e retornaremos o mais rápido possível."
+                  line={settings.email}
+                />
+              ) : null}
+
+              {settings?.phone ? (
+                <InfoCard
+                  icon={<Phone className="h-5 w-5 text-primary-600" />}
+                  title="Telefone / WhatsApp"
+                  text="Atendimento para suporte e informações gerais."
+                  line={settings.phone}
+                />
+              ) : null}
+
+              {settings?.address ? (
+                <InfoCard
+                  icon={<MapPin className="h-5 w-5 text-primary-600" />}
+                  title="Localização"
+                  text="Atendimento remoto com suporte para todo o Brasil."
+                  line={settings.address}
+                />
+              ) : null}
+
+              {settings?.businessHours ? (
+                <InfoCard
+                  icon={<Clock3 className="h-5 w-5 text-primary-600" />}
+                  title="Horário"
+                  text="Segunda a sexta"
+                  line={settings.businessHours}
+                />
+              ) : null}
 
               <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
                 <h3 className="text-lg font-extrabold text-brand-black">
@@ -165,35 +182,45 @@ export default function ContactPage() {
                 </p>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                  <SocialLink
-                    href="https://instagram.com/plantahub"
-                    icon={<Instagram className="h-4 w-4" />}
-                    label="Instagram"
-                  />
+                  {settings?.instagramUrl ? (
+                    <SocialLink
+                      href={settings.instagramUrl}
+                      icon={<Instagram className="h-4 w-4" />}
+                      label="Instagram"
+                    />
+                  ) : null}
 
-                  <SocialLink
-                    href="https://linkedin.com/company/plantahub"
-                    icon={<Linkedin className="h-4 w-4" />}
-                    label="LinkedIn"
-                  />
+                  {settings?.linkedinUrl ? (
+                    <SocialLink
+                      href={settings.linkedinUrl}
+                      icon={<Linkedin className="h-4 w-4" />}
+                      label="LinkedIn"
+                    />
+                  ) : null}
 
-                  <SocialLink
-                    href="https://wa.me/5500000000000"
-                    icon={<MessageCircle className="h-4 w-4" />}
-                    label="WhatsApp"
-                  />
+                  {whatsapp ? (
+                    <SocialLink
+                      href={whatsapp}
+                      icon={<MessageCircle className="h-4 w-4" />}
+                      label="WhatsApp"
+                    />
+                  ) : null}
 
-                  <SocialLink
-                    href="https://facebook.com/plantahub"
-                    icon={<Facebook className="h-4 w-4" />}
-                    label="Facebook"
-                  />
+                  {settings?.facebookUrl ? (
+                    <SocialLink
+                      href={settings.facebookUrl}
+                      icon={<Facebook className="h-4 w-4" />}
+                      label="Facebook"
+                    />
+                  ) : null}
 
-                  <SocialLink
-                    href="https://youtube.com/@plantahub"
-                    icon={<Youtube className="h-4 w-4" />}
-                    label="YouTube"
-                  />
+                  {settings?.youtubeUrl ? (
+                    <SocialLink
+                      href={settings.youtubeUrl}
+                      icon={<Youtube className="h-4 w-4" />}
+                      label="YouTube"
+                    />
+                  ) : null}
                 </div>
               </div>
 

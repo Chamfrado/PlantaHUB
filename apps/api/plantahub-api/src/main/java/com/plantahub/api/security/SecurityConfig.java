@@ -45,9 +45,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/health", "/health/**").permitAll()
                         .requestMatchers(HttpMethod.HEAD, "/health", "/health/**").permitAll()
                         .requestMatchers("/v1/auth/login", "/v1/auth/register", "/v1/auth/logout").permitAll()
+                        .requestMatchers("/v1/auth/password-reset/**").permitAll()
                         .requestMatchers("/v1/auth/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/categories", "/v1/categories/**").permitAll()
+                        // Texto institucional e dados de contato: o rodape os carrega em
+                        // toda pagina, inclusive para quem nunca fez login.
+                        .requestMatchers(HttpMethod.GET, "/v1/site/**").permitAll()
                         .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/v1/webhooks/infinitepay").permitAll()
                         .anyRequest().authenticated()

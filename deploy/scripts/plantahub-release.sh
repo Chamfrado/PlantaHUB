@@ -135,7 +135,7 @@ ensure_backend_layout() {
 # texto — nunca executado.
 check_env() {
   local env_file="$BACKEND_BASE/.env" key value missing=""
-  local required="SPRING_DATASOURCE_URL SPRING_DATASOURCE_USERNAME SPRING_DATASOURCE_PASSWORD JWT_SECRET APP_S3_BUCKET APP_S3_REGION INFINITEPAY_HANDLE INFINITEPAY_REDIRECT_URL INFINITEPAY_WEBHOOK_URL"
+  local required="SPRING_DATASOURCE_URL SPRING_DATASOURCE_USERNAME SPRING_DATASOURCE_PASSWORD JWT_SECRET APP_S3_BUCKET APP_S3_REGION INFINITEPAY_HANDLE INFINITEPAY_REDIRECT_URL INFINITEPAY_WEBHOOK_URL APP_PASSWORD_RESET_SECRET"
 
   [ -f "$env_file" ] || fail "$env_file não existe (rode 03-setup-directories.sh e preencha)"
 
@@ -153,6 +153,18 @@ check_env() {
 
   value="$(env_value JWT_SECRET)"
   [ "${#value}" -ge 32 ] || fail "JWT_SECRET tem ${#value} caracteres; o mínimo é 32 (HMAC-SHA256)"
+
+  value="$(env_value APP_PASSWORD_RESET_SECRET)"
+  [ "${#value}" -ge 32 ] || fail "APP_PASSWORD_RESET_SECRET tem ${#value} caracteres; o mínimo é 32"
+
+  # E-mail ligado (o default do prod) sem servidor SMTP: o boot passa, mas nenhum código
+  # de recuperação de senha chega a ninguém.
+  if [ "$(env_value APP_MAIL_ENABLED)" != "false" ]; then
+    value="$(env_value SPRING_MAIL_HOST)"
+    if [ -z "$value" ] || [[ "$value" == TROQUE* ]]; then
+      fail "APP_MAIL_ENABLED não é false, mas SPRING_MAIL_HOST está vazio em $env_file"
+    fi
+  fi
 
   value="$(env_value SPRING_PROFILES_ACTIVE)"
   if [ -n "$value" ] && [[ ",$value," != *",prod,"* ]]; then

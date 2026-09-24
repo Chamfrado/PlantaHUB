@@ -31,6 +31,22 @@ app:
     secret-key: ""
   downloads:
     legacy-fallback: true
+  mail:
+    enabled: false
+    from: PlantaHub Teste <teste@plantahub.test>
+  sms:
+    enabled: false
+  password-reset:
+    secret: test-reset-secret-suficientemente-longo-0123456789
+    email-code-ttl: 15m
+    sms-code-ttl: 10m
+    reset-token-ttl: 10m
+    max-attempts: 5
+    email-cooldown: 60s
+    email-max-per-hour: 5
+    # Todos os testes saem de 127.0.0.1: com o limite de producao, a suite se bloquearia.
+    ip-max-requests-per-hour: 10000
+    ip-max-verify-per-hour: 10000
   uploads:
     max-size-bytes: 10485760
     multipart-threshold-bytes: 1048576

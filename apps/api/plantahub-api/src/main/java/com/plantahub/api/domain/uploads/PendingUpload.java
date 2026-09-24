@@ -26,7 +26,17 @@ public class PendingUpload {
         /** Arquivo entregue ao cliente. */
         ASSET,
         /** Imagem de vitrine. Nunca vira arquivo comprável. */
-        MEDIA
+        MEDIA,
+        /**
+         * Imagem citada pelo conteúdo da página (ex.: foto de um depoimento). Pública como
+         * {@link #MEDIA}, mas não entra na galeria: quem guarda a URL é o próprio conteúdo.
+         */
+        CONTENT_IMAGE;
+
+        /** Imagem pública, sob {@code public/}, com os limites de mídia. */
+        public boolean isPublicImage() {
+            return this != ASSET;
+        }
     }
 
     public enum Status { PENDING, CONFIRMED, ABORTED, EXPIRED }

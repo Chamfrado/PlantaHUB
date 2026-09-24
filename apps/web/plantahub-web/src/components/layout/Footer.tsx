@@ -2,6 +2,7 @@ import { BadgeCheck, Facebook, Instagram, Linkedin, Lock, Youtube } from 'lucide
 import { Link } from 'react-router-dom';
 import { useAsync } from '../../hooks/useAsync';
 import { listCategories } from '../../services/categories.service';
+import { useSiteSettings } from '../../hooks/useSitePage';
 
 type LinkItem = { label: string; href: string };
 
@@ -9,6 +10,9 @@ export default function Footer() {
   // A promise de categorias é memoizada no serviço, então o rodapé — presente em toda
   // página — compartilha a mesma requisição com o resto do app.
   const { data: categories } = useAsync('categories', () => listCategories());
+
+  // Memoizado no servico pelo mesmo motivo das categorias: o rodape esta em toda pagina.
+  const settings = useSiteSettings();
 
   const products: LinkItem[] = (categories ?? []).map(c => ({
     label: c.name,
@@ -46,30 +50,26 @@ export default function Footer() {
               organizada, experiência digital e acesso simplificado à sua biblioteca.
             </p>
 
+            {/* Os links vinham cravados aqui e, de novo, na pagina de Contato — e os dois
+                discordavam: Instagram e Facebook apontavam para perfis diferentes. Dado
+                repetido nao fica igual, fica igual ate alguem mudar um lado. Rede sem URL
+                cadastrada simplesmente nao aparece. */}
             <div className="mt-6 flex items-center gap-3">
-              <SocialLink
-                href="https://www.facebook.com/profile.php?id=61585474105574"
-                label="Facebook"
-                icon={Facebook}
-              />
+              {settings?.facebookUrl ? (
+                <SocialLink href={settings.facebookUrl} label="Facebook" icon={Facebook} />
+              ) : null}
 
-              <SocialLink
-                href="https://www.instagram.com/planta_hub/"
-                label="Instagram"
-                icon={Instagram}
-              />
+              {settings?.instagramUrl ? (
+                <SocialLink href={settings.instagramUrl} label="Instagram" icon={Instagram} />
+              ) : null}
 
-              <SocialLink
-                href="https://www.linkedin.com/company/plantahub/?viewAsMember=true"
-                label="LinkedIn"
-                icon={Linkedin}
-              />
+              {settings?.linkedinUrl ? (
+                <SocialLink href={settings.linkedinUrl} label="LinkedIn" icon={Linkedin} />
+              ) : null}
 
-              <SocialLink
-                href="https://www.youtube.com/@PlantaHub"
-                label="YouTube"
-                icon={Youtube}
-              />
+              {settings?.youtubeUrl ? (
+                <SocialLink href={settings.youtubeUrl} label="YouTube" icon={Youtube} />
+              ) : null}
             </div>
           </div>
 

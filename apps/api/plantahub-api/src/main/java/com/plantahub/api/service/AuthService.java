@@ -4,6 +4,7 @@ import com.plantahub.api.domain.auth.AppUser;
 import com.plantahub.api.domain.auth.enums.UserRole;
 import com.plantahub.api.repository.AppUserRepository;
 import com.plantahub.api.security.JwtService;
+import com.plantahub.api.shared.util.PhoneUtils;
 import com.plantahub.api.web.dto.auth.AuthResponse;
 import com.plantahub.api.web.dto.auth.LoginRequest;
 import com.plantahub.api.web.dto.auth.RegisterRequest;
@@ -40,10 +41,19 @@ public class AuthService {
             throw new IllegalArgumentException("email_already_in_use");
         }
 
+        String phone = null;
+        if (req.phoneNumber() != null && !req.phoneNumber().isBlank()) {
+            if (!PhoneUtils.isValid(req.phoneNumber())) {
+                throw new IllegalArgumentException("phone_invalid");
+            }
+            phone = PhoneUtils.normalize(req.phoneNumber());
+        }
+
         AppUser user = AppUser.builder()
                 .email(email)
                 .passwordHash(encoder.encode(req.password()))
                 .fullName(req.fullName())
+                .phoneNumber(phone)
                 .role(UserRole.USER)
                 .createdAt(Instant.now())
                 .active(true)

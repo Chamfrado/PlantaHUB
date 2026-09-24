@@ -1,5 +1,11 @@
 import { http } from '../../lib/http';
 import type {
+  SitePageContent,
+  SitePageResponse,
+  SitePageSummary,
+  SiteSettings,
+} from '../../types/api/site';
+import type {
   AdminAsset,
   AdminCategory,
   AdminCollection,
@@ -182,4 +188,29 @@ export function listAdminCategories() {
 
 export function createCategory(input: { slug: string; name: string; description?: string }) {
   return http<AdminCategory>(`${base}/categories`, { method: 'POST', body: input });
+}
+
+// ---------------- Páginas institucionais ----------------
+
+export function listSitePages() {
+  return http<SitePageSummary[]>(`${base}/site/pages`);
+}
+
+export function getSitePageForEdit(slug: string) {
+  return http<SitePageResponse>(`${base}/site/pages/${encodeURIComponent(slug)}`);
+}
+
+export function updateSitePage(slug: string, input: { title: string; content: SitePageContent }) {
+  return http<SitePageResponse>(`${base}/site/pages/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
+    body: input,
+  });
+}
+
+export function getAdminSiteSettings() {
+  return http<SiteSettings>(`${base}/site/settings`);
+}
+
+export function updateSiteSettings(settings: SiteSettings) {
+  return http<SiteSettings>(`${base}/site/settings`, { method: 'PUT', body: { settings } });
 }

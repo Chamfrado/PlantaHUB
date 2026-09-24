@@ -91,8 +91,7 @@ public class AdminUploadController {
     @PostMapping("/{uploadId}/confirm")
     public ConfirmUploadResponse confirm(@PathVariable UUID uploadId,
                                          @RequestBody(required = false) ConfirmUploadRequest request) {
-        UUID id = uploadService.confirm(uploadId, request);
-        return new ConfirmUploadResponse(id, null);
+        return uploadService.confirmWithUrl(uploadId, request);
     }
 
     @DeleteMapping("/{uploadId}")

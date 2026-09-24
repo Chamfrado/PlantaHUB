@@ -16,6 +16,7 @@ import Carrer from '../../pages/public/Carrer/Carrer';
 import ContactPage from '../../pages/public/Contact/ContactPage';
 import FaqPage from '../../pages/public/Faq/Faq';
 import Home from '../../pages/public/Home/Home';
+import ForgotPassword from '../../pages/public/ForgotPassword/ForgotPassword';
 import Login from '../../pages/public/Login/Login';
 import ProductDetails from '../../pages/public/ProductDetails/ProductDetails';
 import ProductsPage from '../../pages/public/Products/Products';
@@ -63,6 +64,7 @@ export default function AppRoutes() {
             <Route path="/legal/termos" element={<TermsOfServicePage />} />
             <Route path="/legal/privacidade" element={<PrivacyPolicyPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/register" element={<Register />} />
             <Route path="/trabalhe-conosco" element={<Carrer />} />
             <Route path="/faq" element={<FaqPage />} />

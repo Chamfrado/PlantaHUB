@@ -71,7 +71,13 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
       // ignore parse errors
     }
 
-    if (response.status === 401 && path !== '/v1/auth/me' && path !== '/v1/auth/login') {
+    // Rotas de quem ainda não está logado: um erro nelas nunca significa sessão expirada.
+    const isAnonymousAuthPath =
+      path === '/v1/auth/me' ||
+      path === '/v1/auth/login' ||
+      path.startsWith('/v1/auth/password-reset/');
+
+    if (response.status === 401 && !isAnonymousAuthPath) {
       dispatchSessionExpiredEvent();
     }
 

@@ -363,6 +363,14 @@ A única do frontend é **build-time** e vive no workflow. Nenhuma vai para o gi
 | `INFINITEPAY_REDIRECT_URL` | sim | não | backend runtime | `https://www.plantahub.com.br/pagamento/sucesso` |
 | `INFINITEPAY_WEBHOOK_URL` | sim | não | backend runtime | `https://api.plantahub.com.br/v1/webhooks/infinitepay` |
 | `INFINITEPAY_API_BASE_URL` | não | não | backend runtime | `https://api.checkout.infinitepay.io` |
+| `APP_PASSWORD_RESET_SECRET` | sim | **sim** | backend runtime | ≥ 32 caracteres aleatórios (HMAC dos códigos de recuperação de senha) |
+| `APP_MAIL_ENABLED` | não | não | backend runtime | `true` (default no prod) |
+| `APP_MAIL_FROM` | não | não | backend runtime | `PlantaHub <nao-responda@plantahub.com.br>` |
+| `SPRING_MAIL_HOST` / `_PORT` | sim, com e-mail ligado | não | backend runtime | host SMTP / `587` |
+| `SPRING_MAIL_USERNAME` / `_PASSWORD` | não | senha **sim** | backend runtime | credenciais SMTP |
+| `APP_SMS_ENABLED` | não | não | backend runtime | `false` até ter conta Twilio |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` | sim, com SMS ligado | token **sim** | backend runtime | console do Twilio |
+| `TWILIO_FROM_NUMBER` ou `TWILIO_MESSAGING_SERVICE_SID` | um dos dois, com SMS ligado | não | backend runtime | número remetente (E.164) ou `MG...` |
 | `JAVA_OPTS` | não | não | backend runtime | default no unit: `MaxRAMPercentage=45` |
 | `VITE_API_URL` | sim | não | **frontend build-time** (workflow) | `https://api.plantahub.com.br` |
 

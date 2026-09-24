@@ -2,7 +2,6 @@ package com.plantahub.api.security;
 
 import com.plantahub.api.domain.auth.AppUser;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -47,14 +46,22 @@ public class JwtService {
                 .compact();
     }
 
+    public record TokenClaims(String subject, Instant issuedAt) {}
+
     // Validates signature + issuer + expiration and returns subject (email)
     public String validateAndGetSubject(String token) {
+        return validate(token).subject();
+    }
+
+    // Same validation, also returning issuedAt so callers can reject tokens older than a password change
+    public TokenClaims validate(String token) {
         JwtParser parser = Jwts.parser()
                 .verifyWith(key)
                 .requireIssuer(issuer)
                 .build();
 
-        Jws<Claims> claims = parser.parseSignedClaims(token);
-        return claims.getPayload().getSubject();
+        Claims payload = parser.parseSignedClaims(token).getPayload();
+        Date issuedAt = payload.getIssuedAt();
+        return new TokenClaims(payload.getSubject(), issuedAt == null ? null : issuedAt.toInstant());
     }
 }

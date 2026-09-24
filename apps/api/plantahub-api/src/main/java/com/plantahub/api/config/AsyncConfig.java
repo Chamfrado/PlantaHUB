@@ -31,4 +31,24 @@ public class AsyncConfig {
         executor.initialize();
         return executor;
     }
+
+    /**
+     * Executor do envio de e-mail e SMS.
+     *
+     * <p>Separado do administrativo para uma varredura longa nunca atrasar um codigo de
+     * recuperacao. A fila e generosa porque cada tarefa e curta; se ela lotar, o pedido
+     * falha (o usuario pode pedir de novo) em vez de travar a requisicao.
+     */
+    @Bean("notificationExecutor")
+    public Executor notificationExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(200);
+        executor.setThreadNamePrefix("notify-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.initialize();
+        return executor;
+    }
 }

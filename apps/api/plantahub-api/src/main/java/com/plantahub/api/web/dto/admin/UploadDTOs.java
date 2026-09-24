@@ -16,7 +16,7 @@ public final class UploadDTOs {
     public record PresignRequest(
             @NotNull PendingUpload.TargetKind targetKind,
             @NotBlank String productId,
-            /** Obrigatório para ASSET; ignorado para MEDIA. */
+            /** Obrigatório para ASSET; ignorado para MEDIA e CONTENT_IMAGE. */
             String collectionCode,
             @NotBlank String filename,
             String contentType,
@@ -88,5 +88,6 @@ public final class UploadDTOs {
 
     public record ConfirmUploadRequest(String checksumSha256, String kind) {}
 
-    public record ConfirmUploadResponse(UUID id, String storageKey) {}
+    /** {@code publicUrl} só vem preenchido para imagens públicas (MEDIA e CONTENT_IMAGE). */
+    public record ConfirmUploadResponse(UUID id, String storageKey, String publicUrl) {}
 }
