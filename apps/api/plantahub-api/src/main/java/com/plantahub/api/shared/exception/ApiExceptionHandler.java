@@ -78,6 +78,11 @@ public class ApiExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<?> handleTooManyRequests(TooManyRequestsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", ex.getMessage()));
+    }
+
     /** Sem isto, um 403 do Spring Security chega ao cliente como pagina de erro do container. */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {

@@ -1,7 +1,9 @@
-import { Lock, Mail, User } from 'lucide-react';
+import { Lock, Mail, Phone, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getApiErrorMessage } from '../../lib/api-error';
+import { formatPhoneInput, isValidPhone } from '../../lib/phone';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
@@ -9,6 +11,7 @@ export default function RegisterForm() {
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -23,6 +26,11 @@ export default function RegisterForm() {
       return;
     }
 
+    if (phoneNumber && !isValidPhone(phoneNumber)) {
+      setError('Informe o celular com DDD, por exemplo (11) 98888-7777.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -31,12 +39,20 @@ export default function RegisterForm() {
         fullName,
         email,
         password,
+        phoneNumber: phoneNumber || undefined,
       });
 
       navigate('/');
     } catch (err) {
       console.error(err);
-      setError('Não foi possível criar sua conta.');
+      const code = getApiErrorMessage(err, '');
+      setError(
+        code === 'email_already_in_use'
+          ? 'Já existe uma conta com este e-mail.'
+          : code === 'phone_invalid'
+            ? 'Celular inválido. Informe o número com DDD.'
+            : 'Não foi possível criar sua conta.'
+      );
     } finally {
       setLoading(false);
     }
@@ -86,6 +102,30 @@ export default function RegisterForm() {
               required
             />
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="phoneNumber" className="mb-2 block text-sm font-semibold text-neutral-800">
+            Celular <span className="font-normal text-neutral-500">(opcional)</span>
+          </label>
+
+          <div className="flex items-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 focus-within:border-primary-500">
+            <Phone className="h-5 w-5 text-neutral-400" />
+            <input
+              id="phoneNumber"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              placeholder="(11) 98888-7777"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(formatPhoneInput(e.target.value))}
+              aria-describedby="phoneNumber-help"
+              className="w-full bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
+            />
+          </div>
+          <p id="phoneNumber-help" className="mt-1 text-xs text-neutral-500">
+            Usado para recuperar sua senha por SMS.
+          </p>
         </div>
 
         <div>

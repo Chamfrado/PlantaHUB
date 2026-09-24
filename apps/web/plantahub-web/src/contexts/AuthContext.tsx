@@ -35,6 +35,7 @@ type RegisterPayload = {
   fullName: string;
   email: string;
   password: string;
+  phoneNumber?: string;
 };
 
 type AuthContextValue = {
@@ -142,8 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(toAuthUser({ ...response, email: response.email ?? email }));
   }, []);
 
-  const register = useCallback(async ({ fullName, email, password }: RegisterPayload) => {
-    await registerRequest({ fullName, email, password });
+  const register = useCallback(async ({ fullName, email, password, phoneNumber }: RegisterPayload) => {
+    await registerRequest({ fullName, email, password, phoneNumber });
     const response = await loginRequest({ email, password });
     clearLegacyAuthStorage();
     resetSessionExpiredFlag();

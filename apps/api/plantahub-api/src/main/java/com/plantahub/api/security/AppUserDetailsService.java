@@ -23,10 +23,11 @@ public class AppUserDetailsService implements UserDetailsService {
 
         var authority = new SimpleGrantedAuthority("ROLE_" + u.getRole().name());
 
-        return new org.springframework.security.core.userdetails.User(
+        return new AppUserPrincipal(
                 u.getEmail(),
                 u.getPasswordHash() == null ? "" : u.getPasswordHash(),
-                List.of(authority)
+                List.of(authority),
+                u.getPasswordChangedAt()
         );
     }
 }

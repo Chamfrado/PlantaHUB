@@ -46,8 +46,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         try {
-            String email = jwtService.validateAndGetSubject(token);
-            UserDetails user = userDetailsService.loadUserByUsername(email);
+            var claims = jwtService.validate(token);
+            UserDetails user = userDetailsService.loadUserByUsername(claims.subject());
+
+            // Senha trocada depois da emissao: o token pertence a uma sessao encerrada.
+            if (user instanceof AppUserPrincipal principal && principal.isTokenRevoked(claims.issuedAt())) {
+                SecurityContextHolder.clearContext();
+                chain.doFilter(request, response);
+                return;
+            }
 
             var authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities()
@@ -68,7 +75,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 path.startsWith("/v3/api-docs") ||
                 path.equals("/v1/auth/login") ||
                 path.equals("/v1/auth/register") ||
-                path.equals("/v1/auth/logout");
+                path.equals("/v1/auth/logout") ||
+                path.startsWith("/v1/auth/password-reset/");
     }
 
     private String resolveToken(HttpServletRequest request) {

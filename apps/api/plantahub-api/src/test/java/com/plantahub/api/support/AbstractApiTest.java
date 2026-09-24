@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Import;
  * {@link AbstractPostgresTest}) e armazenamento de objetos em memoria.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import({TestStorageConfig.class, TestDataFactory.class})
+@Import({TestStorageConfig.class, TestNotificationConfig.class, TestDataFactory.class})
 public abstract class AbstractApiTest extends AbstractPostgresTest {
 }

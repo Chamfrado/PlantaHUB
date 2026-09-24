@@ -47,4 +47,8 @@ public class AppUser {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    /** Tokens emitidos antes deste instante deixam de valer. Nulo = senha nunca trocada. */
+    @Column(name = "password_changed_at")
+    private Instant passwordChangedAt;
 }

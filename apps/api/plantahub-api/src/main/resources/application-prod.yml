@@ -16,6 +16,18 @@ spring:
   flyway:
     enabled: true
 
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+
 security:
   jwt:
     issuer: plantahub
@@ -59,6 +71,34 @@ app:
 
   downloads:
     legacy-fallback: ${APP_DOWNLOADS_LEGACY_FALLBACK:true}
+
+  # Ligado por padrao: sem SMTP ninguem recupera a senha. Desligar em prod descarta os
+  # e-mails (o codigo nunca vai para o log).
+  mail:
+    enabled: ${APP_MAIL_ENABLED:true}
+    from: ${APP_MAIL_FROM:PlantaHub <nao-responda@plantahub.com.br>}
+
+  # Desligado => a tela nao oferece SMS.
+  sms:
+    enabled: ${APP_SMS_ENABLED:false}
+    twilio:
+      account-sid: ${TWILIO_ACCOUNT_SID:}
+      auth-token: ${TWILIO_AUTH_TOKEN:}
+      from-number: ${TWILIO_FROM_NUMBER:}
+      messaging-service-sid: ${TWILIO_MESSAGING_SERVICE_SID:}
+      api-base-url: https://api.twilio.com
+
+  password-reset:
+    # Obrigatoria e sem default: com a chave de dev, os hashes do banco seriam quebraveis.
+    secret: ${APP_PASSWORD_RESET_SECRET}
+    email-code-ttl: 15m
+    sms-code-ttl: 10m
+    reset-token-ttl: 10m
+    max-attempts: 5
+    email-cooldown: 60s
+    email-max-per-hour: 5
+    ip-max-requests-per-hour: 20
+    ip-max-verify-per-hour: 30
 
 logging:
   level:

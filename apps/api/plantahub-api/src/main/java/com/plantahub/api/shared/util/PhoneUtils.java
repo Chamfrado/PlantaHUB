@@ -20,6 +20,17 @@ public final class PhoneUtils {
         return normalized.length() >= 10 && normalized.length() <= 13;
     }
 
+    /**
+     * Formato E.164 exigido pelos provedores de SMS. Sem DDI (10 ou 11 digitos), assume
+     * Brasil. Nulo se o numero nao for valido.
+     */
+    public static String toE164(String phone) {
+        if (!isValid(phone)) return null;
+
+        String normalized = normalize(phone);
+        return normalized.length() <= 11 ? "+55" + normalized : "+" + normalized;
+    }
+
     public static String mask(String phone) {
         if (phone == null || phone.isBlank()) return phone;
 

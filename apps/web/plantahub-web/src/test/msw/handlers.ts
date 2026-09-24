@@ -45,6 +45,15 @@ export const handlers = [
     ])
   ),
 
+  http.get(`${API}/v1/auth/password-reset/channels`, () =>
+    HttpResponse.json({ email: true, sms: true })
+  ),
+  http.post(`${API}/v1/auth/password-reset/request`, () => new HttpResponse(null, { status: 202 })),
+  http.post(`${API}/v1/auth/password-reset/verify`, () =>
+    HttpResponse.json({ resetToken: 'token-de-teste' })
+  ),
+  http.post(`${API}/v1/auth/password-reset/confirm`, () => new HttpResponse(null, { status: 204 })),
+
   http.get(`${API}/v1/auth/me`, () => HttpResponse.json({ error: 'unauthorized' }, { status: 401 })),
   http.get(`${API}/v1/me/cart`, () => HttpResponse.json({ error: 'unauthorized' }, { status: 401 })),
   http.get(`${API}/v1/me/library`, () => HttpResponse.json([])),
