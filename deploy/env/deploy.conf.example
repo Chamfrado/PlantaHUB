@@ -39,3 +39,10 @@ KEEP_DB_BACKUPS=10
 
 # pg_dump automático antes de cada troca de backend (recomendado: true).
 DB_BACKUP_BEFORE_DEPLOY=true
+
+# Watchdog (plantahub-watchdog.timer, 1 verificação por minuto). Reinicia o backend
+# depois de N falhas seguidas do /health, ignora os primeiros segundos após um start e
+# faz no máximo um restart por intervalo de cooldown.
+WATCHDOG_FAILS_BEFORE_RESTART=3
+WATCHDOG_STARTUP_GRACE_SECONDS=300
+WATCHDOG_COOLDOWN_SECONDS=600

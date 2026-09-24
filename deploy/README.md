@@ -791,6 +791,9 @@ Restaurar um dump **descarta** pedidos/cadastros feitos depois dele.
 | Logs do backend | `journalctl -u plantahub-backend -f` |
 | Logs do Nginx | `sudo tail -f /var/log/nginx/plantahub-{api,frontend}.{access,error}.log` |
 | Reiniciar backend | `sudo systemctl restart plantahub-backend` |
+| Watchdog (auto-restart) | ativo por padrão: `/health` a cada minuto; ~3 min sem resposta → restart (máx. 1 a cada 10 min, nunca durante deploy). Logs: `journalctl -u plantahub-watchdog` |
+| Pausar o watchdog (manutenção) | `sudo touch /etc/plantahub/watchdog.disabled` · reativar: `sudo rm /etc/plantahub/watchdog.disabled` |
+| Parar o backend de propósito | pause o watchdog **antes** de `systemctl stop`, senão ele religa em ~3 min |
 | Estado das releases | `sudo /usr/local/sbin/plantahub-release status` |
 | Verificação completa | `sudo bash ~/plantahub-deploy/scripts/verify-deployment.sh` |
 | Mudar uma variável | `sudo nano /opt/plantahub/backend/.env && sudo systemctl restart plantahub-backend` |

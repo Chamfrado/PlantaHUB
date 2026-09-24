@@ -1,0 +1,11 @@
+# /etc/systemd/system/plantahub-watchdog.service
+# Uma verificação do backend; disparada a cada minuto por plantahub-watchdog.timer.
+# Logs: journalctl -u plantahub-watchdog
+[Unit]
+Description=PlantaHUB — verifica o backend e reinicia se ficar sem responder
+After=plantahub-backend.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/plantahub-watchdog
+SyslogIdentifier=plantahub-watchdog
