@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import AvatarInput from '../../../../components/admin/forms/AvatarInput';
 import RepeatableList from '../../../../components/admin/forms/RepeatableList';
 import { stripUid, withUid, type WithUid } from '../../../../components/admin/forms/uid';
 import {
@@ -216,6 +217,12 @@ export default function ContentTab({ productId, content }: Props) {
           itemTitle={item => item.authorName}
           renderItem={(item, patch) => (
             <>
+              <AvatarInput
+                productId={productId}
+                value={item.avatarUrl}
+                alt={item.authorName}
+                onChange={avatarUrl => patch({ avatarUrl })}
+              />
               <TextArea
                 placeholder="Depoimento"
                 value={item.quote}

@@ -22,6 +22,7 @@ import com.plantahub.api.shared.storage.StorageKeyFactory;
 import com.plantahub.api.shared.storage.StoredObject;
 import com.plantahub.api.web.dto.admin.UploadDTOs.CompleteMultipartRequest;
 import com.plantahub.api.web.dto.admin.UploadDTOs.ConfirmUploadRequest;
+import com.plantahub.api.web.dto.admin.UploadDTOs.ConfirmUploadResponse;
 import com.plantahub.api.web.dto.admin.UploadDTOs.PresignRequest;
 import com.plantahub.api.web.dto.admin.UploadDTOs.PresignResponse;
 import com.plantahub.api.web.dto.admin.UploadDTOs.PresignedPart;
@@ -133,7 +134,7 @@ public class UploadService {
             throw new ConflictException("product_archived");
         }
 
-        boolean isMedia = request.targetKind() == PendingUpload.TargetKind.MEDIA;
+        boolean isMedia = request.targetKind().isPublicImage();
 
         validateSize(request.sizeBytes(), isMedia);
 
@@ -271,9 +272,12 @@ public class UploadService {
         StoredObject stored = storage.head(pending.getStorageKey())
                 .orElseThrow(() -> new ConflictException("upload_object_missing"));
 
-        UUID recordId = pending.getTargetKind() == PendingUpload.TargetKind.MEDIA
-                ? createMedia(pending, stored)
-                : createAsset(pending, stored, request);
+        UUID recordId = switch (pending.getTargetKind()) {
+            case MEDIA -> createMedia(pending, stored);
+            case ASSET -> createAsset(pending, stored, request);
+            // Nada a registrar: a URL volta para o painel, que a grava no conteúdo.
+            case CONTENT_IMAGE -> pending.getId();
+        };
 
         pending.setStatus(PendingUpload.Status.CONFIRMED);
         pending.setConfirmedAt(Instant.now());
@@ -283,6 +287,19 @@ public class UploadService {
                 uploadId, pending.getStorageKey(), stored.sizeBytes());
 
         return recordId;
+    }
+
+    /** Como {@link #confirm}, devolvendo também a URL pública quando o alvo é uma imagem. */
+    @Transactional
+    public ConfirmUploadResponse confirmWithUrl(UUID uploadId, ConfirmUploadRequest request) {
+        UUID id = confirm(uploadId, request);
+        PendingUpload pending = pendingRepo.findById(uploadId).orElseThrow();
+
+        String publicUrl = pending.getTargetKind().isPublicImage()
+                ? publicUrls.urlFor(pending.getStorageKey())
+                : null;
+
+        return new ConfirmUploadResponse(id, pending.getStorageKey(), publicUrl);
     }
 
     @Transactional
@@ -356,6 +373,10 @@ public class UploadService {
      * o upload e a linha resultante.
      */
     private UUID existingRecordId(PendingUpload pending) {
+        if (pending.getTargetKind() == PendingUpload.TargetKind.CONTENT_IMAGE) {
+            return pending.getId();
+        }
+
         if (pending.getTargetKind() == PendingUpload.TargetKind.MEDIA) {
             return mediaRepo
                     .findByProduct_IdAndDeletedAtIsNullOrderByRoleAscSortOrderAsc(

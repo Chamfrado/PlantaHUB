@@ -193,4 +193,31 @@ class MediaUploadTest extends AbstractApiTest {
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("file_too_large");
     }
+
+    @Test
+    @DisplayName("foto de depoimento sobe para o prefixo publico, devolve a URL e nao entra na galeria")
+    void contentImageReturnsUrlWithoutTouchingTheGallery() {
+        var presigned = uploadService.presign(adminEmail, new PresignRequest(
+                PendingUpload.TargetKind.CONTENT_IMAGE, product.getId(), null,
+                "Maria Silva.jpg", "image/jpeg", 2048L, null));
+
+        assertThat(presigned.storageKey())
+                .startsWith("public/products/" + product.getId() + "/")
+                .endsWith("/maria-silva.jpg");
+
+        storage.seed(presigned.storageKey(), new byte[2048], "image/jpeg");
+        var confirmed = uploadService.confirmWithUrl(presigned.uploadId(), null);
+
+        assertThat(confirmed.publicUrl())
+                .startsWith("https://")
+                .endsWith("/" + presigned.storageKey());
+
+        assertThat(mediaService.list(product.getId()))
+                .as("a foto de quem deu o depoimento nao pode aparecer no carrossel do produto")
+                .isEmpty();
+
+        assertThat(uploadService.confirmWithUrl(presigned.uploadId(), null).publicUrl())
+                .as("confirmar de novo e idempotente")
+                .isEqualTo(confirmed.publicUrl());
+    }
 }
