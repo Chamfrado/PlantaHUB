@@ -1,8 +1,12 @@
 // src/pages/legal/PrivacyPolicyPage.tsx
 import { ArrowRight, FileText, Lock, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SiteSections, { SectionIndex } from '../../components/site/SiteSections';
+import { useSitePage } from '../../hooks/useSitePage';
 
 export default function PrivacyPolicyPage() {
+  const { content } = useSitePage('privacidade');
+
   return (
     <div className="bg-white">
       {/* HERO */}
@@ -21,15 +25,9 @@ export default function PrivacyPolicyPage() {
               LGPD
             </span>
 
-            <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-neutral-900 leading-tight">
-              Política de Privacidade – PLANTAHUB
-            </h1>
+            <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-neutral-900 leading-tight">{content.headline}</h1>
 
-            <p className="mt-4 text-neutral-600 leading-relaxed max-w-3xl">
-              O PlantaHUB respeita a sua privacidade e está comprometido com a proteção dos dados
-              pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD – Lei nº
-              13.709/2018).
-            </p>
+            <p className="mt-4 text-neutral-600 leading-relaxed max-w-3xl">{content.intro}</p>
 
             <div className="mt-6 flex flex-wrap items-center gap-6 text-xs font-semibold text-neutral-600">
               <span className="inline-flex items-center gap-2">
@@ -57,27 +55,7 @@ export default function PrivacyPolicyPage() {
             <aside className="lg:col-span-4">
               <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sticky top-6">
                 <div className="text-sm font-extrabold text-neutral-900">Nesta página</div>
-                <nav className="mt-4 space-y-2 text-sm">
-                  {[
-                    'Dados Coletados',
-                    'Finalidade do Tratamento',
-                    'Compartilhamento de Dados',
-                    'Cookies',
-                    'Armazenamento e Segurança',
-                    'Direitos do Titular',
-                    'Retenção de Dados',
-                    'Alterações nesta Política',
-                    'Contato',
-                  ].map(t => (
-                    <a
-                      key={t}
-                      href={`#${slugify(t)}`}
-                      className="block rounded-xl px-3 py-2 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition"
-                    >
-                      {t}
-                    </a>
-                  ))}
-                </nav>
+                <SectionIndex sections={content.sections} />
 
                 <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <div className="text-xs font-extrabold text-neutral-900">Última atualização</div>
@@ -97,106 +75,7 @@ export default function PrivacyPolicyPage() {
 
             {/* main */}
             <main className="lg:col-span-8">
-              <Article>
-                <Section id={slugify('Dados Coletados')} title="1. Dados Coletados">
-                  <p>Podemos coletar:</p>
-                  <ul>
-                    <li>Nome completo;</li>
-                    <li>E-mail;</li>
-                    <li>CPF/CNPJ (quando necessário para emissão fiscal);</li>
-                    <li>Dados de navegação (IP, cookies, páginas acessadas);</li>
-                    <li>Informações de pagamento (processadas por terceiros).</li>
-                  </ul>
-                </Section>
-
-                <Section
-                  id={slugify('Finalidade do Tratamento')}
-                  title="2. Finalidade do Tratamento"
-                >
-                  <p>Os dados são utilizados para:</p>
-                  <ul>
-                    <li>Criar e gerenciar contas;</li>
-                    <li>Processar compras e liberar downloads;</li>
-                    <li>Emitir documentos fiscais;</li>
-                    <li>Enviar comunicações transacionais;</li>
-                    <li>Melhorar a experiência do usuário.</li>
-                  </ul>
-                </Section>
-
-                <Section
-                  id={slugify('Compartilhamento de Dados')}
-                  title="3. Compartilhamento de Dados"
-                >
-                  <p>Seus dados poderão ser compartilhados apenas com:</p>
-                  <ul>
-                    <li>Gateways de pagamento;</li>
-                    <li>Plataformas de hospedagem e infraestrutura;</li>
-                    <li>Autoridades legais, quando exigido por lei.</li>
-                  </ul>
-                  <p className="mt-4 font-semibold text-neutral-900">
-                    Nunca vendemos ou comercializamos dados pessoais.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Cookies')} title="4. Cookies">
-                  <p>Utilizamos cookies para:</p>
-                  <ul>
-                    <li>Funcionalidade da plataforma;</li>
-                    <li>Análise de desempenho;</li>
-                    <li>Melhoria contínua da experiência do usuário.</li>
-                  </ul>
-                  <p className="mt-4">
-                    O usuário pode gerenciar cookies nas configurações do navegador.
-                  </p>
-                </Section>
-
-                <Section
-                  id={slugify('Armazenamento e Segurança')}
-                  title="5. Armazenamento e Segurança"
-                >
-                  <p>
-                    Adotamos medidas técnicas e administrativas para proteger os dados contra
-                    acessos não autorizados, vazamentos ou usos indevidos.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Direitos do Titular')} title="6. Direitos do Titular">
-                  <p>Você pode, a qualquer momento:</p>
-                  <ul>
-                    <li>Solicitar acesso aos seus dados;</li>
-                    <li>Corrigir informações;</li>
-                    <li>Solicitar exclusão ou anonimização;</li>
-                    <li>Revogar consentimentos.</li>
-                  </ul>
-                  <p className="mt-4">
-                    As solicitações podem ser feitas pelo canal oficial de contato do PlantaHUB.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Retenção de Dados')} title="7. Retenção de Dados">
-                  <p>
-                    Os dados serão armazenados apenas pelo tempo necessário para cumprir as
-                    finalidades legais, contratuais e regulatórias.
-                  </p>
-                </Section>
-
-                <Section
-                  id={slugify('Alterações nesta Política')}
-                  title="8. Alterações nesta Política"
-                >
-                  <p>
-                    Esta Política pode ser atualizada a qualquer momento. Recomendamos a consulta
-                    periódica.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Contato')} title="9. Contato">
-                  <p>
-                    Para dúvidas, solicitações ou reclamações sobre privacidade, entre em contato
-                    pelos canais oficiais do PlantaHUB.
-                  </p>
-                </Section>
-              </Article>
+              <SiteSections sections={content.sections} />
             </main>
           </div>
         </div>
@@ -232,39 +111,5 @@ export default function PrivacyPolicyPage() {
 
 /* ---------- UI helpers ---------- */
 
-function Article({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 md:p-8 shadow-sm">
-      <div className="prose prose-neutral max-w-none prose-p:text-neutral-700 prose-li:text-neutral-700 prose-strong:text-neutral-900">
-        {children}
-      </div>
-    </div>
-  );
-}
 
-function Section({
-  id,
-  title,
-  children,
-}: {
-  id: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section id={id} className="scroll-mt-24">
-      <h2 className="text-xl font-extrabold text-neutral-900">{title}</h2>
-      <div className="mt-3 text-neutral-700 leading-relaxed">{children}</div>
-      <div className="mt-8 border-b border-neutral-200" />
-    </section>
-  );
-}
 
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}

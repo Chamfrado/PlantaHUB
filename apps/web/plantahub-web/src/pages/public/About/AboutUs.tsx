@@ -11,8 +11,40 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { sectionByKey, useSitePage } from '../../../hooks/useSitePage';
+
+
+/**
+ * Os icones fazem parte do desenho da pagina, nao do texto que o administrador edita, e por
+ * isso continuam no codigo — casados por posicao com os itens da secao. Item a mais do que
+ * icones simplesmente nao recebe icone, em vez de quebrar a tela.
+ */
+const MANIFESTO_ICONS = [
+  <Sparkles className="h-5 w-5 text-primary-600" key="sparkles" />,
+  <Clock3 className="h-5 w-5 text-primary-600" key="clock" />,
+  <BadgeDollarSign className="h-5 w-5 text-primary-600" key="money" />,
+];
+
+const IDENTITY_ICONS = [
+  <Sparkles className="h-5 w-5 text-primary-600" key="sparkles" />,
+  <Cpu className="h-5 w-5 text-primary-600" key="cpu" />,
+  <CheckCircle2 className="h-5 w-5 text-primary-600" key="check" />,
+];
+
+const PILLAR_ICONS = [
+  <Building2 className="h-5 w-5 text-white" key="building" />,
+  <Cpu className="h-5 w-5 text-white" key="cpu" />,
+  <Leaf className="h-5 w-5 text-white" key="leaf" />,
+];
+
+const COMPLIANCE_ICONS = [
+  <BadgeCheck className="h-5 w-5 text-primary-400" key="badge" />,
+  <ShieldCheck className="h-5 w-5 text-primary-400" key="shield" />,
+  <CheckCircle2 className="h-5 w-5 text-primary-400" key="check" />,
+];
 
 export default function AboutUs() {
+  const { content } = useSitePage('sobre');
   return (
     <div className="bg-white">
       {/* HERO */}
@@ -20,19 +52,11 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <span className="inline-flex items-center rounded-full bg-white text-primary-700 border border-orange-100 px-3 py-1 text-xs font-extrabold tracking-wide">
-                SOBRE A PLANTAHUB
-              </span>
+              <span className="inline-flex items-center rounded-full bg-white text-primary-700 border border-orange-100 px-3 py-1 text-xs font-extrabold tracking-wide">{content.subheadline}</span>
 
-              <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-brand-black leading-tight">
-                Arquitetura impulsionada por tecnologia
-              </h1>
+              <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-brand-black leading-tight">{content.headline}</h1>
 
-              <p className="mt-4 text-brand-muted leading-relaxed max-w-xl">
-                Transformamos conhecimento arquitetônico em soluções digitais escaláveis para
-                conectar profissionais e impulsionar uma construção mais inteligente, eficiente e
-                sustentável.
-              </p>
+              <p className="mt-4 text-brand-muted leading-relaxed max-w-xl">{content.intro}</p>
             </div>
 
             {/* image card (use your own image path in public/) */}
@@ -59,9 +83,7 @@ export default function AboutUs() {
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">
-              Manifesto da Marca
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">{sectionByKey(content, 'manifesto')?.title}</h2>
             <div className="mt-3 mx-auto h-1 w-10 rounded-full bg-primary-500" />
           </div>
 
@@ -74,36 +96,23 @@ export default function AboutUs() {
                 </span>
                 .
               </p>
-              <p className="text-brand-muted leading-relaxed">
-                Acreditamos que construir não precisa ser lento, caro ou desconectado da tecnologia.
-              </p>
+              <p className="text-brand-muted leading-relaxed">{sectionByKey(content, 'manifesto')?.body}</p>
             </div>
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
-            <MiniValue
-              icon={<Sparkles className="h-5 w-5 text-primary-600" />}
-              title="Simplificar a complexidade"
-              text="Transformamos documentação técnica em uma experiência clara e guiada."
-            />
-            <MiniValue
-              icon={<Clock3 className="h-5 w-5 text-primary-600" />}
-              title="Reduzir tempo"
-              text="Aceleramos o ciclo do projeto com entrega digital e organização profissional."
-            />
-            <MiniValue
-              icon={<BadgeDollarSign className="h-5 w-5 text-primary-600" />}
-              title="Otimizar custo"
-              text="Menos retrabalho, mais previsibilidade e decisões melhores desde o início."
-            />
+            {(sectionByKey(content, 'manifesto')?.items ?? []).map((value, i) => (
+              <MiniValue
+                key={value.title}
+                icon={MANIFESTO_ICONS[i] ?? null}
+                title={value.title ?? ''}
+                text={value.text ?? ''}
+              />
+            ))}
           </div>
 
           <div className="mt-10 max-w-4xl mx-auto rounded-2xl bg-brand-graphite text-white p-8">
-            <p className="text-sm text-neutral-200 leading-relaxed">
-              Existimos para transformar conhecimento arquitetônico em soluções digitais escaláveis,
-              conectando arquitetos, engenheiros e construtores por meio de um marketplace simples,
-              confiável e pronto para obra.
-            </p>
+            <p className="text-sm text-neutral-200 leading-relaxed">{sectionByKey(content, 'proposito')?.body}</p>
             <p className="mt-3 text-sm text-neutral-200 leading-relaxed">
               Ao unir construção, tecnologia e sustentabilidade, possibilitamos que pessoas
               construam com confiança — e que profissionais ampliem seu impacto.
@@ -111,9 +120,9 @@ export default function AboutUs() {
           </div>
 
           <div className="mt-10 max-w-4xl mx-auto grid gap-6 md:grid-cols-3 text-center">
-            <FooterMetric title="Excelência Técnica" subtitle="Precisão em cada detalhe" />
-            <FooterMetric title="Conformidade Legal" subtitle="CAU / CREA" />
-            <FooterMetric title="Responsabilidade Ecológica" subtitle="Sustentável por design" />
+            {(sectionByKey(content, 'proposito')?.items ?? []).map(metric => (
+              <FooterMetric key={metric.title} title={metric.title ?? ''} subtitle={metric.text ?? ''} />
+            ))}
           </div>
 
           <div className="mt-10 text-center max-w-4xl mx-auto">
@@ -133,60 +142,32 @@ export default function AboutUs() {
       <section className="bg-brand-light">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid gap-6 md:grid-cols-3">
-            <InfoCard
-              icon={<Sparkles className="h-5 w-5 text-primary-600" />}
-              title="Missão"
-              text="Transformar conhecimento arquitetônico em soluções digitais acessíveis, reduzindo tempo e custo, mantendo excelência técnica e conformidade legal em cada projeto."
-            />
-            <InfoCard
-              icon={<Cpu className="h-5 w-5 text-primary-600" />}
-              title="Visão"
-              text="Ser a principal infraestrutura digital para profissionais de arquitetura e construção, criando um ambiente construído mais eficiente e sustentável em escala."
-            />
-            <InfoCard
-              icon={<CheckCircle2 className="h-5 w-5 text-primary-600" />}
-              title="Valores"
-              list={[
-                'Precisão técnica',
-                'Inovação acessível',
-                'Práticas sustentáveis',
-                'Confiança profissional',
-              ]}
-            />
+            {(sectionByKey(content, 'identidade')?.items ?? []).map((card, i) => (
+              <InfoCard
+                key={card.title}
+                icon={IDENTITY_ICONS[i] ?? null}
+                title={card.title ?? ''}
+                text={card.text ?? ''}
+                list={card.bullets}
+              />
+            ))}
           </div>
 
           <div className="mt-16 text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">
-              Três Pilares de Integração
-            </h2>
-            <p className="mt-2 text-brand-muted">
-              Onde construção, tecnologia e sustentabilidade convergem
-            </p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">{sectionByKey(content, 'pilares')?.title}</h2>
+            <p className="mt-2 text-brand-muted">{sectionByKey(content, 'pilares')?.body}</p>
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <PillarCard
-              icon={<Building2 className="h-5 w-5 text-white" />}
-              title="Construção"
-              text="Plantas arquitetônicas em padrão profissional, compatíveis com CAU/CREA, garantindo conformidade e excelência."
-              bullets={[
-                'Profissionais certificados',
-                'Conformidade regulatória',
-                'Precisão técnica',
-              ]}
-            />
-            <PillarCard
-              icon={<Cpu className="h-5 w-5 text-white" />}
-              title="Tecnologia"
-              text="Infraestrutura digital que escala conhecimento e distribui projetos de forma instantânea."
-              bullets={['Entrega imediata', 'Marketplace digital', 'Plataforma escalável']}
-            />
-            <PillarCard
-              icon={<Leaf className="h-5 w-5 text-white" />}
-              title="Sustentabilidade"
-              text="Responsabilidade ecológica incorporada em princípios de design, otimizando recursos e reduzindo impacto."
-              bullets={['Otimização de recursos', 'Design eco-consciente', 'Menos desperdício']}
-            />
+            {(sectionByKey(content, 'pilares')?.items ?? []).map((pillar, i) => (
+              <PillarCard
+                key={pillar.title}
+                icon={PILLAR_ICONS[i] ?? null}
+                title={pillar.title ?? ''}
+                text={pillar.text ?? ''}
+                bullets={pillar.bullets}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -196,30 +177,18 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold">
-                Conformidade Profissional & Certificação
-              </h2>
-              <p className="mt-3 text-neutral-200 leading-relaxed max-w-xl">
-                Cada planta na PLANTAHUB é pensada para atender padrões profissionais e requisitos
-                regulatórios, com documentação completa para obra e aprovação.
-              </p>
+              <h2 className="text-2xl md:text-3xl font-extrabold">{sectionByKey(content, 'conformidade')?.title}</h2>
+              <p className="mt-3 text-neutral-200 leading-relaxed max-w-xl">{sectionByKey(content, 'conformidade')?.body}</p>
 
               <div className="mt-8 space-y-4">
-                <ComplianceItem
-                  icon={<BadgeCheck className="h-5 w-5 text-primary-500" />}
-                  title="Certificação CAU"
-                  text="Projetos preparados para padrões de Arquitetura e Urbanismo."
-                />
-                <ComplianceItem
-                  icon={<ShieldCheck className="h-5 w-5 text-primary-500" />}
-                  title="Aprovado para conformidade"
-                  text="Documentação pronta para apoiar processos e validações."
-                />
-                <ComplianceItem
-                  icon={<CheckCircle2 className="h-5 w-5 text-primary-500" />}
-                  title="Conformidade legal"
-                  text="Documentação regulatória incluída conforme o pacote."
-                />
+                {(sectionByKey(content, 'conformidade')?.items ?? []).map((entry, i) => (
+                  <ComplianceItem
+                    key={entry.title}
+                    icon={COMPLIANCE_ICONS[i] ?? null}
+                    title={entry.title ?? ''}
+                    text={entry.text ?? ''}
+                  />
+                ))}
               </div>
             </div>
 
@@ -237,13 +206,8 @@ export default function AboutUs() {
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">
-              Humanizado. Profissional. Confiável.
-            </h2>
-            <p className="mt-2 text-brand-muted max-w-3xl mx-auto">
-              Por trás de cada planta existe um time de profissionais experientes comprometidos em
-              transformar sua visão em realidade com precisão e cuidado.
-            </p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-black">{sectionByKey(content, 'time')?.title}</h2>
+            <p className="mt-2 text-brand-muted max-w-3xl mx-auto">{sectionByKey(content, 'time')?.body}</p>
           </div>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-2">
@@ -274,12 +238,8 @@ export default function AboutUs() {
       {/* CTA */}
       <section className="bg-primary-500">
         <div className="max-w-7xl mx-auto px-6 py-16 text-center">
-          <h2 className="text-3xl font-extrabold text-white">
-            Pronto para construir com confiança?
-          </h2>
-          <p className="mt-2 text-white/90">
-            Junte-se a milhares de profissionais e clientes que confiam na PLANTAHUB.
-          </p>
+          <h2 className="text-3xl font-extrabold text-white">{content.ctaTitle}</h2>
+          <p className="mt-2 text-white/90">{content.ctaSubtitle}</p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <button className="rounded-xl bg-white text-brand-black font-semibold px-6 py-3 hover:bg-neutral-100 transition inline-flex items-center gap-2">

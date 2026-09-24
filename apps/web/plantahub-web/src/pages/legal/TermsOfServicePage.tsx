@@ -1,8 +1,12 @@
 // src/pages/legal/TermsOfServicePage.tsx
 import { ArrowRight, BadgeCheck, FileText, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SiteSections, { SectionIndex } from '../../components/site/SiteSections';
+import { useSitePage } from '../../hooks/useSitePage';
 
 export default function TermsOfServicePage() {
+  const { content } = useSitePage('termos');
+
   return (
     <div className="bg-white">
       {/* HERO */}
@@ -21,15 +25,9 @@ export default function TermsOfServicePage() {
               DOCUMENTO LEGAL
             </span>
 
-            <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-neutral-900 leading-tight">
-              Termos de Serviço – PLANTAHUB
-            </h1>
+            <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-neutral-900 leading-tight">{content.headline}</h1>
 
-            <p className="mt-4 text-neutral-600 leading-relaxed max-w-3xl">
-              Ao acessar ou utilizar nossa plataforma, você concorda integralmente com estes Termos
-              de Serviço. Caso não concorde com qualquer condição aqui descrita, recomendamos que
-              não utilize nossos serviços.
-            </p>
+            <p className="mt-4 text-neutral-600 leading-relaxed max-w-3xl">{content.intro}</p>
 
             <div className="mt-6 flex flex-wrap items-center gap-6 text-xs font-semibold text-neutral-600">
               <span className="inline-flex items-center gap-2">
@@ -57,30 +55,7 @@ export default function TermsOfServicePage() {
             <aside className="lg:col-span-4">
               <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sticky top-6">
                 <div className="text-sm font-extrabold text-neutral-900">Nesta página</div>
-                <nav className="mt-4 space-y-2 text-sm">
-                  {[
-                    'Sobre o PlantaHUB',
-                    'Elegibilidade',
-                    'Cadastro e Conta',
-                    'Produtos Digitais',
-                    'Licença de Uso',
-                    'Personalização de Projetos',
-                    'Pagamentos',
-                    'Política de Reembolso',
-                    'Propriedade Intelectual',
-                    'Limitação de Responsabilidade',
-                    'Modificações',
-                    'Foro',
-                  ].map(t => (
-                    <a
-                      key={t}
-                      href={`#${slugify(t)}`}
-                      className="block rounded-xl px-3 py-2 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition"
-                    >
-                      {t}
-                    </a>
-                  ))}
-                </nav>
+                <SectionIndex sections={content.sections} />
 
                 <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <div className="text-xs font-extrabold text-neutral-900">Última atualização</div>
@@ -100,130 +75,7 @@ export default function TermsOfServicePage() {
 
             {/* main */}
             <main className="lg:col-span-8">
-              <Article>
-                <Section id={slugify('Sobre o PlantaHUB')} title="1. Sobre o PlantaHUB">
-                  <p>
-                    O PlantaHUB é uma plataforma digital que comercializa projetos arquitetônicos e
-                    complementares em formato digital (BIM, DWG, PDF), destinados a uso técnico e
-                    profissional, conforme descrito em cada produto.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Elegibilidade')} title="2. Elegibilidade">
-                  <p>Para utilizar a plataforma, o usuário declara:</p>
-                  <ul>
-                    <li>Ter pelo menos 18 anos ou capacidade legal;</li>
-                    <li>Fornecer informações verdadeiras, completas e atualizadas;</li>
-                    <li>Utilizar os conteúdos de forma lícita.</li>
-                  </ul>
-                </Section>
-
-                <Section id={slugify('Cadastro e Conta')} title="3. Cadastro e Conta">
-                  <ul>
-                    <li>O usuário é responsável pela confidencialidade de suas credenciais;</li>
-                    <li>
-                      O PlantaHUB não se responsabiliza por acessos indevidos causados por
-                      negligência do usuário;
-                    </li>
-                    <li>
-                      Reservamo-nos o direito de suspender ou encerrar contas em caso de violação
-                      destes termos.
-                    </li>
-                  </ul>
-                </Section>
-
-                <Section id={slugify('Produtos Digitais')} title="4. Produtos Digitais">
-                  <ul>
-                    <li>
-                      Todos os produtos são digitais e disponibilizados para download imediato,
-                      conforme descrito na página do produto;
-                    </li>
-                    <li>Não há envio físico de materiais;</li>
-                    <li>
-                      Os arquivos disponibilizados seguem as especificações técnicas informadas.
-                    </li>
-                  </ul>
-                </Section>
-
-                <Section id={slugify('Licença de Uso')} title="5. Licença de Uso">
-                  <p>
-                    Ao adquirir um produto no PlantaHUB, o usuário recebe uma licença de uso não
-                    exclusiva, intransferível e limitada, destinada a:
-                  </p>
-                  <ul>
-                    <li>Uso pessoal ou profissional;</li>
-                    <li>Execução de obra ou estudo técnico.</li>
-                  </ul>
-                  <p className="mt-4 font-semibold text-neutral-900">É expressamente proibido:</p>
-                  <ul>
-                    <li>Revender, sublicenciar ou redistribuir os arquivos;</li>
-                    <li>Disponibilizar os projetos em plataformas públicas ou privadas;</li>
-                    <li>Alterar os arquivos para fins de comercialização.</li>
-                  </ul>
-                </Section>
-
-                <Section
-                  id={slugify('Personalização de Projetos')}
-                  title="6. Personalização de Projetos"
-                >
-                  <p>Quando oferecida, a personalização:</p>
-                  <ul>
-                    <li>Possui escopo limitado;</li>
-                    <li>Não inclui novo projeto autoral completo, salvo contratação específica;</li>
-                    <li>Pode ter prazos e condições próprias.</li>
-                  </ul>
-                </Section>
-
-                <Section id={slugify('Pagamentos')} title="7. Pagamentos">
-                  <ul>
-                    <li>Os pagamentos são processados por gateways externos;</li>
-                    <li>O acesso ao download ocorre após a confirmação do pagamento;</li>
-                    <li>O PlantaHUB não armazena dados bancários ou de cartão.</li>
-                  </ul>
-                </Section>
-
-                <Section id={slugify('Política de Reembolso')} title="8. Política de Reembolso">
-                  <p>
-                    Por se tratar de conteúdo digital com acesso imediato, não realizamos reembolsos
-                    após o download, conforme o art. 49 do Código de Defesa do Consumidor, salvo
-                    exceções legais.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Propriedade Intelectual')} title="9. Propriedade Intelectual">
-                  <p>
-                    Todos os conteúdos, marcas, layouts, textos, imagens e projetos são de
-                    propriedade do PlantaHUB ou de seus licenciantes, protegidos pela legislação
-                    vigente.
-                  </p>
-                </Section>
-
-                <Section
-                  id={slugify('Limitação de Responsabilidade')}
-                  title="10. Limitação de Responsabilidade"
-                >
-                  <p>O PlantaHUB não se responsabiliza por:</p>
-                  <ul>
-                    <li>Uso inadequado dos projetos;</li>
-                    <li>Execução da obra sem acompanhamento técnico profissional;</li>
-                    <li>Adequações legais exigidas por legislações municipais ou estaduais.</li>
-                  </ul>
-                </Section>
-
-                <Section id={slugify('Modificações')} title="11. Modificações">
-                  <p>
-                    O PlantaHUB pode atualizar estes Termos a qualquer momento. Recomenda-se a
-                    revisão periódica.
-                  </p>
-                </Section>
-
-                <Section id={slugify('Foro')} title="12. Foro">
-                  <p>
-                    Fica eleito o foro da comarca do domicílio do consumidor, nos termos da
-                    legislação brasileira.
-                  </p>
-                </Section>
-              </Article>
+              <SiteSections sections={content.sections} />
             </main>
           </div>
         </div>
@@ -261,39 +113,5 @@ export default function TermsOfServicePage() {
 
 /* ---------- UI helpers ---------- */
 
-function Article({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 md:p-8 shadow-sm">
-      <div className="prose prose-neutral max-w-none prose-p:text-neutral-700 prose-li:text-neutral-700 prose-strong:text-neutral-900">
-        {children}
-      </div>
-    </div>
-  );
-}
 
-function Section({
-  id,
-  title,
-  children,
-}: {
-  id: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section id={id} className="scroll-mt-24">
-      <h2 className="text-xl font-extrabold text-neutral-900">{title}</h2>
-      <div className="mt-3 text-neutral-700 leading-relaxed">{children}</div>
-      <div className="mt-8 border-b border-neutral-200" />
-    </section>
-  );
-}
 
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}

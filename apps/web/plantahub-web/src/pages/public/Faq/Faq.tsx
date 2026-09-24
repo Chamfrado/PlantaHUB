@@ -1,58 +1,11 @@
 import { ChevronDown, HelpCircle, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
-
-type FaqItem = {
-  question: string;
-  answer: string;
-  category: string;
-};
-
-const FAQ_ITEMS: FaqItem[] = [
-  {
-    category: 'Compras',
-    question: 'Como funciona a compra de uma planta?',
-    answer:
-      'Você escolhe o produto, seleciona os tipos de planta desejados e conclui o pedido. Após o pagamento, os arquivos ficam disponíveis na sua biblioteca para download.',
-  },
-  {
-    category: 'Compras',
-    question: 'Posso comprar apenas algumas disciplinas do projeto?',
-    answer:
-      'Sim. A Plataforma permite adquirir somente os plan types desejados, como arquitetônica, hidráulica, elétrica, estrutural ou paisagística, conforme disponibilidade do produto.',
-  },
-  {
-    category: 'Biblioteca',
-    question: 'Onde encontro meus arquivos após a compra?',
-    answer:
-      'Todos os itens adquiridos ficam disponíveis na sua biblioteca. Lá você pode acessar cada tipo de planta individualmente, visualizar os arquivos liberados e iniciar os downloads.',
-  },
-  {
-    category: 'Downloads',
-    question: 'Posso baixar vários arquivos de uma vez?',
-    answer:
-      'Sim. A biblioteca permite selecionar várias plantas adquiridas e gerar um bundle ZIP com os arquivos correspondentes para facilitar o download em lote.',
-  },
-  {
-    category: 'Conta',
-    question: 'Preciso completar meu perfil para comprar?',
-    answer:
-      'Sim. Algumas informações obrigatórias de perfil são exigidas antes de finalizar a compra, para garantir segurança, rastreabilidade e consistência no fluxo da plataforma.',
-  },
-  {
-    category: 'Parcerias',
-    question: 'Como posso vender minhas plantas na PlantaHUB?',
-    answer:
-      'Você pode acessar a página Trabalhe Conosco e enviar seu portfólio para análise. Nossa equipe avalia os materiais e negocia a margem de venda conforme o modelo de parceria.',
-  },
-  {
-    category: 'Suporte',
-    question: 'O que faço se um arquivo não estiver disponível?',
-    answer:
-      'Caso um item adquirido não esteja disponível para download, entre em contato com o suporte da plataforma para verificação e regularização do material.',
-  },
-];
+import { useSitePage } from '../../../hooks/useSitePage';
 
 export default function FaqPage() {
+  const { content } = useSitePage('faq');
+  const FAQ_ITEMS = content.faq;
+
   const [search, setSearch] = useState('');
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
@@ -63,10 +16,12 @@ export default function FaqPage() {
 
     return FAQ_ITEMS.filter(item =>
       [item.question, item.answer, item.category].some(field =>
-        field.toLowerCase().includes(normalized)
+        (field ?? '').toLowerCase().includes(normalized)
       )
     );
-  }, [search]);
+    // FAQ_ITEMS entra na lista: sem ele, a busca continuaria filtrando a lista vazia de
+    // antes do conteudo chegar.
+  }, [search, FAQ_ITEMS]);
 
   return (
     <section className="bg-white">
@@ -77,14 +32,9 @@ export default function FaqPage() {
               FAQ
             </span>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-brand-black md:text-5xl">
-              Perguntas frequentes sobre compras, biblioteca, downloads e parcerias
-            </h1>
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-brand-black md:text-5xl">{content.headline}</h1>
 
-            <p className="mt-5 text-lg leading-relaxed text-brand-muted">
-              Reunimos aqui as dúvidas mais comuns para ajudar clientes e parceiros a entender
-              melhor como a PlantaHUB funciona.
-            </p>
+            <p className="mt-5 text-lg leading-relaxed text-brand-muted">{content.intro}</p>
 
             <div className="mt-8 max-w-xl">
               <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
@@ -122,7 +72,7 @@ export default function FaqPage() {
 
               return (
                 <div
-                  key={`${item.category}-${item.question}`}
+                  key={item.question}
                   className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
                 >
                   <button
@@ -131,9 +81,11 @@ export default function FaqPage() {
                     className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition hover:bg-brand-light"
                   >
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-primary-600">
-                        {item.category}
-                      </div>
+                      {item.category ? (
+                        <div className="text-xs font-semibold uppercase tracking-wide text-primary-600">
+                          {item.category}
+                        </div>
+                      ) : null}
                       <div className="mt-1 text-lg font-extrabold text-brand-black">
                         {item.question}
                       </div>

@@ -7,62 +7,34 @@ import {
   Mail,
   ShieldCheck,
 } from 'lucide-react';
+import { sectionByKey, useSitePage, useSiteSettings } from '../../../hooks/useSitePage';
+
+const BENEFIT_ICONS = [
+  <Handshake className="h-5 w-5" key="handshake" />,
+  <Layers3 className="h-5 w-5" key="layers" />,
+  <ShieldCheck className="h-5 w-5" key="shield" />,
+];
 
 export default function Carrer() {
-  const benefits = [
-    {
-      icon: <Handshake className="h-5 w-5" />,
-      title: 'Parceria comercial',
-      description:
-        'Publique seus projetos na PlantaHUB e negocie uma margem de venda justa para cada planta comercializada.',
-    },
-    {
-      icon: <Layers3 className="h-5 w-5" />,
-      title: 'Mais alcance para seus projetos',
-      description:
-        'Sua planta pode ser encontrada por clientes que buscam soluções arquitetônicas prontas, com exposição contínua dentro da plataforma.',
-    },
-    {
-      icon: <ShieldCheck className="h-5 w-5" />,
-      title: 'Distribuição organizada',
-      description:
-        'Centralizamos o catálogo, o acesso do cliente e o fluxo de entrega digital, tornando a venda mais profissional e escalável.',
-    },
-  ];
+  const { content } = useSitePage('trabalhe-conosco');
+  const settings = useSiteSettings();
 
-  const steps = [
-    {
-      number: '01',
-      title: 'Envie seu portfólio',
-      description:
-        'Compartilhe exemplos das suas plantas, estilos de projeto, informações técnicas e materiais que representem a qualidade do seu trabalho.',
-    },
-    {
-      number: '02',
-      title: 'Analisamos a compatibilidade',
-      description:
-        'Nossa equipe avalia o potencial comercial, a organização dos arquivos e o alinhamento dos seus projetos com o padrão da plataforma.',
-    },
-    {
-      number: '03',
-      title: 'Negociamos a parceria',
-      description:
-        'Definimos juntos a margem de venda, regras de publicação, critérios de atualização e os formatos dos arquivos comercializados.',
-    },
-    {
-      number: '04',
-      title: 'Publicamos seus projetos',
-      description:
-        'Depois da aprovação, sua coleção entra no catálogo e passa a ficar disponível para clientes da PlantaHUB.',
-    },
-  ];
+  // Os icones continuam no codigo e sao casados por posicao: eles fazem parte do desenho
+  // da pagina, nao do texto que o administrador edita.
+  const benefits = (sectionByKey(content, 'beneficios')?.items ?? []).map((item, i) => ({
+    ...item,
+    icon: BENEFIT_ICONS[i] ?? null,
+  }));
 
-  const requirements = [
-    'Plantas organizadas por disciplina ou categoria técnica',
-    'Arquivos com nomenclatura clara e estrutura profissional',
-    'Projetos autorais ou com autorização formal de comercialização',
-    'Material de apresentação com boa qualidade visual',
-  ];
+  const steps = sectionByKey(content, 'como-funciona')?.items ?? [];
+  const requirements = sectionByKey(content, 'requisitos')?.items ?? [];
+
+  const partnerships = settings?.partnershipsEmail ?? '';
+  const proposalHref = partnerships
+    ? `mailto:${partnerships}?subject=${encodeURIComponent('Quero publicar minhas plantas na PlantaHUB')}`
+    : '#';
+
+
 
   return (
     <section className="bg-white">
@@ -73,19 +45,13 @@ export default function Carrer() {
               Trabalhe conosco
             </span>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-brand-black md:text-5xl">
-              Publique suas plantas na PlantaHUB e transforme seus projetos em novas oportunidades
-              de venda
-            </h1>
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-brand-black md:text-5xl">{content.headline}</h1>
 
-            <p className="mt-5 text-lg leading-relaxed text-brand-muted">
-              Estamos em busca de arquitetos, projetistas e parceiros que desejam comercializar
-              plantas com organização, alcance digital e negociação transparente de margem.
-            </p>
+            <p className="mt-5 text-lg leading-relaxed text-brand-muted">{content.intro}</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href="mailto:parcerias@plantahub.com.br?subject=Quero%20publicar%20minhas%20plantas%20na%20PlantaHUB"
+                href={proposalHref}
                 className="inline-flex items-center gap-2 rounded-2xl bg-primary-500 px-6 py-3 font-semibold text-white transition hover:bg-primary-600"
               >
                 Enviar proposta
@@ -115,7 +81,7 @@ export default function Carrer() {
               </div>
 
               <h2 className="mt-4 text-lg font-extrabold text-brand-black">{item.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-brand-muted">{item.description}</p>
+              <p className="mt-2 text-sm leading-relaxed text-brand-muted">{item.text}</p>
             </div>
           ))}
         </div>
@@ -124,7 +90,7 @@ export default function Carrer() {
       <div id="como-funciona" className="bg-brand-light">
         <div className="mx-auto max-w-7xl px-6 py-16">
           <div className="max-w-3xl">
-            <h2 className="text-3xl font-extrabold text-brand-black">Como funciona a parceria</h2>
+            <h2 className="text-3xl font-extrabold text-brand-black">{sectionByKey(content, 'como-funciona')?.title}</h2>
             <p className="mt-3 text-brand-muted">
               Nosso processo foi pensado para facilitar a entrada de novos parceiros e garantir
               consistência no catálogo da plataforma.
@@ -132,14 +98,16 @@ export default function Carrer() {
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {steps.map(step => (
+            {steps.map((step, index) => (
               <div
-                key={step.number}
+                key={step.title}
                 className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm"
               >
-                <div className="text-sm font-extrabold text-primary-600">{step.number}</div>
+                <div className="text-sm font-extrabold text-primary-600">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
                 <h3 className="mt-2 text-xl font-extrabold text-brand-black">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{step.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{step.text}</p>
               </div>
             ))}
           </div>
@@ -153,14 +121,14 @@ export default function Carrer() {
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-primary-600">
                 <FileText className="h-5 w-5" />
               </div>
-              <h2 className="text-2xl font-extrabold text-brand-black">O que esperamos receber</h2>
+              <h2 className="text-2xl font-extrabold text-brand-black">{sectionByKey(content, 'requisitos')?.title}</h2>
             </div>
 
             <div className="mt-6 space-y-4">
               {requirements.map(item => (
-                <div key={item} className="flex items-start gap-3">
+                <div key={item.text} className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                  <p className="text-sm leading-relaxed text-brand-muted">{item}</p>
+                  <p className="text-sm leading-relaxed text-brand-muted">{item.text}</p>
                 </div>
               ))}
             </div>
@@ -184,7 +152,7 @@ export default function Carrer() {
                 E-mail sugerido
               </div>
               <a
-                href="mailto:parcerias@plantahub.com.br?subject=Quero%20publicar%20minhas%20plantas%20na%20PlantaHUB"
+                href={proposalHref}
                 className="mt-2 block break-words text-lg font-extrabold text-primary-600 hover:underline"
               >
                 parcerias@plantahub.com.br
@@ -193,7 +161,7 @@ export default function Carrer() {
 
             <div className="mt-6">
               <a
-                href="mailto:parcerias@plantahub.com.br?subject=Quero%20publicar%20minhas%20plantas%20na%20PlantaHUB"
+                href={proposalHref}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary-500 px-5 py-3 font-semibold text-white transition hover:bg-primary-600"
               >
                 Entrar em contato
