@@ -1,8 +1,11 @@
 package com.plantahub.api.web.controller.admin;
 
+import com.plantahub.api.domain.catalog.Product;
 import com.plantahub.api.service.admin.AdminCategoryService;
 import com.plantahub.api.web.dto.admin.AdminCategoryDTOs.CategoryDTO;
+import com.plantahub.api.web.dto.admin.AdminCategoryDTOs.CategoryProductDTO;
 import com.plantahub.api.web.dto.admin.AdminCategoryDTOs.CreateCategoryRequest;
+import com.plantahub.api.web.dto.admin.AdminCategoryDTOs.ReorderRequest;
 import com.plantahub.api.web.dto.admin.AdminCategoryDTOs.UpdateCategoryRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,6 +37,30 @@ public class AdminCategoryController {
     public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CreateCategoryRequest request) {
         var created = service.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(CategoryDTO.from(created, 0));
+    }
+
+    @PutMapping("/order")
+    public List<CategoryDTO> reorder(@Valid @RequestBody ReorderRequest request) {
+        return service.reorder(request.ids()).stream()
+                .map(c -> CategoryDTO.from(c, service.productCount(c.getSlug())))
+                .toList();
+    }
+
+    @GetMapping("/{slug}/products")
+    public List<CategoryProductDTO> products(@PathVariable String slug) {
+        return service.products(slug).stream().map(AdminCategoryController::toProductDto).toList();
+    }
+
+    @PutMapping("/{slug}/products/order")
+    public List<CategoryProductDTO> reorderProducts(@PathVariable String slug,
+                                                    @Valid @RequestBody ReorderRequest request) {
+        return service.reorderProducts(slug, request.ids()).stream()
+                .map(AdminCategoryController::toProductDto)
+                .toList();
+    }
+
+    private static CategoryProductDTO toProductDto(Product p) {
+        return new CategoryProductDTO(p.getId(), p.getName(), p.getStatus().name());
     }
 
     @PutMapping("/{slug}")

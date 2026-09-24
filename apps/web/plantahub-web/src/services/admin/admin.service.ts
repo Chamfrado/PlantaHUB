@@ -8,6 +8,7 @@ import type {
 import type {
   AdminAsset,
   AdminCategory,
+  AdminCategoryProduct,
   AdminCollection,
   AdminMedia,
   AdminOffer,
@@ -106,6 +107,10 @@ export function setCollectionActive(id: string, active: boolean) {
   });
 }
 
+export function deleteCollection(id: string) {
+  return http<void>(`${base}/collections/${id}`, { method: 'DELETE' });
+}
+
 // ---------------- Ofertas ----------------
 
 export function listOffers(productId: string) {
@@ -186,8 +191,45 @@ export function listAdminCategories() {
   return http<AdminCategory[]>(`${base}/categories`);
 }
 
-export function createCategory(input: { slug: string; name: string; description?: string }) {
+export function createCategory(input: {
+  slug: string;
+  name: string;
+  description?: string;
+  comingSoon?: boolean;
+}) {
   return http<AdminCategory>(`${base}/categories`, { method: 'POST', body: input });
+}
+
+export function updateCategory(
+  slug: string,
+  input: Partial<
+    Pick<AdminCategory, 'name' | 'description' | 'featuredOnHome' | 'comingSoon' | 'active'>
+  >
+) {
+  return http<AdminCategory>(`${base}/categories/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
+    body: input,
+  });
+}
+
+export function deleteCategory(slug: string) {
+  return http<void>(`${base}/categories/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+}
+
+/** A posição de cada slug na lista vira a ordem das abas na página de produtos. */
+export function reorderCategories(slugs: string[]) {
+  return http<AdminCategory[]>(`${base}/categories/order`, { method: 'PUT', body: { ids: slugs } });
+}
+
+export function listCategoryProducts(slug: string) {
+  return http<AdminCategoryProduct[]>(`${base}/categories/${encodeURIComponent(slug)}/products`);
+}
+
+export function reorderCategoryProducts(slug: string, productIds: string[]) {
+  return http<AdminCategoryProduct[]>(
+    `${base}/categories/${encodeURIComponent(slug)}/products/order`,
+    { method: 'PUT', body: { ids: productIds } }
+  );
 }
 
 // ---------------- Páginas institucionais ----------------

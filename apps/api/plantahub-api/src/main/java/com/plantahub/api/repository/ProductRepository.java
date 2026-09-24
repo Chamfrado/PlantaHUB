@@ -11,9 +11,14 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
 
-    List<Product> findByStatusOrderByCategoryAscNameAsc(ProductStatus status);
+    List<Product> findByStatusOrderByCategoryAscSortOrderAscNameAsc(ProductStatus status);
 
-    List<Product> findByCategoryAndStatusOrderByNameAsc(String category, ProductStatus status);
+    List<Product> findByCategoryAndStatusOrderBySortOrderAscNameAsc(String category, ProductStatus status);
+
+    List<Product> findByCategoryOrderBySortOrderAscNameAsc(String category);
+
+    @Query("select coalesce(max(p.sortOrder), 0) from Product p where p.category = :category")
+    int maxSortOrder(@Param("category") String category);
 
     Optional<Product> findByCategoryAndSlugAndStatus(String category, String slug, ProductStatus status);
 
@@ -41,7 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
            or lower(p.name) like lower(concat('%', cast(:query as string), '%'))
            or lower(p.id) like lower(concat('%', cast(:query as string), '%'))
            or lower(p.slug) like lower(concat('%', cast(:query as string), '%')))
-    order by p.category asc, p.name asc
+    order by p.category asc, p.sortOrder asc, p.name asc
   """)
     List<Product> search(@Param("status") ProductStatus status,
                          @Param("category") String category,

@@ -31,7 +31,8 @@ public class CategoryController {
             String description,
             int order,
             boolean featuredOnHome,
-            int homeOrder
+            int homeOrder,
+            boolean comingSoon
     ) {}
 
     @GetMapping
@@ -48,7 +49,8 @@ public class CategoryController {
                 c.getDescription(),
                 c.getSortOrder() == null ? 0 : c.getSortOrder(),
                 Boolean.TRUE.equals(c.getFeaturedOnHome()),
-                c.getHomeOrder() == null ? 0 : c.getHomeOrder()
+                c.getHomeOrder() == null ? 0 : c.getHomeOrder(),
+                Boolean.TRUE.equals(c.getComingSoon())
         );
     }
 }

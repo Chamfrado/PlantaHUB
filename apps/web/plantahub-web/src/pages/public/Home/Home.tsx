@@ -15,7 +15,7 @@ export default function Home() {
   const { data: categories } = useAsync('categories', () => listCategories());
 
   const featured = (categories ?? [])
-    .filter(c => c.featuredOnHome)
+    .filter(c => c.featuredOnHome && !c.comingSoon)
     .sort((a, b) => a.homeOrder - b.homeOrder);
 
   return (

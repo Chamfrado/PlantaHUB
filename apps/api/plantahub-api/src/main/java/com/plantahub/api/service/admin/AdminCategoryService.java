@@ -1,6 +1,7 @@
 package com.plantahub.api.service.admin;
 
 import com.plantahub.api.domain.catalog.Category;
+import com.plantahub.api.domain.catalog.Product;
 import com.plantahub.api.repository.CategoryRepository;
 import com.plantahub.api.repository.ProductRepository;
 import com.plantahub.api.shared.exception.ConflictException;
@@ -10,7 +11,9 @@ import com.plantahub.api.web.dto.admin.AdminCategoryDTOs.UpdateCategoryRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Service
@@ -58,9 +61,11 @@ public class AdminCategoryService {
                 .slug(slug)
                 .name(request.name())
                 .description(request.description())
-                .sortOrder(request.sortOrder() == null ? 0 : request.sortOrder())
+                // Sem ordem explicita, entra no fim das abas.
+                .sortOrder(request.sortOrder() != null ? request.sortOrder() : nextSortOrder())
                 .featuredOnHome(request.featuredOnHome() != null && request.featuredOnHome())
                 .homeOrder(request.homeOrder() == null ? 0 : request.homeOrder())
+                .comingSoon(request.comingSoon() != null && request.comingSoon())
                 .active(true)
                 .build());
     }
@@ -78,9 +83,50 @@ public class AdminCategoryService {
         if (request.sortOrder() != null) category.setSortOrder(request.sortOrder());
         if (request.featuredOnHome() != null) category.setFeaturedOnHome(request.featuredOnHome());
         if (request.homeOrder() != null) category.setHomeOrder(request.homeOrder());
+        if (request.comingSoon() != null) category.setComingSoon(request.comingSoon());
         if (request.active() != null) category.setActive(request.active());
 
         return categoryRepo.save(category);
+    }
+
+    /** Reordena as abas da pagina de produtos. A posicao na lista vira o sort_order. */
+    @Transactional
+    public List<Category> reorder(List<String> slugs) {
+        for (int i = 0; i < slugs.size(); i++) {
+            get(slugs.get(i)).setSortOrder(i + 1);
+        }
+        return list();
+    }
+
+    /** Todos os produtos da categoria, inclusive rascunhos, na ordem da vitrine. */
+    @Transactional(readOnly = true)
+    public List<Product> products(String slug) {
+        get(slug);
+        return productRepo.findByCategoryOrderBySortOrderAscNameAsc(slug);
+    }
+
+    /** Reordena os produtos dentro da categoria, na vitrine publica. */
+    @Transactional
+    public List<Product> reorderProducts(String slug, List<String> productIds) {
+        Map<String, Product> byId = new HashMap<>();
+        products(slug).forEach(p -> byId.put(p.getId(), p));
+
+        for (int i = 0; i < productIds.size(); i++) {
+            Product product = byId.get(productIds.get(i));
+            if (product == null) {
+                // Id de outra categoria aqui e erro do cliente, nao algo a ignorar em silencio.
+                throw new ConflictException("product_not_in_category: " + productIds.get(i));
+            }
+            product.setSortOrder(i + 1);
+        }
+
+        return products(slug);
+    }
+
+    private int nextSortOrder() {
+        return categoryRepo.findAll().stream()
+                .mapToInt(c -> c.getSortOrder() == null ? 0 : c.getSortOrder())
+                .max().orElse(0) + 1;
     }
 
     @Transactional
