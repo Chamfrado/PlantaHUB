@@ -23,3 +23,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Arquivos de ambiente locais (.env.example e versionado de proposito)
+.env
+.env.*
+!.env.example
+
+# Saida do Playwright
+test-results/
+playwright-report/

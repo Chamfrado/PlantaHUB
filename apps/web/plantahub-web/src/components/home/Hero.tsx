@@ -18,7 +18,7 @@ export default function Hero({
 }: HeroProps) {
   const navigate = useNavigate();
 
-  const onPrimaryClick = () => navigate('/produtos?category=casas');
+  const onPrimaryClick = () => navigate('/produtos');
   const onSecondaryClick = () => navigate('/sobre');
 
   return (

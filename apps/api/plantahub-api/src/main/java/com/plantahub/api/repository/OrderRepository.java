@@ -10,6 +10,21 @@ import java.util.*;
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
+    /** Existe algum pedido contendo este produto? Portao da exclusao fisica. */
+    @Query("select count(oi) > 0 from OrderItem oi where oi.product.id = :productId")
+    boolean existsByItemsProductId(@Param("productId") String productId);
+
+    /** Alguem ja comprou esta colecao deste produto? Portao da remocao de oferta. */
+    @Query("""
+    select count(ois) > 0
+    from OrderItemSelection ois
+    where ois.orderItem.product.id = :productId
+      and upper(ois.planType.code) = upper(:collectionCode)
+  """)
+    boolean existsBySelectionProductAndPlanType(@Param("productId") String productId,
+                                                @Param("collectionCode") String collectionCode);
+
+
     @Query("""
     select distinct o
     from Order o

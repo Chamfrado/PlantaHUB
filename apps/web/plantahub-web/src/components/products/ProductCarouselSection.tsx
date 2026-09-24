@@ -1,67 +1,57 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import ProductCard from '../../components/products/ProductCard';
-import type { Product } from '../../types/ProductData';
-
-type TierSlug = 'confort' | 'prime' | 'diamond';
+import type { ProductSummaryView } from '../../types/product-view';
 
 type Props = {
   title: string;
   subtitle?: string;
 
-  products: Product[];
+  products: ProductSummaryView[];
 
-  /** Se quiser tabs (Confort/Prime/Diamond), passe true */
-  enableTiers?: boolean;
-  defaultTier?: TierSlug;
-
-  /** Quantos cards mostrar (ex: 3 igual no print) */
+  /** Quantos cards mostrar. */
   limit?: number;
 
-  /** CTA de rodapé */
   footerCtaLabel?: string;
   onFooterCtaClick?: () => void;
 
-  /** Clique no card */
-  onViewDetails?: (product: Product) => void;
+  onViewDetails?: (product: ProductSummaryView) => void;
   actionLabel?: string;
 };
 
+/**
+ * Vitrine horizontal de produtos.
+ *
+ * As abas "Confort / Prime / Diamond" foram removidas. Elas filtravam por
+ * `p.slug === tier`, o que assume que o slug do produto *é* o nome da linha — verdade
+ * apenas para os seis produtos originais. Um produto criado no painel com slug
+ * `casa-familia-120` sumiria da vitrine sem aviso. Já estavam desligadas nos dois usos, e
+ * a diferenciação agora vive nas coleções ofertadas, não numa linha de produto.
+ */
 export default function ProductCarouselSection({
   title,
   subtitle,
   products,
-  enableTiers = true,
-  defaultTier = 'confort',
   limit = 3,
   footerCtaLabel = 'Ver tudo',
   onFooterCtaClick,
   onViewDetails,
   actionLabel = 'Ver detalhes',
 }: Props) {
-  const [tier, setTier] = useState<TierSlug>(defaultTier);
-
-  const visibleProducts = useMemo(() => {
-    const list = enableTiers ? products.filter(p => p.slug === tier) : products;
-    return list.slice(0, limit);
-  }, [products, enableTiers, tier, limit]);
+  const visibleProducts = useMemo(() => products.slice(0, limit), [products, limit]);
 
   return (
     <section className="bg-white">
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
-        {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div>
             <h2 className="text-3xl font-extrabold text-brand-black">{title}</h2>
             {subtitle ? <p className="mt-2 text-brand-muted">{subtitle}</p> : null}
           </div>
-
-          {enableTiers ? <TierTabs value={tier} onChange={setTier} /> : null}
         </div>
 
-        {/* Cards */}
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {visibleProducts.map(product => (
-            <div key={`${product.category}-${product.id}`} className="animate-pop-in">
+            <div key={product.id} className="h-full animate-pop-in">
               <ProductCard
                 product={product}
                 onViewDetails={onViewDetails}
@@ -71,7 +61,6 @@ export default function ProductCarouselSection({
           ))}
         </div>
 
-        {/* Bottom CTA */}
         <div className="mt-10 flex justify-center">
           <button
             onClick={onFooterCtaClick}
@@ -82,35 +71,5 @@ export default function ProductCarouselSection({
         </div>
       </div>
     </section>
-  );
-}
-
-function TierTabs({ value, onChange }: { value: TierSlug; onChange: (v: TierSlug) => void }) {
-  const tabs: { value: TierSlug; label: string }[] = [
-    { value: 'confort', label: 'Confort' },
-    { value: 'prime', label: 'Prime' },
-    { value: 'diamond', label: 'Diamond' },
-  ];
-
-  return (
-    <div className="inline-flex rounded-xl bg-white border border-neutral-200 p-1 shadow-sm">
-      {tabs.map(t => {
-        const active = t.value === value;
-        return (
-          <button
-            key={t.value}
-            onClick={() => onChange(t.value)}
-            className={[
-              'px-4 py-2 rounded-lg text-sm font-semibold transition duration-200',
-              active
-                ? 'bg-primary-500 text-white shadow-sm'
-                : 'text-brand-muted hover:-translate-y-0.5 hover:bg-neutral-100',
-            ].join(' ')}
-          >
-            {t.label}
-          </button>
-        );
-      })}
-    </div>
   );
 }

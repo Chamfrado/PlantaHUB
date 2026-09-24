@@ -1,5 +1,9 @@
 import { http } from '../lib/http';
-import type { PlanTypeOptionDTO, ProductSummaryResponse } from '../types/api/product';
+import type {
+  PlanTypeOptionDTO,
+  ProductDetailResponse,
+  ProductSummaryResponse,
+} from '../types/api/product';
 
 type ListProductsParams = {
   category?: string;
@@ -22,6 +26,14 @@ export async function listProducts(params: ListProductsParams = {}) {
   return http<ProductSummaryResponse[]>(`/v1/products${query ? `?${query}` : ''}`);
 }
 
+export async function getProduct(category: string, slug: string) {
+  return http<ProductDetailResponse>(
+    `/v1/products/${encodeURIComponent(category)}/${encodeURIComponent(slug)}`
+  );
+}
+
 export async function getProductPlanTypes(category: string, slug: string) {
-  return http<PlanTypeOptionDTO[]>(`/v1/products/${category}/${slug}/plan-types`);
+  return http<PlanTypeOptionDTO[]>(
+    `/v1/products/${encodeURIComponent(category)}/${encodeURIComponent(slug)}/plan-types`
+  );
 }

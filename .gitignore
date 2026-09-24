@@ -7,6 +7,9 @@ node_modules/
 .env.*
 !.env.example
 
+# Coordenacao entre serve.sh e dev.sh: em que porta a API subiu
+.plantahub-dev-*
+
 # Build outputs
 dist/
 build/

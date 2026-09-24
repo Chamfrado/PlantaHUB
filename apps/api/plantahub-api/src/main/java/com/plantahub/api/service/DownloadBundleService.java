@@ -1,47 +1,69 @@
 package com.plantahub.api.service;
 
+import com.plantahub.api.domain.catalog.DigitalAsset;
 import com.plantahub.api.domain.downloads.DownloadEntitlement;
 import com.plantahub.api.repository.DownloadEntitlementRepository;
+import com.plantahub.api.repository.EntitlementAssetRepository;
+import com.plantahub.api.shared.storage.ObjectStoragePort;
 import com.plantahub.api.web.dto.downloads.CreateDownloadBundleRequest;
 import com.plantahub.api.web.dto.downloads.DownloadBundleResponseDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
-
+/**
+ * Empacota num unico ZIP os arquivos de varias compras.
+ *
+ * <p>A estrutura de pastas do ZIP sai dos dados: cada arquivo conhece a propria colecao
+ * atraves de {@code product_plan_type}. O layout anterior era identico, mas produzido por
+ * um caso especial escrito a mao para uma colecao com nome fixo.
+ */
 @Service
 public class DownloadBundleService {
 
-
     private static final long ZIP_URL_EXPIRES_SECONDS = 900L;
     private static final Duration ZIP_URL_DURATION = Duration.ofMinutes(15);
-    private static final String BUNDLE_CACHE_VERSION = "v1";
+
+    /**
+     * Faz parte da identidade do cache. Foi para "v2" porque o layout do ZIP mudou (passou
+     * a preservar subpastas): servir um ZIP montado com o layout antigo entregaria ao
+     * cliente uma arvore diferente da que ele veria hoje.
+     */
+    private static final String BUNDLE_CACHE_VERSION = "v2";
+
+    /**
+     * Os ZIPs ficam sob {@code private/} para que uma eventual politica public-read de
+     * imagens de produto nunca os alcance.
+     */
+    private static final String BUNDLE_PREFIX = "private/bundles/";
 
     private final DownloadEntitlementRepository entitlementRepository;
-    private final S3DownloadService s3DownloadService;
-    private final S3ObjectStreamService s3ObjectStreamService;
+    private final EntitlementAssetRepository pinnedAssetRepo;
+    private final ObjectStoragePort storage;
+    private final boolean legacyFallbackEnabled;
 
     public DownloadBundleService(
             DownloadEntitlementRepository entitlementRepository,
-            S3DownloadService s3DownloadService,
-            S3ObjectStreamService s3ObjectStreamService
+            EntitlementAssetRepository pinnedAssetRepo,
+            ObjectStoragePort storage,
+            @Value("${app.downloads.legacy-fallback:true}") boolean legacyFallbackEnabled
     ) {
         this.entitlementRepository = entitlementRepository;
-        this.s3DownloadService = s3DownloadService;
-        this.s3ObjectStreamService = s3ObjectStreamService;
+        this.pinnedAssetRepo = pinnedAssetRepo;
+        this.storage = storage;
+        this.legacyFallbackEnabled = legacyFallbackEnabled;
     }
 
     @Transactional
@@ -58,38 +80,20 @@ public class DownloadBundleService {
 
         String cacheId = buildBundleCacheId(resolvedFiles);
         String filename = "plantahub-bundle-" + cacheId + ".zip";
-        String storageKey = "bundles/" + cacheId + "/" + filename;
+        String storageKey = BUNDLE_PREFIX + cacheId + "/" + filename;
 
-        // If ZIP already exists, just return the URL.
-        // This is much faster.
-        if (s3DownloadService.objectExists(storageKey)) {
-            String url = s3DownloadService.generatePresignedUrl(storageKey, ZIP_URL_DURATION);
-
-            return new DownloadBundleResponseDTO(
-                    filename,
-                    storageKey,
-                    url,
-                    ZIP_URL_EXPIRES_SECONDS
-            );
+        if (storage.exists(storageKey)) {
+            return response(filename, storageKey);
         }
 
         Path tempZip = null;
 
         try {
             tempZip = Files.createTempFile("plantahub-download-", ".zip");
-
             writeZip(tempZip, resolvedFiles);
+            storage.put(storageKey, tempZip, "application/zip");
 
-            s3DownloadService.uploadFile(storageKey, tempZip, "application/zip");
-
-            String url = s3DownloadService.generatePresignedUrl(storageKey, ZIP_URL_DURATION);
-
-            return new DownloadBundleResponseDTO(
-                    filename,
-                    storageKey,
-                    url,
-                    ZIP_URL_EXPIRES_SECONDS
-            );
+            return response(filename, storageKey);
         } catch (IOException e) {
             throw new IllegalStateException("download_bundle_generation_failed", e);
         } finally {
@@ -102,24 +106,33 @@ public class DownloadBundleService {
         }
     }
 
+    private DownloadBundleResponseDTO response(String filename, String storageKey) {
+        return new DownloadBundleResponseDTO(
+                filename,
+                storageKey,
+                storage.presignGet(storageKey, ZIP_URL_DURATION, filename),
+                ZIP_URL_EXPIRES_SECONDS
+        );
+    }
+
+    /**
+     * Identidade do conteudo do ZIP.
+     *
+     * <p>Inclui o caminho dentro do ZIP, e nao apenas a chave de origem: os mesmos arquivos
+     * organizados de outra forma sao um ZIP diferente, e servir o antigo entregaria uma
+     * arvore que nao corresponde mais ao que o sistema monta.
+     */
     private String buildBundleCacheId(List<ResolvedBundleFile> files) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-            List<String> keys = files.stream()
-                    .map(ResolvedBundleFile::storageKey)
-                    .sorted()
-                    .toList();
-
             digest.update(BUNDLE_CACHE_VERSION.getBytes(StandardCharsets.UTF_8));
 
-            for (String key : keys) {
-                digest.update(key.getBytes(StandardCharsets.UTF_8));
-            }
+            files.stream()
+                    .map(f -> f.storageKey() + "|" + f.zipPath())
+                    .sorted()
+                    .forEach(entry -> digest.update(entry.getBytes(StandardCharsets.UTF_8)));
 
-            byte[] hash = digest.digest();
-
-            return HexFormat.of().formatHex(hash).substring(0, 16);
+            return HexFormat.of().formatHex(digest.digest()).substring(0, 16);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("bundle_cache_hash_failed", e);
         }
@@ -133,12 +146,9 @@ public class DownloadBundleService {
 
         for (CreateDownloadBundleRequest.Item item : request.items()) {
             String productId = normalizeProductId(item.productId());
-            Set<String> codes = normalizeCodes(item.planTypeCodes());
 
-            for (String code : codes) {
-                String pairKey = productId + "::" + code;
-
-                if (!seenPairs.add(pairKey)) {
+            for (String code : normalizeCodes(item.planTypeCodes())) {
+                if (!seenPairs.add(productId + "::" + code)) {
                     continue;
                 }
 
@@ -148,31 +158,18 @@ public class DownloadBundleService {
 
                 String productFolder = safeFolderName(entitlement.getProduct().getName());
 
-                String planPrefix = "products/" + productId + "/" + code + "/";
-                String apoioPrefix = "products/" + productId + "/APOIO/";
+                var pinned = pinnedAssetRepo.findPinnedForDownload(email.toLowerCase(), productId, code);
 
-                List<String> planKeys = s3DownloadService.listKeysByPrefix(planPrefix);
-                List<String> apoioKeys = s3DownloadService.listKeysByPrefix(apoioPrefix);
-
-                if (planKeys.isEmpty() && apoioKeys.isEmpty()) {
-                    throw new IllegalArgumentException("download_assets_not_found");
+                if (pinned.isEmpty()) {
+                    addLegacyFiles(result, seenStorageKeys, productId, code, productFolder);
+                    continue;
                 }
 
-                for (String key : planKeys) {
-                    if (seenStorageKeys.add(key)) {
-                        result.add(new ResolvedBundleFile(
-                                key,
-                                productFolder + "/" + code + "/" + extractFilename(key)
-                        ));
-                    }
-                }
+                for (var pin : pinned) {
+                    DigitalAsset asset = pin.getDigitalAsset();
 
-                for (String key : apoioKeys) {
-                    if (seenStorageKeys.add(key)) {
-                        result.add(new ResolvedBundleFile(
-                                key,
-                                productFolder + "/APOIO/" + extractFilename(key)
-                        ));
+                    if (seenStorageKeys.add(asset.getStorageKey())) {
+                        result.add(new ResolvedBundleFile(asset.getStorageKey(), zipPath(productFolder, asset)));
                     }
                 }
             }
@@ -181,19 +178,74 @@ public class DownloadBundleService {
         return result;
     }
 
+    /**
+     * {@code <Produto>/<colecao do proprio arquivo>/<subpasta>/<arquivo>}.
+     *
+     * <p>A colecao vem do arquivo, nao da compra: e assim que um arquivo que acompanha toda
+     * oferta cai na pasta dele em vez da pasta do que foi comprado — sem nenhum caso
+     * especial no codigo.
+     */
+    private String zipPath(String productFolder, DigitalAsset asset) {
+        StringBuilder path = new StringBuilder(productFolder)
+                .append('/')
+                .append(asset.getProductPlanType().getPlanType().getCode());
+
+        if (asset.getRelativePath() != null && !asset.getRelativePath().isBlank()) {
+            path.append('/').append(asset.getRelativePath());
+        }
+
+        return path.append('/').append(asset.getFilename()).toString();
+    }
+
+    // ------------------------------------------------------------------
+    // Compatibilidade com compras anteriores a pinagem. Sai junto com a flag.
+    // ------------------------------------------------------------------
+
+    private void addLegacyFiles(List<ResolvedBundleFile> result,
+                                Set<String> seenStorageKeys,
+                                String productId,
+                                String code,
+                                String productFolder) {
+        if (!legacyFallbackEnabled) {
+            throw new IllegalArgumentException("download_assets_not_found");
+        }
+
+        List<String> collectionKeys = listKeys("products/" + productId + "/" + code + "/");
+        List<String> supportKeys = listKeys("products/" + productId + "/APOIO/");
+
+        if (collectionKeys.isEmpty() && supportKeys.isEmpty()) {
+            throw new IllegalArgumentException("download_assets_not_found");
+        }
+
+        for (String key : collectionKeys) {
+            if (seenStorageKeys.add(key)) {
+                result.add(new ResolvedBundleFile(key, productFolder + "/" + code + "/" + extractFilename(key)));
+            }
+        }
+
+        for (String key : supportKeys) {
+            if (seenStorageKeys.add(key)) {
+                result.add(new ResolvedBundleFile(key, productFolder + "/APOIO/" + extractFilename(key)));
+            }
+        }
+    }
+
+    private List<String> listKeys(String prefix) {
+        return storage.list(prefix).stream().map(o -> o.key()).toList();
+    }
+
+    // ------------------------------------------------------------------
+
     private void writeZip(Path zipPath, List<ResolvedBundleFile> files) throws IOException {
         Set<String> usedPaths = new HashSet<>();
 
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
             for (ResolvedBundleFile file : files) {
-                String entryName = uniqueEntryName(
-                        usedPaths,
-                        sanitizeZipPath(file.zipPath())
-                );
+                String entryName = uniqueEntryName(usedPaths, sanitizeZipPath(file.zipPath()));
 
                 zos.putNextEntry(new ZipEntry(entryName));
 
-                try (InputStream in = s3ObjectStreamService.openStream(file.storageKey())) {
+                try (InputStream in = storage.open(file.storageKey())) {
                     in.transferTo(zos);
                 }
 
@@ -224,19 +276,10 @@ public class DownloadBundleService {
         }
     }
 
-    private String buildZipFilename() {
-        return "plantahub-download-" + Instant.now().toString().replace(":", "-") + ".zip";
-    }
-
-    private String buildZipStorageKey(String email, String filename) {
-        return "temp-downloads/" + email.toLowerCase() + "/" + filename;
-    }
-
     private String normalizeProductId(String productId) {
         if (productId == null || productId.isBlank()) {
             throw new IllegalArgumentException("product_id_required");
         }
-
         return productId.trim();
     }
 
@@ -251,7 +294,6 @@ public class DownloadBundleService {
             if (code == null || code.isBlank()) {
                 throw new IllegalArgumentException("plan_type_code_invalid");
             }
-
             codes.add(code.trim().toUpperCase());
         }
 
@@ -262,7 +304,6 @@ public class DownloadBundleService {
         if (value == null || value.isBlank()) {
             return "produto";
         }
-
         return value.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
     }
 
@@ -282,8 +323,5 @@ public class DownloadBundleService {
                 .replaceAll("[\\r\\n]", "_");
     }
 
-    private record ResolvedBundleFile(
-            String storageKey,
-            String zipPath
-    ) {}
+    private record ResolvedBundleFile(String storageKey, String zipPath) {}
 }

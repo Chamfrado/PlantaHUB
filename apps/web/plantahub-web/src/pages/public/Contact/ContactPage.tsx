@@ -340,7 +340,7 @@ export default function ContactPage() {
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              to="/casas"
+              to="/produtos"
               className="rounded-xl bg-white text-brand-black font-semibold px-6 py-3 hover:bg-neutral-100 transition inline-flex items-center gap-2"
             >
               Explorar Plantas <ArrowRight className="h-4 w-4" />
@@ -414,7 +414,7 @@ function SocialLink({ href, icon, label }: { href: string; icon: React.ReactNode
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-brand-black hover:bg-brand-light hover:border-primary-300 transition"
+      className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-3 sm:gap-3 sm:px-4 text-sm font-semibold text-brand-black hover:bg-brand-light hover:border-primary-300 transition"
     >
       <span className="h-8 w-8 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-primary-600">
         {icon}

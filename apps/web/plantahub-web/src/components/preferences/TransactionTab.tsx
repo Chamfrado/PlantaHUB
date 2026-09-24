@@ -2,6 +2,7 @@ import { CreditCard } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { getMyOrders, getOrderPaymentLink } from '../../services/order.service';
 import type { OrderResponseDTO } from '../../types/api/order';
+import { formatCurrency } from '../../utils/format';
 
 type TransactionRow = {
   id: string;
@@ -121,7 +122,7 @@ export default function TransactionsTab() {
                       </button>
                     ) : null}
                   </Td>
-                  <Td align="right">{formatMoneyFromCents(row.totalCents)}</Td>
+                  <Td align="right">{formatCurrency(row.totalCents)}</Td>
                 </tr>
               ))}
             </tbody>
@@ -135,11 +136,10 @@ export default function TransactionsTab() {
 function buildProductLabel(order: OrderResponseDTO) {
   if (!order.items?.length) return 'Pedido sem itens';
 
-  if (order.items.length === 1) {
-    return order.items[0].productId;
-  }
+  const first = order.items[0];
+  const label = first.productName ?? first.productId;
 
-  return `${order.items[0].productId} + ${order.items.length - 1} item(ns)`;
+  return order.items.length === 1 ? label : `${label} + ${order.items.length - 1} item(ns)`;
 }
 
 function shortOrderId(id: string) {
@@ -224,13 +224,6 @@ function Td({ children, align = 'left' }: { children: React.ReactNode; align?: '
       {children}
     </td>
   );
-}
-
-function formatMoneyFromCents(value: number) {
-  return (value / 100).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
 }
 
 function formatDateTime(value: string) {

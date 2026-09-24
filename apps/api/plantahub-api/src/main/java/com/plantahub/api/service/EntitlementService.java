@@ -20,18 +20,24 @@ public class EntitlementService {
     private final AppUserRepository userRepo;
     private final OrderRepository orderRepo;
     private final DownloadEntitlementRepository entitlementRepo;
+    private final EntitlementGrantService entitlementGrantService;
 
     public EntitlementService(AppUserRepository userRepo,
                               OrderRepository orderRepo,
-                              DownloadEntitlementRepository entitlementRepo) {
+                              DownloadEntitlementRepository entitlementRepo,
+                              EntitlementGrantService entitlementGrantService) {
         this.userRepo = userRepo;
         this.orderRepo = orderRepo;
         this.entitlementRepo = entitlementRepo;
+        this.entitlementGrantService = entitlementGrantService;
     }
 
     /**
-     * Endpoint temporário (dev): marca pedido como PAID e gera entitlements.
-     * Idempotente: se já existir, não cria duplicado.
+     * Atalho de desenvolvimento: marca o pedido como PAID e concede os direitos.
+     *
+     * <p>Delega ao {@link EntitlementGrantService}. Antes tinha concessao propria, com uma
+     * chave de deduplicacao diferente das outras duas — ela olhava tambem o pedido, entao
+     * o mesmo cliente recomprando a mesma colecao num pedido novo estourava a constraint.
      */
     @Transactional
     public MarkPaidResponse markOrderPaid(String email, UUID orderId) {
@@ -41,41 +47,12 @@ public class EntitlementService {
         var order = orderRepo.findByIdAndUserIdWithItems(orderId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("order_not_found"));
 
-        // marca como PAID (se já for, mantém)
         if (order.getStatus() != OrderStatus.PAID) {
             order.setStatus(OrderStatus.PAID);
             order.setPaidAt(Instant.now());
         }
 
-        int created = 0;
-        Instant now = Instant.now();
-
-        for (var item : order.getItems()) {
-            var product = item.getProduct();
-
-            for (var sel : item.getSelections()) {
-                var planType = sel.getPlanType();
-
-                boolean exists = entitlementRepo
-                        .findByUser_IdAndOrder_IdAndProduct_IdAndPlanType_Id(
-                                user.getId(), order.getId(), product.getId(), planType.getId()
-                        ).isPresent();
-
-                if (exists) continue;
-
-                entitlementRepo.save(
-                        DownloadEntitlement.builder()
-                                .user(user)
-                                .order(order)
-                                .product(product)
-                                .planType(planType)
-                                .grantedAt(now)
-                                .revokedAt(null)
-                                .build()
-                );
-                created++;
-            }
-        }
+        int created = entitlementGrantService.grantForPaidOrder(order).size();
 
         return new MarkPaidResponse(order.getId(), order.getStatus().name(), created);
     }
@@ -98,32 +75,19 @@ public class EntitlementService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public void assertHasEntitlement(String email, String productId, String planTypeCode) {
-        var user = userRepo.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
-
-        boolean ok = entitlementRepo.findActiveByUserId(user.getId()).stream()
-                .anyMatch(e ->
-                        e.getProduct().getId().equals(productId) &&
-                                e.getPlanType().getCode().equalsIgnoreCase(planTypeCode)
-                );
-
-        if (!ok) throw new IllegalArgumentException("no_entitlement");
-    }
-
-
-
+    /**
+     * Portao do download de um plano avulso.
+     *
+     * <p>Usa a query que exige {@code order.status = PAID}, a mesma do bundle e da
+     * biblioteca. A versao anterior carregava todos os entitlements do usuario e
+     * filtrava em memoria <b>sem</b> olhar o status do pedido — ou seja, um entitlement
+     * pendurado num pedido nao pago rendia URL assinada de download.
+     */
     @Transactional(readOnly = true)
     public DownloadEntitlement validateEntitlement(String email, String productId, String planTypeCode) {
-        var user = userRepo.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("user_not_found"));
-
-        // busca entitlement ativo do user para aquele produto + tipo
-        return entitlementRepo.findActiveByUserId(user.getId()).stream()
-                .filter(e -> e.getProduct().getId().equals(productId))
-                .filter(e -> e.getPlanType().getCode().equalsIgnoreCase(planTypeCode))
-                .findFirst()
+        return entitlementRepo
+                .findActiveByUserEmailAndProductIdAndPlanTypeCode(
+                        email.toLowerCase(), productId, planTypeCode.toUpperCase())
                 .orElseThrow(() -> new IllegalArgumentException("no_entitlement"));
     }
 }

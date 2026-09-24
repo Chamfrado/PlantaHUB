@@ -25,7 +25,16 @@ public interface DownloadEntitlementRepository extends JpaRepository<DownloadEnt
             UUID userId, UUID orderId, String productId, UUID planTypeId
     );
 
-    boolean existsByUserIdAndProductIdAndPlanTypeId(UUID userId, String productId, UUID planTypeId);
+    /**
+     * Dedupe de concessao.
+     *
+     * <p>O {@code RevokedAtIsNull} nao e detalhe: sem ele, um cliente estornado (cujo
+     * entitlement foi revogado) que comprasse de novo era considerado "ja tem" e ficava
+     * sem direito nenhum, em silencio. Anda junto com o indice parcial da V20.
+     */
+    boolean existsByUser_IdAndProduct_IdAndPlanType_IdAndRevokedAtIsNull(
+            UUID userId, String productId, UUID planTypeId
+    );
 
 
     @Query("""
@@ -43,6 +52,32 @@ public interface DownloadEntitlementRepository extends JpaRepository<DownloadEnt
     List<DownloadEntitlement> findActiveLibraryByEmail(String email);
 
     List<DownloadEntitlement> findByOrderIdAndRevokedAtIsNull(UUID orderId);
+
+    boolean existsByProduct_Id(String productId);
+
+    /** Direitos vivos de pedidos pagos. Base do backfill de pinagem. */
+    @Query("""
+    select de
+    from DownloadEntitlement de
+    join fetch de.product p
+    join fetch de.planType pt
+    where de.revokedAt is null
+      and de.order.status = com.plantahub.api.domain.orders.enums.OrderStatus.PAID
+    order by p.id, pt.code
+""")
+    List<DownloadEntitlement> findAllActive();
+
+    @Query("""
+    select de
+    from DownloadEntitlement de
+    join fetch de.product p
+    join fetch de.planType pt
+    where de.revokedAt is null
+      and p.id = :productId
+      and de.order.status = com.plantahub.api.domain.orders.enums.OrderStatus.PAID
+    order by pt.code
+""")
+    List<DownloadEntitlement> findAllActiveByProductId(@Param("productId") String productId);
 
     @Query("""
     select de

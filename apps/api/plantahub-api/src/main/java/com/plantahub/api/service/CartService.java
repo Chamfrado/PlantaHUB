@@ -7,6 +7,7 @@ import com.plantahub.api.domain.cart.enums.CartStatus;
 import com.plantahub.api.domain.catalog.PlanType;
 import com.plantahub.api.domain.catalog.Product;
 import com.plantahub.api.domain.catalog.ProductPlanType;
+import com.plantahub.api.domain.catalog.enums.ProductStatus;
 import com.plantahub.api.repository.*;
 import com.plantahub.api.web.dto.cart.CartItemResponse;
 import com.plantahub.api.web.dto.cart.CartPlanTypeResponse;
@@ -92,8 +93,8 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("product_not_found"));
 
-        if (!Boolean.TRUE.equals(product.getActive())) {
-            throw new IllegalArgumentException("product_inactive");
+        if (product.getStatus() != ProductStatus.PUBLISHED) {
+            throw new IllegalArgumentException("product_not_available");
         }
 
         Set<String> normalizedCodes = normalizeCodes(planTypeCodes);
@@ -183,7 +184,7 @@ public class CartService {
 
     private Map<String, ProductPlanType> loadProductPlanTypes(String productId) {
 
-        return productPlanTypeRepository.findAvailableByProductIdWithPlanType(productId).stream()
+        return productPlanTypeRepository.findPurchasableByProductIdWithPlanType(productId).stream()
                 .collect(Collectors.toMap(
                         ppt -> ppt.getPlanType().getCode(),
                         Function.identity()

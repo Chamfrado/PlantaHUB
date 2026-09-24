@@ -1,4 +1,6 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import RouteFallback from '../../components/common/RouteFallback';
 import ScrollToTop from '../../components/common/ScrollTop';
 import { ToastProvider } from '../../components/ui/ToastProvider';
 import CartPage from '../../pages/cart/CartPage';
@@ -20,7 +22,12 @@ import ProductsPage from '../../pages/public/Products/Products';
 import Register from '../../pages/public/Register/Register';
 import MainLayout from '../layouts/MainLayout';
 import { CartProvider } from '../providers/CartProvider';
+import AdminRoute from './AdminRoute';
 import ProtectedRoute from './ProtectedRoute';
+
+// Um unico limite lazy para todo o painel: ele vira um chunk separado e o site publico nao
+// paga um byte por codigo que so o administrador usa.
+const AdminApp = lazy(() => import('../../pages/admin/AdminApp'));
 
 export default function AppRoutes() {
   return (
@@ -28,6 +35,25 @@ export default function AppRoutes() {
       <CartProvider>
         <ScrollToTop />
         <Routes>
+          {/*
+            Declarada ANTES e FORA do MainLayout de proposito: o painel nao herda o
+            cabecalho e o rodape publicos.
+
+            Atencao: `/:category/:slug` e uma rota gulosa de dois segmentos. O React Router
+            classifica segmento estatico acima de dinamico, entao `/admin/produtos` vence —
+            uma precedencia invisivel e portante, coberta por teste.
+          */}
+          <Route
+            path="/admin/*"
+            element={
+              <AdminRoute>
+                <Suspense fallback={<RouteFallback label="Carregando painel..." />}>
+                  <AdminApp />
+                </Suspense>
+              </AdminRoute>
+            }
+          />
+
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/produtos" element={<ProductsPage />} />

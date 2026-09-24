@@ -1,83 +1,59 @@
-import { Check, ChevronDown, Headset, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../../../app/providers/useCart';
-import { useAuth } from '../../../contexts/AuthContext';
-import ProductHero from '../../../components/products/ProductHero';
-import ProductPlanSelector from '../../../components/products/ProductPlanSelector';
+import ProductDetailsView from '../../../components/products/ProductDetailsView';
 import { useToast } from '../../../components/ui/use-toast';
-import { getProductByRoute } from '../../../data/productSelector';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useAsync } from '../../../hooks/useAsync';
 import { getApiErrorMessage } from '../../../lib/api-error';
+import { mapProductDetail } from '../../../mappers/product.mapper';
 import { addCartItem } from '../../../services/cart.service';
 import { getMyLibrary } from '../../../services/library.service';
 import { checkoutDirect } from '../../../services/order.service';
-import { getProductPlanTypes } from '../../../services/products.service';
+import { getProduct, getProductPlanTypes } from '../../../services/products.service';
 import { getMyProfileStatus } from '../../../services/profile.service';
-import type { PlanTypeOptionDTO } from '../../../types/api/product';
+
+type HttpError = Error & { status?: number };
 
 export default function ProductDetails() {
   const { category = '', slug = '' } = useParams();
   const navigate = useNavigate();
-
-  const product = useMemo(() => getProductByRoute(category, slug), [category, slug]);
-
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [planTypes, setPlanTypes] = useState<PlanTypeOptionDTO[]>([]);
-  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
-  const [loadingPlanTypes, setLoadingPlanTypes] = useState(true);
-  const [submitting, setSubmitting] = useState<'buy' | 'cart' | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const location = useLocation();
 
   const { refreshCart } = useCart();
   const { isAuthenticated } = useAuth();
-
-  const location = useLocation();
   const { showToast } = useToast();
+
   const currentPath = location.pathname + location.search;
 
+  const productRequest = useAsync(`product:${category}/${slug}`, () =>
+    getProduct(category, slug).then(mapProductDetail)
+  );
+
+  // Buscado em paralelo de propósito: só depende da URL, não do produto carregado.
+  const planTypesRequest = useAsync(`plan-types:${category}/${slug}`, () =>
+    getProductPlanTypes(category, slug)
+  );
+
+  const product = productRequest.data;
+  // Memoizado: sem isto o `?? []` cria um array novo a cada render e o efeito de
+  // pré-seleção passa a rodar em todos eles.
+  const planTypes = useMemo(() => planTypesRequest.data ?? [], [planTypesRequest.data]);
+
+  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState<'buy' | 'cart' | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [ownedPlanTypeCodes, setOwnedPlanTypeCodes] = useState<string[]>([]);
   const [loadingOwnedPlanTypes, setLoadingOwnedPlanTypes] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-
-    async function loadPlanTypes() {
-      try {
-        setLoadingPlanTypes(true);
-        setActionError(null);
-
-        const response = await getProductPlanTypes(category, slug);
-
-        if (!active) return;
-        setPlanTypes(response);
-      } catch (error) {
-        console.error(error);
-        if (!active) return;
-        setActionError('Não foi possível carregar os tipos de planta deste produto.');
-      } finally {
-        if (active) {
-          setLoadingPlanTypes(false);
-        }
-      }
-    }
-
-    if (category && slug) {
-      void loadPlanTypes();
-    }
-
-    return () => {
-      active = false;
-    };
-  }, [category, slug]);
+  const productId = product?.id;
 
   useEffect(() => {
     let active = true;
 
     async function loadOwnedPlanTypes() {
-      if (!isAuthenticated || !product?.id) {
-        if (active) {
-          setOwnedPlanTypeCodes([]);
-        }
+      if (!isAuthenticated || !productId) {
+        if (active) setOwnedPlanTypeCodes([]);
         return;
       }
 
@@ -85,26 +61,17 @@ export default function ProductDetails() {
         setLoadingOwnedPlanTypes(true);
 
         const library = await getMyLibrary();
-
         if (!active) return;
 
-        const libraryItem = library.find(item => item.productId === product.id);
-
-        if (!libraryItem) {
-          setOwnedPlanTypeCodes([]);
-          return;
-        }
-
-        setOwnedPlanTypeCodes(libraryItem.planTypes.map(item => item.code.toUpperCase()));
+        const libraryItem = library.find(item => item.productId === productId);
+        setOwnedPlanTypeCodes(
+          libraryItem ? libraryItem.planTypes.map(item => item.code.toUpperCase()) : []
+        );
       } catch (error) {
         console.error(error);
-
-        if (!active) return;
-        setOwnedPlanTypeCodes([]);
+        if (active) setOwnedPlanTypeCodes([]);
       } finally {
-        if (active) {
-          setLoadingOwnedPlanTypes(false);
-        }
+        if (active) setLoadingOwnedPlanTypes(false);
       }
     }
 
@@ -113,30 +80,31 @@ export default function ProductDetails() {
     return () => {
       active = false;
     };
-  }, [isAuthenticated, product?.id]);
+  }, [isAuthenticated, productId]);
 
+  // Pré-seleção via ?planTypes=ARCH,HYD
   useEffect(() => {
     if (!planTypes.length) return;
 
-    const preselectedCodes = getPreselectedPlanTypes(location.search);
+    const preselected = new URLSearchParams(location.search)
+      .get('planTypes')
+      ?.split(',')
+      .map(item => item.trim().toUpperCase())
+      .filter(Boolean);
 
-    if (!preselectedCodes.length) return;
+    if (!preselected?.length) return;
 
     const validCodes = planTypes
       .map(item => item.code.toUpperCase())
-      .filter(code => preselectedCodes.includes(code) && !ownedPlanTypeCodes.includes(code));
+      .filter(code => preselected.includes(code) && !ownedPlanTypeCodes.includes(code));
 
     if (!validCodes.length) return;
 
     setSelectedCodes(prev => {
       const current = prev.map(code => code.toUpperCase());
-
-      const sameLength = current.length === validCodes.length;
-      const sameItems = sameLength && current.every(code => validCodes.includes(code));
-
-      if (sameItems) return prev;
-
-      return validCodes;
+      const same =
+        current.length === validCodes.length && current.every(code => validCodes.includes(code));
+      return same ? prev : validCodes;
     });
   }, [planTypes, location.search, ownedPlanTypeCodes]);
 
@@ -185,39 +153,34 @@ export default function ProductDetails() {
       const message = getApiErrorMessage(error, 'Não foi possível validar seu perfil no momento.');
 
       setActionError(message);
-      showToast({
-        variant: 'error',
-        title: 'Falha ao validar perfil',
-        description: message,
-      });
-
+      showToast({ variant: 'error', title: 'Falha ao validar perfil', description: message });
       return false;
     }
+  }
+
+  function purchasableCodes() {
+    return selectedCodes.filter(code => !ownedPlanTypeCodes.includes(code.toUpperCase()));
   }
 
   async function handleAddToCart() {
     if (!product) return;
 
-    const purchasableSelectedCodes = selectedCodes.filter(
-      code => !ownedPlanTypeCodes.includes(code.toUpperCase())
-    );
+    const codes = purchasableCodes();
 
-    if (purchasableSelectedCodes.length === 0) {
+    if (codes.length === 0) {
       setActionError('Selecione pelo menos um tipo de planta disponível para compra.');
       return;
     }
-    const valid = await validatePurchaseFlow();
-    if (!valid) return;
+
+    if (!(await validatePurchaseFlow())) return;
 
     try {
       setSubmitting('cart');
       setActionError(null);
 
-      await addCartItem({
-        productId: product.id,
-        planTypeCodes: purchasableSelectedCodes,
-      });
-
+      // O id vem da resposta da API. Antes vinha de um arquivo TypeScript local, o que
+      // exigia que aquele literal fosse idêntico ao id do banco para a compra funcionar.
+      await addCartItem({ productId: product.id, planTypeCodes: codes });
       await refreshCart();
 
       showToast({
@@ -228,17 +191,10 @@ export default function ProductDetails() {
 
       navigate('/carrinho');
     } catch (error) {
-      const message = getApiErrorMessage(
-        error,
-        'Não foi possível adicionar o produto ao carrinho.'
-      );
+      const message = getApiErrorMessage(error, 'Não foi possível adicionar o produto ao carrinho.');
 
       setActionError(message);
-      showToast({
-        variant: 'error',
-        title: 'Erro ao adicionar ao carrinho',
-        description: message,
-      });
+      showToast({ variant: 'error', title: 'Erro ao adicionar ao carrinho', description: message });
     } finally {
       setSubmitting(null);
     }
@@ -247,29 +203,21 @@ export default function ProductDetails() {
   async function handleBuyNow() {
     if (!product) return;
 
-    const purchasableSelectedCodes = selectedCodes.filter(
-      code => !ownedPlanTypeCodes.includes(code.toUpperCase())
-    );
+    const codes = purchasableCodes();
 
-    if (purchasableSelectedCodes.length === 0) {
+    if (codes.length === 0) {
       setActionError('Selecione pelo menos um tipo de planta disponível para compra.');
       return;
     }
-    const valid = await validatePurchaseFlow();
-    if (!valid) return;
+
+    if (!(await validatePurchaseFlow())) return;
 
     try {
       setSubmitting('buy');
       setActionError(null);
 
       const response = await checkoutDirect({
-        items: [
-          {
-            productId: product.id,
-            quantity: 1,
-            planTypeCodes: purchasableSelectedCodes,
-          },
-        ],
+        items: [{ productId: product.id, quantity: 1, planTypeCodes: codes }],
       });
 
       if (!response.paymentUrl) {
@@ -287,287 +235,90 @@ export default function ProductDetails() {
       const message = getApiErrorMessage(error, 'Não foi possível iniciar o checkout.');
 
       setActionError(message);
-      showToast({
-        variant: 'error',
-        title: 'Erro no checkout',
-        description: message,
-      });
+      showToast({ variant: 'error', title: 'Erro no checkout', description: message });
     } finally {
       setSubmitting(null);
     }
   }
 
-  if (!product) {
-    return (
-      <div className="min-h-[60vh] bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <h1 className="text-2xl font-extrabold text-brand-black">Produto não encontrado</h1>
-          <p className="mt-2 text-brand-muted">
-            Verifique a URL. Ex.: <span className="font-mono">/casas/confort</span>
-          </p>
-        </div>
-      </div>
-    );
+  if (productRequest.loading) {
+    return <ProductDetailsSkeleton />;
   }
 
-  function getPreselectedPlanTypes(search: string) {
-    const params = new URLSearchParams(search);
-    const raw = params.get('planTypes');
+  // 404 e falha de rede são situações diferentes: uma é "esse produto não existe", a outra
+  // é "tente de novo". Tratá-las igual manda o visitante embora sem motivo.
+  if (productRequest.error || !product) {
+    const status = (productRequest.error as HttpError | null)?.status;
 
-    if (!raw) return [];
-
-    return raw
-      .split(',')
-      .map(item => item.trim().toUpperCase())
-      .filter(Boolean);
+    return status === 404 ? <NotFound /> : <LoadFailed onRetry={productRequest.reload} />;
   }
 
   return (
-    <div className="bg-white">
-      <ProductHero product={product} />
+    <ProductDetailsView
+      product={product}
+      planTypes={planTypes}
+      selectedCodes={selectedCodes}
+      ownedCodes={ownedPlanTypeCodes}
+      loadingOwnedCodes={loadingOwnedPlanTypes}
+      loadingPlanTypes={planTypesRequest.loading}
+      submitting={submitting}
+      error={actionError}
+      onToggle={togglePlanType}
+      onBuyNow={handleBuyNow}
+      onAddToCart={handleAddToCart}
+    />
+  );
+}
 
-      <ProductPlanSelector
-        productId={product.id}
-        planTypes={planTypes}
-        selectedCodes={selectedCodes}
-        ownedCodes={ownedPlanTypeCodes}
-        loadingOwnedCodes={loadingOwnedPlanTypes}
-        onToggle={togglePlanType}
-        onBuyNow={handleBuyNow}
-        onAddToCart={handleAddToCart}
-        loading={loadingPlanTypes}
-        submitting={submitting}
-        error={actionError}
-      />
-
-      <Section
-        title={product.page.whyChooseTitle ?? 'Why choose this product?'}
-        subtitle={
-          product.page.whyChooseIntro ??
-          'Benefits designed to maximize practical value with professional-quality documentation.'
-        }
-      >
-        <div className="grid gap-6 md:grid-cols-3">
-          {(product.page.whyChooseFeatures ?? []).slice(0, 3).map((f, idx) => (
-            <div
-              key={`${f.title}-${idx}`}
-              className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 font-bold text-primary-600">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 font-extrabold text-brand-black">{f.title}</h3>
-              {f.description ? (
-                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{f.description}</p>
-              ) : null}
-            </div>
-          ))}
+function ProductDetailsSkeleton() {
+  return (
+    <div className="bg-white" aria-busy="true" aria-label="Carregando produto">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="h-4 w-48 rounded bg-neutral-100 animate-pulse" />
+        <div className="mt-6 h-10 w-2/3 rounded bg-neutral-100 animate-pulse" />
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="h-80 rounded-2xl bg-neutral-100 animate-pulse" />
+          <div className="h-80 rounded-2xl bg-neutral-100 animate-pulse" />
         </div>
-      </Section>
-
-      <Section
-        title={product.page.includesTitle ?? "What's included in your purchase?"}
-        subtitle={
-          product.page.includesIntro ??
-          'A complete professional package with the technical documentation required.'
-        }
-      >
-        <div className="grid gap-6 md:grid-cols-3">
-          {(product.page.includedItems ?? []).map((it, idx) => (
-            <div
-              key={`${it.title}-${idx}`}
-              className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-100 bg-orange-50">
-                  <Check className="h-4 w-4 text-primary-600" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-extrabold text-brand-black">{it.title}</div>
-                  {it.description ? (
-                    <p className="mt-1 text-sm leading-relaxed text-brand-muted">
-                      {it.description}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section
-        title={product.page.keyFactsTitle ?? 'Key facts'}
-        subtitle={product.page.keyFactsIntro ?? 'Numbers that showcase the comprehensive value.'}
-      >
-        <div className="grid gap-6 md:grid-cols-2">
-          {(product.page.keyFacts ?? []).slice(0, 2).map((k, idx) => (
-            <div
-              key={`${k.label}-${idx}`}
-              className="rounded-2xl border border-orange-100 bg-orange-50 p-10 text-center"
-            >
-              <div className="text-5xl font-extrabold text-primary-600">{k.value}</div>
-              <div className="mt-2 font-bold text-brand-black">{k.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="grid gap-4 text-center md:grid-cols-4">
-            <MiniStat label="File formats" value={`${product.fileFormats?.length ?? 0}`} />
-            <MiniStat label="Customizable" value={product.customizable ? '100%' : '—'} />
-            <MiniStat label="Support" value="24/7" />
-            <MiniStat label="Updates" value="Lifetime" />
-          </div>
-        </div>
-      </Section>
-
-      <Section
-        title={product.page.testimonialsTitle ?? 'Hear from our happy clients'}
-        subtitle={product.page.testimonialsIntro ?? 'What people say about our plans.'}
-      >
-        <div className="grid gap-6 md:grid-cols-3">
-          {(product.page.testimonials ?? []).slice(0, 3).map((t, idx) => (
-            <div
-              key={`${t.authorName}-${idx}`}
-              className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex gap-1 text-primary-500">
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-              </div>
-
-              <p className="mt-3 text-sm leading-relaxed text-brand-muted">{t.quote}</p>
-
-              <div className="mt-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-neutral-200" />
-                <div>
-                  <div className="text-sm font-extrabold text-brand-black">{t.authorName}</div>
-                  {t.authorTitle ? (
-                    <div className="text-xs text-brand-muted">{t.authorTitle}</div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section
-        title={product.page.faqTitle ?? 'Frequently Asked Questions'}
-        subtitle={product.page.faqIntro ?? 'Everything you need to know before buying.'}
-      >
-        <div className="mx-auto max-w-3xl">
-          <div className="space-y-3">
-            {(product.page.faq ?? []).map((f, idx) => {
-              const open = openFaq === idx;
-
-              return (
-                <div key={`${f.question}-${idx}`} className="rounded-2xl border border-neutral-200">
-                  <button
-                    onClick={() => setOpenFaq(prev => (prev === idx ? null : idx))}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
-                  >
-                    <span className="font-bold text-brand-black">{f.question}</span>
-                    <ChevronDown
-                      className={[
-                        'h-5 w-5 text-brand-muted transition',
-                        open ? 'rotate-180' : 'rotate-0',
-                      ].join(' ')}
-                    />
-                  </button>
-
-                  {open ? (
-                    <div className="px-5 pb-5 text-sm leading-relaxed text-brand-muted">
-                      {f.answer ?? 'Resposta em breve.'}
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </Section>
-
-      <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-6 pb-20">
-          <div className="rounded-3xl border border-neutral-200 bg-brand-light p-10 text-center">
-            <h2 className="text-3xl font-extrabold text-brand-black">
-              {product.page.finalCtaTitle ?? 'Ready to build the house of your dreams?'}
-            </h2>
-            {product.page.finalCtaSubtitle ? (
-              <p className="mt-2 text-brand-muted">{product.page.finalCtaSubtitle}</p>
-            ) : null}
-
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  document.getElementById('purchase-options')?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                  });
-                }}
-                className="rounded-xl bg-primary-500 px-6 py-3 font-semibold text-white transition hover:bg-primary-600"
-              >
-                Comprar agora
-              </button>
-
-              <button className="rounded-xl border border-neutral-300 bg-white px-6 py-3 font-semibold text-brand-black transition hover:bg-neutral-100">
-                Contact Support
-              </button>
-            </div>
-
-            <div className="mt-6 flex flex-wrap justify-center gap-6 text-xs font-semibold text-brand-muted">
-              <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary-500" /> Secure SSL Payment
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Check className="h-4 w-4 text-primary-500" /> Money-Back Guarantee
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Headset className="h-4 w-4 text-primary-500" /> Professional Support Team
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
 
-function Section({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-}) {
+function NotFound() {
   return (
-    <section className="bg-white">
+    <div className="min-h-[60vh] bg-white">
       <div className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="text-center text-2xl font-extrabold text-brand-black md:text-3xl">
-          {title}
-        </h2>
-        {subtitle ? (
-          <p className="mx-auto mt-2 max-w-3xl text-center text-brand-muted">{subtitle}</p>
-        ) : null}
-        <div className="mt-10">{children}</div>
+        <h1 className="text-2xl font-extrabold text-brand-black">Produto não encontrado</h1>
+        <p className="mt-2 text-brand-muted">
+          Este projeto não existe ou não está mais disponível.
+        </p>
+        <Link
+          to="/produtos"
+          className="mt-6 inline-flex rounded-xl bg-primary-500 px-5 py-2.5 font-semibold text-white transition hover:bg-primary-600"
+        >
+          Ver todos os projetos
+        </Link>
       </div>
-    </section>
+    </div>
   );
 }
 
-function MiniStat({ label, value }: { label: string; value: string }) {
+function LoadFailed({ onRetry }: { onRetry: () => void }) {
   return (
-    <div>
-      <div className="text-lg font-extrabold text-brand-black">{value}</div>
-      <div className="mt-1 text-xs font-semibold text-brand-muted">{label}</div>
+    <div className="min-h-[60vh] bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <h1 className="text-2xl font-extrabold text-brand-black">
+          Não foi possível carregar este projeto
+        </h1>
+        <p className="mt-2 text-brand-muted">Verifique sua conexão e tente novamente.</p>
+        <button
+          onClick={onRetry}
+          className="mt-6 rounded-xl bg-primary-500 px-5 py-2.5 font-semibold text-white transition hover:bg-primary-600"
+        >
+          Tentar novamente
+        </button>
+      </div>
     </div>
   );
 }

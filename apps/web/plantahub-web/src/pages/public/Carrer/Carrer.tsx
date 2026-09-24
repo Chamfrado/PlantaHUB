@@ -147,7 +147,7 @@ export default function Carrer() {
       </div>
 
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-primary-600">
@@ -185,7 +185,7 @@ export default function Carrer() {
               </div>
               <a
                 href="mailto:parcerias@plantahub.com.br?subject=Quero%20publicar%20minhas%20plantas%20na%20PlantaHUB"
-                className="mt-2 block text-lg font-extrabold text-primary-600 hover:underline"
+                className="mt-2 block break-words text-lg font-extrabold text-primary-600 hover:underline"
               >
                 parcerias@plantahub.com.br
               </a>

@@ -78,6 +78,12 @@ public class AuthService {
     }
 
     public AuthResponse createAuthResponse(AppUser user, String token) {
-        return new AuthResponse(token, "Bearer", user.getFullName(), user.getEmail());
+        return new AuthResponse(
+                token,
+                "Bearer",
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 }

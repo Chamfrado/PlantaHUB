@@ -1,6 +1,7 @@
 import { Check, CreditCard, Loader2, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { PlanTypeOptionDTO } from '../../types/api/product';
+import { formatCurrency } from '../../utils/format';
 
 type Props = {
   planTypes: PlanTypeOptionDTO[];
@@ -40,7 +41,7 @@ export default function ProductPlanSelector({
   return (
     <section id="purchase-options" className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-14">
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_380px]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_380px]">
           <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -68,8 +69,14 @@ export default function ProductPlanSelector({
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Carregando opções...
               </div>
+            ) : planTypes.length === 0 ? (
+              /* Um produto sem ofertas cadastradas renderizava uma grade vazia seguida de
+                 um resumo de compra e um botão inerte — o pior buraco da página. */
+              <div className="mt-6 rounded-2xl border border-neutral-200 bg-brand-light p-6 text-center text-sm text-brand-muted">
+                Este produto ainda não está disponível para compra.
+              </div>
             ) : (
-              <div className="mt-6 grid gap-4">
+              <div className="mt-6 grid grid-cols-1 gap-4">
                 {planTypes.map(planType => {
                   const normalizedCode = planType.code.toUpperCase();
                   const selected = selectedCodes.includes(normalizedCode);
@@ -90,7 +97,7 @@ export default function ProductPlanSelector({
                             : 'border-neutral-200 bg-white hover:border-neutral-300 hover:bg-brand-light',
                       ].join(' ')}
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-lg font-extrabold text-brand-black">
                             {planType.name}
@@ -109,13 +116,13 @@ export default function ProductPlanSelector({
                           ) : null}
                         </div>
 
-                        <div className="flex shrink-0 flex-col items-end gap-3">
+                        <div className="ml-auto flex shrink-0 flex-col items-end gap-3">
                           <div className="text-right">
                             {owned ? (
                               <div className="text-sm font-bold text-green-700">Já disponível</div>
                             ) : (
                               <div className="text-lg font-extrabold text-brand-black">
-                                {formatMoney(planType.priceCents, 'BRL')}
+                                {formatCurrency(planType.priceCents, 'BRL')}
                               </div>
                             )}
                           </div>
@@ -175,7 +182,7 @@ export default function ProductPlanSelector({
                       </div>
 
                       <div className="text-sm font-bold text-brand-black">
-                        {formatMoney(item.priceCents, 'BRL')}
+                        {formatCurrency(item.priceCents, 'BRL')}
                       </div>
                     </div>
                   ))
@@ -187,7 +194,7 @@ export default function ProductPlanSelector({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-brand-muted">Total</span>
                 <span className="text-2xl font-extrabold text-brand-black">
-                  {formatMoney(totalCents, 'BRL')}
+                  {formatCurrency(totalCents, 'BRL')}
                 </span>
               </div>
 
@@ -232,13 +239,3 @@ export default function ProductPlanSelector({
   );
 }
 
-function formatMoney(valueInCents: number, currency: 'BRL' | 'USD' | 'EUR') {
-  const locale = currency === 'BRL' ? 'pt-BR' : 'en-US';
-
-  return (valueInCents / 100).toLocaleString(locale, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}

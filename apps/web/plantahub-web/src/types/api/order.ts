@@ -10,12 +10,22 @@ export type CreateOrderRequest = {
 
 export type SelectionDTO = {
   planTypeCode: string;
+  /** Snapshot do momento da compra. */
+  planTypeName?: string | null;
   priceCents: number;
 };
 
 export type OrderItemDTO = {
   id: string;
   productId: string;
+  /**
+   * Snapshots do momento da compra: renomear um produto no painel não pode reescrever o
+   * histórico de quem já comprou.
+   */
+  productName?: string | null;
+  productCategory?: string | null;
+  productSlug?: string | null;
+  productImageUrl?: string | null;
   quantity: number;
   totalCents: number;
   selections: SelectionDTO[];

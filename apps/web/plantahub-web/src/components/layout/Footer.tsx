@@ -1,13 +1,19 @@
 import { BadgeCheck, Facebook, Instagram, Linkedin, Lock, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAsync } from '../../hooks/useAsync';
+import { listCategories } from '../../services/categories.service';
 
 type LinkItem = { label: string; href: string };
 
 export default function Footer() {
-  const products: LinkItem[] = [
-    { label: 'Casas', href: '/produtos?category=casas' },
-    { label: 'Chalés', href: '/produtos?category=chales' },
-  ];
+  // A promise de categorias é memoizada no serviço, então o rodapé — presente em toda
+  // página — compartilha a mesma requisição com o resto do app.
+  const { data: categories } = useAsync('categories', () => listCategories());
+
+  const products: LinkItem[] = (categories ?? []).map(c => ({
+    label: c.name,
+    href: `/produtos?category=${encodeURIComponent(c.slug)}`,
+  }));
 
   const company: LinkItem[] = [
     { label: 'Sobre Nós', href: '/sobre' },

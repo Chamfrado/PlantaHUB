@@ -1,27 +1,29 @@
 import { ChevronDown, Image as ImageIcon, Ruler } from 'lucide-react';
-import type { Product } from '../../types/ProductData';
+import type { ProductSummaryView } from '../../types/product-view';
 import ProductDetailsCard from './ProductDetailCard';
+import { formatCurrency } from '../../utils/format';
+
 type Props = {
-  product: Product;
+  product: ProductSummaryView;
   isOpen: boolean;
   onToggle: () => void;
 };
 
 export default function ProductAccordionItem({ product, isOpen, onToggle }: Props) {
-  const title = product.page?.headline ?? product.name;
-  const subtitle = product.page?.subheadline ?? product.shortDescription ?? '';
+  const title = product.name;
+  const subtitle = product.shortDescription ?? '';
 
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white px-6 py-5 transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-6 text-left"
+        className="w-full flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-left sm:flex-nowrap"
         aria-expanded={isOpen}
         aria-controls={`product-panel-${product.id}`}
       >
         {/* Left: Thumbnail + Info */}
         <div className="flex items-center gap-4 min-w-0">
-          <Thumbnail src={product.heroImageUrl} alt={title} />
+          <Thumbnail src={product.heroImageUrl ?? undefined} alt={title} />
 
           <div className="min-w-0">
             <div className="font-bold text-brand-black truncate">{title}</div>
@@ -40,14 +42,12 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
         </div>
 
         {/* Right: Price + Chevron */}
-        <div className="flex items-center gap-6 shrink-0">
-          {product.price ? (
+        <div className="ml-auto flex items-center gap-6 shrink-0">
+          {product.basePriceCents !== null ? (
             <div className="text-right">
-              <div className="text-xs text-brand-muted">
-                {product.price.isStartingFrom ? 'A partir de' : 'Preço'}
-              </div>
+              <div className="text-xs text-brand-muted">A partir de</div>
               <div className="text-xl font-extrabold text-primary-500">
-                {formatMoney(product.price.amount, product.price.currency)}
+                {formatCurrency(product.basePriceCents)}
               </div>
             </div>
           ) : null}
@@ -69,22 +69,17 @@ export default function ProductAccordionItem({ product, isOpen, onToggle }: Prop
         aria-hidden={!isOpen}
       >
         <div>
-          <div className="mt-4 animate-pop-in">
-            <ProductDetailsCard product={product} />
-          </div>
+          {/* Montado apenas ao abrir: o conteudo completo e buscado sob demanda, em vez
+              de carregar a pagina inteira de todos os produtos da lista de uma vez. */}
+          {isOpen ? (
+            <div className="mt-4 animate-pop-in">
+              <ProductDetailsCard category={product.category} slug={product.slug} />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
   );
-}
-
-function formatMoney(value: number, currency: 'BRL' | 'USD' | 'EUR') {
-  const locale = currency === 'BRL' ? 'pt-BR' : 'en-US';
-  return value.toLocaleString(locale, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  });
 }
 
 function Thumbnail({ src, alt }: { src?: string; alt: string }) {

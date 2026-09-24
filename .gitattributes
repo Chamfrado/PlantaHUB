@@ -1,0 +1,6 @@
+# Scripts e configs que rodam na VM Linux precisam de LF. Com core.autocrlf=true no
+# Windows, sem isto o checkout grava CRLF e o bash falha com "$'\r': command not found"
+# ao copiar a pasta deploy/ para o servidor.
+deploy/** text eol=lf
+*.sh text eol=lf
+.github/workflows/*.yml text eol=lf

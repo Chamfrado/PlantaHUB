@@ -11,28 +11,31 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { Product } from '../../types/ProductData';
+import type { ProductDetailView } from '../../types/product-view';
+import { formatCurrency } from '../../utils/format';
 
 type Props = {
-  product: Product;
+  product: ProductDetailView;
 };
 
 export default function ProductHero({ product }: Props) {
-  const title = product.page.headline ?? product.name;
-  const description = product.page.description ?? '';
-  const subtitle = product.page.subheadline ?? product.shortDescription ?? '';
+  const title = product.headline;
+  const description = product.description ?? '';
+  const subtitle = product.subheadline ?? product.shortDescription ?? '';
 
   const gallery = useMemo(() => {
-    const list = [product.heroImageUrl, ...(product.galleryImageUrls ?? [])].filter(
-      Boolean
-    ) as string[];
+    const list = [product.heroImageUrl, ...product.galleryImageUrls].filter(Boolean) as string[];
     // avoid duplicates
     return Array.from(new Set(list));
   }, [product.heroImageUrl, product.galleryImageUrls]);
 
-  const [activeImg, setActiveImg] = useState<string | undefined>(gallery[0]);
+  const [selected, setSelected] = useState<string | null>(null);
 
-  const price = product.price ? formatMoney(product.price.amount, product.price.currency) : null;
+  // Derivada, e nao um estado que espelha a galeria: ao trocar de produto sem desmontar a
+  // pagina, um estado guardado continuaria apontando para a foto do produto anterior.
+  const activeImg = selected && gallery.includes(selected) ? selected : gallery[0];
+
+  const price = product.basePriceCents !== null ? formatCurrency(product.basePriceCents) : null;
 
   return (
     <section className="bg-white">
@@ -43,8 +46,11 @@ export default function ProductHero({ product }: Props) {
             Home
           </Link>
           <span className="mx-2">/</span>
-          <Link className="hover:text-brand-black" to={`/products`}>
-            {labelCategory(product.category)}
+          <Link
+            className="hover:text-brand-black"
+            to={`/produtos?category=${encodeURIComponent(product.category)}`}
+          >
+            {product.categoryName}
           </Link>
           <span className="mx-2">/</span>
           <span className="text-brand-black font-semibold">{title}</span>
@@ -67,21 +73,30 @@ export default function ProductHero({ product }: Props) {
             </div>
 
             {/* thumbnails */}
+            {/* Todas as miniaturas, com rolagem horizontal quando nao cabem. Cortar em
+                cinco descartaria em silencio a sexta imagem que o admin subiu. */}
             {gallery.length > 1 ? (
-              <div className="mt-4 flex gap-3">
-                {gallery.slice(0, 5).map(src => {
+              <div
+                className="mt-4 flex gap-3 overflow-x-auto pb-2"
+                role="group"
+                aria-label="Imagens do produto"
+              >
+                {gallery.map((src, index) => {
                   const active = src === activeImg;
                   return (
                     <button
                       key={src}
-                      onClick={() => setActiveImg(src)}
+                      onClick={() => setSelected(src)}
                       className={[
-                        'h-16 w-24 rounded-xl overflow-hidden border transition',
+                        'h-16 w-24 shrink-0 rounded-xl overflow-hidden border transition',
                         active
                           ? 'border-primary-500 ring-2 ring-primary-200'
                           : 'border-neutral-200 hover:border-neutral-300',
                       ].join(' ')}
-                      aria-label="Selecionar imagem"
+                      // Um rotulo identico em todos os botoes faz o leitor de tela anunciar
+                      // "Selecionar imagem" varias vezes seguidas, sem dizer qual e qual.
+                      aria-label={`Ver imagem ${index + 1} de ${gallery.length}`}
+                      aria-pressed={active}
                     >
                       <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
                     </button>
@@ -94,10 +109,15 @@ export default function ProductHero({ product }: Props) {
           {/* RIGHT — Purchase panel */}
           <div>
             {/* badges */}
-            <div className="flex flex-wrap gap-2">
-              <BadgePill tone="orange">MAIS COMPRADO</BadgePill>
-              <BadgePill tone="green">ECOLÓGICO</BadgePill>
-            </div>
+            {product.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {product.tags.slice(0, 3).map((tag, idx) => (
+                  <BadgePill key={tag} tone={idx === 0 ? 'orange' : 'green'}>
+                    {tag.toUpperCase()}
+                  </BadgePill>
+                ))}
+              </div>
+            ) : null}
 
             <h1 className="mt-3 text-4xl font-extrabold text-brand-black">{title}</h1>
 
@@ -111,8 +131,8 @@ export default function ProductHero({ product }: Props) {
             <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 border-y border-neutral-200 py-5">
               <InfoMini
                 icon={<Ruler className="h-5 w-5 text-primary-500" />}
-                label="Area"
-                value={typeof product.areaM2 === 'number' ? `${product.areaM2} m²` : '—'}
+                label="Área"
+                value={product.areaM2 !== null ? `${product.areaM2} m²` : '—'}
               />
               <InfoMini
                 icon={<FileText className="h-5 w-5 text-primary-500" />}
@@ -122,24 +142,24 @@ export default function ProductHero({ product }: Props) {
               <InfoMini
                 icon={<Zap className="h-5 w-5 text-primary-500" />}
                 label="Entrega"
-                value={product.delivery ? 'Instant' : '—'}
+                value={product.delivery ? 'Imediata' : '—'}
               />
               <InfoMini
                 icon={<SlidersHorizontal className="h-5 w-5 text-primary-500" />}
-                label="Customizavel"
-                value={product.customizable ? 'Yes' : 'No'}
+                label="Customizável"
+                value={product.customizable ? 'Sim' : 'Não'}
               />
             </div>
 
             {/* price */}
             <div className="mt-5">
               {price ? (
-                <div className="flex items-end gap-2">
+                <>
+                  {/* O valor e o da colecao mais barata; quem monta a compra e o seletor
+                      logo abaixo. Sem o rotulo, o numero passaria por preco de levar tudo. */}
+                  <div className="text-sm font-semibold text-brand-muted">A partir de</div>
                   <div className="text-4xl font-extrabold text-brand-black">{price}</div>
-                  <div className="pb-1 text-sm font-semibold text-brand-muted">
-                    {product.price?.currency ?? ''}
-                  </div>
-                </div>
+                </>
               ) : (
                 <div className="text-xl font-extrabold text-brand-black">Consulte valores</div>
               )}
@@ -229,23 +249,7 @@ function InfoMini({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-function formatFormats(formats?: string[]) {
-  if (!formats?.length) return '—';
-  // your screenshot shows BIM/DWG (and maybe PDF hidden). you can customize:
-  return formats.join('/');
+function formatFormats(formats: string[]) {
+  return formats.length > 0 ? formats.join('/') : '—';
 }
 
-function labelCategory(category: Product['category']) {
-  if (category === 'casas') return 'Houses';
-  if (category === 'chales') return 'Chalets';
-  return 'Studios';
-}
-
-function formatMoney(value: number, currency: 'BRL' | 'USD' | 'EUR') {
-  const locale = currency === 'BRL' ? 'pt-BR' : 'en-US';
-  return value.toLocaleString(locale, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  });
-}
